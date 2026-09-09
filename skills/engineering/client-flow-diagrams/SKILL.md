@@ -66,6 +66,8 @@ end
 
 Apply consistent visual differentiation between node types: at minimum distinguish process steps, decision points, success outcomes, and error outcomes. Specific `classDef` colour values and other conventions are recorded in `lessons.md` as candidate patterns pending further validation.
 
+When colour or shape carries meaning, add an in-picture legend: a separate `subgraph` block (e.g. `subgraph Legend["Legend"]`) containing one node per node type, styled with the same `classDef` classes used in the flow, deliberately left with no edges connecting it to the rest of the diagram — it reads as a key, not a flow step. Validated across two independent sessions (2026-06-08; 2026-09-03, Rogers E-Pin flow-diagram redesign).
+
 ---
 
 #### draw.io XML output
@@ -93,6 +95,8 @@ See `review-checklist.md`. Key checks:
 - No jargon that requires developer context — replace with business language
 - No single diagram with more than ~8–10 nodes — split if needed
 - Error paths traceable and concisely labelled
+
+**Rendering check:** Never hand over generated Mermaid source without rendering (or re-rendering) it after every edit — source that parses is not source that renders correctly. When no renderer is available, fall back to structural text-checks (matching brackets/quotes, `classDef` references, `subgraph`/`end` balance). Once a rendering gotcha is found mid-session (e.g. a box-title fill-colour conflict), treat it as a standing check applied to every new element added for the rest of that session. (Observed 2026-09-03; reinforced 2026-09-04, 2026-09-08.)
 
 ## Signs this skill needs revision
 

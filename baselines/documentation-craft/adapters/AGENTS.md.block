@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:documentation-craft v0.4.0 -->
+<!-- BEGIN baseline:documentation-craft v0.5.0 -->
 ## Portable Agent Baseline: Documentation Craft
 
 - **[Top-priority principle — outranks the rest below.]** Use one word if it conveys what two would; two words if they convey what more than two would; one sentence if it conveys what more than one would — apply this recursively at every level (word, phrase, clause, sentence, paragraph, section), not just once. Length is not neutral; it's the default this principle pushes back against. Does not apply to durable audit/decision records (ADRs, incident writeups, handoff docs) where completeness outweighs brevity.
@@ -24,6 +24,9 @@
 - Given a false claim already found once, grep the literal text across every touched directory, classify each hit as live vs. deliberately-historical and apply the matching fix, then re-scan every document of the same genre for the same class of issue, not just the one hit.
 - When trimming drafted content to a known hard platform character limit, compute the exact excess up front and make one deliberate cut sized to it, rather than iterating blind small edits with a recount after each one.
 - Match the codebase's existing selective doc-comment convention (structured comments on some public members, plain comments on implementation detail) rather than defaulting to documenting everything or nothing in a pass.
+- Never manually hard-wrap prose in a markdown file — write each paragraph/bullet as one continuous line and let the renderer soft-wrap; manual line breaks render as garbled mid-sentence breaks in plain-text viewers, narrow terminals, and some diff tools.
+- Renumbering a markdown doc's sections after an insertion should be one scripted old→new mapping pass over headers, the TOC, and every cross-reference — not manual header-by-header edits discovered piecemeal across multiple ad hoc greps.
+- When adding a markdown TOC to a doc with non-trivial headers (punctuation, dashes, backticks), generate the anchor slugs via a script implementing the real GFM slug algorithm rather than hand-typing them, and cross-check against any existing TOC in the same project.
 
 Apply this baseline whenever writing, restructuring, relocating, or reviewing documentation, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions. This does not cover code/doc sync (see `code-doc-sync`) or living-handoff-document lifecycle (see `handoff-doc-discipline`).
 <!-- END baseline:documentation-craft -->

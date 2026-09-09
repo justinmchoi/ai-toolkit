@@ -1,7 +1,7 @@
 # PowerShell Conventions Baseline
 
 Status: active
-Version: 0.2.0
+Version: 0.3.0
 
 Always-on PowerShell correctness rules for scripts that must behave the same
 way across PowerShell versions (Windows PowerShell 5.1 and `pwsh` 7+) and, for
@@ -56,6 +56,27 @@ runtime or OS than the one used during development.
    PowerShell's `New-Item -ItemType SymbolicLink` instead, and confirm
    success with `Get-Item <path> | Select LinkType` rather than trusting the
    no-error exit code.
+
+5. Set `MSYS_NO_PATHCONV=1` when invoking `wsl.exe` from git-bash with
+   POSIX-style path arguments.
+   git-bash's MSYS path-conversion layer silently rewrites path-like
+   arguments before they reach the invoked command. `wsl.exe` expects its
+   path arguments already in POSIX form, so MSYS's conversion mangles them
+   into a malformed argument with no error — the WSL command then fails
+   silently or acts on the wrong path. Any git-bash-invoked WSL command
+   that takes path-like arguments needs `MSYS_NO_PATHCONV=1` set for that
+   invocation to avoid this.
+
+6. Route a command name that other tools or scripts will also invoke
+   through a PATH-based shim (a real executable on `PATH`), not a shell
+   alias.
+   Shell aliases only expand in an interactive shell session. A
+   non-interactive or scripted invocation — another script, a tool that
+   shells out, a CI job — calls the command name directly, never sees the
+   alias, and silently falls through to the original command instead of
+   the intended override. A PATH-based shim is a real, executable file on
+   `PATH` under the target name, so every caller, interactive or scripted,
+   resolves to it the same way.
 
 ## Priority
 

@@ -1,7 +1,7 @@
 # Repo Context Grounding
 
 Status: active
-Version: 0.5.0
+Version: 0.6.0
 
 Before meaningful work in an existing repository:
 
@@ -23,6 +23,7 @@ Before meaningful work in an existing repository:
 - On Windows, when a Bash tool's (git-bash) `which`/`command -v` reports a documented, user- or repo-installed CLI shim as "not found," that is not proof the shim is missing — git-bash's PATH can differ from the Windows user PATH a shim installer wrote to. Check `Get-Command <name>` in PowerShell (or `cmd.exe /c where <name>`) before concluding a documented tool isn't installed. Doesn't apply when nothing is found in either shell, or on non-Windows environments with only one shell/PATH to check.
 - On Windows, even under Git Bash, don't assume `/tmp` exists — don't target it for ad hoc scratch files (content staged for a CLI's `@file`/piped argument). Write directly to the session's existing scratchpad directory instead of attempting `/tmp` first and falling back after a failure.
 - To browse or read source files in a third-party (non-local) GitHub repo, skip `WebFetch` (it reliably 404s on `raw.githubusercontent.com` and `github.com/.../tree/...` URLs) and go straight to `gh api repos/{owner}/{repo}/contents/{path}` (list a directory) plus `--jq '.content' | base64 -d` (read a file) — only when `gh` is installed/authenticated and the target is GitHub-hosted; for arbitrary non-GitHub pages `WebFetch` remains the right tool.
+- A newly-configured MCP server won't appear mid-session no matter how many times a tool search retries — the running client process needs a full restart, not just a reconnect, to pick it up.
 
 ## Priority
 

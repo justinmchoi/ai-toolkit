@@ -1,7 +1,7 @@
 # .NET Conventions Baseline
 
 Status: active
-Version: 0.4.0
+Version: 0.6.0
 
 Always-on .NET/C# conventions for dependency-injection registration and
 codegen/scaffold output. Distilled from 2026-07 EpinServer work where DI
@@ -160,6 +160,136 @@ scaffolded EF Core migration surfaced changes the agent hadn't caused.
     If a shared environment's migration history shows entries beyond your
     current branch, locate the branch that actually owns those extra
     migrations (search all branches) and roll back from there.
+
+25. On Windows, check for a locked build output before treating a copy
+    failure as a code bug.
+    When `dotnet build`/`dotnet test` fails with file-copy/file-in-use errors
+    (MSB3026, MSB3027) on a project's own output DLL, check first for another
+    running process holding that binary (an IDE-launched debug session, a
+    leftover `dotnet run`) before investigating it as a compile or code
+    problem. Windows + locally-run services only; doesn't apply to CI.
+
+26. Carry an unconfirmed candidate value alongside an entity, not as a
+    mutable property on it, across a persist-then-refetch boundary.
+    When a value must travel from a producer, through an EF Core insert/update
+    (which returns a fresh re-fetched instance, not the same object
+    reference), to a consumer that needs it afterward: carry it as a separate
+    parameter/return value alongside the entity (a wrapper record), not as a
+    mutable property on the entity. A mutable property requires an explicit
+    restoration step after every persist call because the re-fetched instance
+    never had it set — miss that step once and the value silently vanishes.
+    Only promote a value to a real entity property once it's validated and
+    settled.
+
+27. Before adding a fetch inside a shared helper, check whether every caller
+    already has the value.
+    When adding a data-resolution call (DB fetch, provider lookup, external
+    call) inside a shared/helper method, first check whether the value is
+    already available in the calling method's scope from an earlier step —
+    thread it through as a parameter rather than re-deriving it. Doesn't apply
+    when the value may have genuinely changed since the caller resolved it, or
+    when some callers legitimately don't have it.
+
+28. After adding a member to a widely-mocked interface, explicitly configure
+    every test double for it — a loose mock defaults a value-type member
+    silently.
+    Value-type properties (`bool`, `int`, enums) on loose mocks (Moq's default
+    `MockBehavior.Loose`, FakeItEasy's default fakes) return their CLR default
+    silently with no exception, unlike `Task`-returning members (which throw
+    on `await` when unconfigured). A green build does not mean the doubles are
+    correctly wired. Explicitly search every test double implementing the
+    interface and add an explicit `.Setup(...)`/`A.CallTo(...)` for the new
+    member, even where the default happens to be the desired value, so the
+    suite passes by design, not by coincidence.
+
+29. When a transitive dependency forces a NuGet version bump, match the
+    repo's existing pin, don't pick the bare minimum.
+    When a transitive dependency forces a version bump on a directly
+    referenced package and trips a `NU1605` downgrade error, grep the rest of
+    the solution for that package's existing pinned version(s) and match the
+    prevailing pin — picking the bare minimum that satisfies the error
+    introduces yet another inconsistent pin instead of fixing the actual
+    drift. Only applies when the solution already has an established,
+    consistent pin to match.
+
+30. Prefer a required property on a shared base interface over an empty
+    marker interface for per-type policy.
+    When a policy/capability needs to vary per concrete type and must be
+    declared explicitly per implementer, and a shared base interface already
+    exists for that family of types, add a required (non-default)
+    property/method to it rather than introducing an empty marker interface
+    checked via `is`/`as` — per .NET's own Framework Design Guidelines, marker
+    interfaces carry no compiler-enforced contract and scatter type-checking
+    across call sites. Reach for a marker interface only when there's a
+    genuine reason to test via `is`/`as` at a call site with no other access
+    to the base interface, or when adding to the shared base would touch
+    implementers with no business knowing about the concern.
+
+31. Match the codebase's existing selective XML-doc convention; don't
+    default to "everywhere" or "nowhere."
+    Use `<summary>`/`<remarks>` XML doc only on genuine public API surface
+    (interfaces, public methods/properties, public records) intended for
+    IntelliSense/generated-doc consumption, matching wherever the codebase
+    already applies it selectively (document where the contract isn't
+    obvious from the signature, skip where it is) — don't convert every
+    method or none. Keep plain `//` on private implementation methods,
+    especially ones carrying inline "why this line does X" reasoning; XML
+    doc's member-level shape doesn't fit inline reasoning and converting it
+    is pure churn. A raw `&` in XML doc content only stays safe while the
+    project has no `GenerateDocumentationFile`/strict doc-validation enabled
+    (surfaces as CS1570 if that ever changes).
+
+32. Build/run a throwaway .NET executable under a short path, not a deep
+    harness-generated scratchpad path.
+    `dotnet run` can fail with a bare `CreateProcess` error from exceeding
+    Windows's `MAX_PATH` (~260 chars) when the working directory embeds a
+    long repo name + session ID + subfolders — even though `dotnet
+    build`/restore succeeded. Scaffold and run throwaway compiled executables
+    under a short path (e.g. `C:\tmp\<short-name>`) instead, and delete it
+    when done. Keep using the normal scratchpad for non-executable temp files
+    (scripts, JSON, notes), where `MAX_PATH` doesn't bite.
+
+33. Suspect `DefaultAzureCredential`'s probing chain for unexplained
+    multi-second cold-start latency.
+    When diagnosing unexplained multi-second-to-tens-of-seconds latency in an
+    app using `DefaultAzureCredential` (Key Vault access, service-to-service
+    auth), explicitly suspect and measure its credential-source probing chain
+    in isolation before attributing the delay to database, HTTP, or business
+    logic — it runs its full multi-source probe on a non-Azure-hosted local
+    dev machine before falling through to a working credential. Azure/.NET
+    specific; mainly on non-Azure-hosted dev/CI machines.
+
+34. After an EF Core model/entity-config change, grep the scaffolded
+    snapshot for the expected DDL — don't trust "build succeeded."
+    After any EF Core model/entity-config change (including post-merge),
+    scaffold the migration and grep the updated `ModelSnapshot.cs` for the
+    expected new DDL to confirm it was actually captured — a scaffold can
+    silently not pick up a new constraint. Then run a throwaway empty
+    migration add→remove cycle to prove zero remaining drift, apply the full
+    chain to a disposable local DB, and use raw `sqlcmd` to empirically
+    verify boundary behavior before dropping the scratch DB and any leftover
+    migration artifacts. (See principle 3 for the sibling case — an
+    unexpected scaffold diff signaling pre-existing drift; this is the
+    inverse: confirming an *intended* change was actually captured.)
+
+35. To resolve a NuGet package's exact public API without a decompiler,
+    read its source via `gh api`.
+    Locate the installed DLL under `~/.nuget/packages/{pkg}/{version}/lib/...`,
+    read its `.nuspec` for the `<repository url=.../>` or `<projectUrl>`, then
+    use `gh api repos/{owner}/{repo}/contents/{path}` to fetch and grep the
+    matching source file(s) for the real signatures — faster and more
+    reliable than extracting strings from the binary. Only applies to
+    open-source packages with a discoverable public GitHub source repo; fall
+    back to a real decompiler (ILSpy/ildasm) for closed-source or
+    private-feed packages.
+
+36. Before trusting a "will/won't retry" claim, check the HTTP-client-level
+    resilience policy (e.g. Polly) registration and its per-endpoint scoping
+    explicitly.
+    A message-bus retry loop and an HTTP-client resilience policy are two
+    independent layers, and one can silently override or exclude the other.
+    Neither an agent's sweep nor a stated belief about retry behavior is a
+    substitute for reading the actual policy registration code.
 
 ## Priority
 

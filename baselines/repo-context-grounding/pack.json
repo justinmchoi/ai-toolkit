@@ -1,13 +1,13 @@
 {
   "name": "repo-context-grounding",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "status": "active",
-  "description": "Always-on startup posture for AI coding agents entering an existing repository: read local instructions, inspect context, discover workflows, respect boundaries, verify with repo-native checks, and five added Windows/tooling-discovery bullets (ask before a broad filesystem search, check for an existing runbook, PowerShell-vs-git-bash shim discovery, /tmp on Windows, gh api over WebFetch).",
+  "description": "Always-on startup posture for AI coding agents entering an existing repository: read local instructions, inspect context, discover workflows, respect boundaries, verify with repo-native checks, five Windows/tooling-discovery bullets (ask before a broad filesystem search, check for an existing runbook, PowerShell-vs-git-bash shim discovery, /tmp on Windows, gh api over WebFetch), and one AI-tooling friction bullet (MCP server reconnect).",
   "source": {
     "title": "AI OS Repo Context Grounding",
     "repository": "local",
     "license": "repo-local",
-    "relationship": "Authored as a portable baseline pack from repeated AI OS startup, repo-orientation, and context-reconstruction friction. Five bullets added 2026-09-01 via the baseline-gap-review skill's occurrence #2 pass over _Improvements."
+    "relationship": "Authored as a portable baseline pack from repeated AI OS startup, repo-orientation, and context-reconstruction friction. Five bullets added 2026-09-01 via the baseline-gap-review skill's occurrence #2 pass over _Improvements. One more bullet (MCP reconnect) added 2026-09-08 via the same skill's occurrence #3 pass, mirrored the same day into es-ai-toolkit's pack, which was also resynced up from v0.3.0 to pick up the five 2026-09-01 bullets it had missed (unmanaged drift caught by this pass's baseline-diff step, not by anything in _Improvements itself). A candidate docx/xlsx/pptx-zipfile-fallback bullet from the same 2026-09-08 pass was NOT added here — it turned out to already be covered (and, as worded, actually regressed to a previously-corrected mistake) by docs/reference/file-text-extraction-without-full-render.md; see that file's 2026-09-08 update instead."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

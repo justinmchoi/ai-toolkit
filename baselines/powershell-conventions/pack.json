@@ -1,10 +1,11 @@
 {
   "name": "powershell-conventions",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "status": "active",
   "description": "Always-on PowerShell correctness rules: wrap any call to a function returning a variable-count collection in @() at every call site, never embed a literal backslash inside a joined path string meant to run cross-platform, quote literal @-prefixed string arguments, and use New-Item -ItemType SymbolicLink instead of ln -s on Windows.",
   "origin": {
-    "note": "Distilled from two 2026-07 incident notes captured during ai-toolkit/es-ai-toolkit baseline.ps1 status-command work: an array-unwrap bug masked by pwsh 7's synthetic scalar .Count convenience (only surfaced when tested under real Windows PowerShell 5.1), and a literal-backslash-in-path bug that silently breaks Join-Path calls under macOS/Linux pwsh."
+    "note": "Distilled from two 2026-07 incident notes captured during ai-toolkit/es-ai-toolkit baseline.ps1 status-command work: an array-unwrap bug masked by pwsh 7's synthetic scalar .Count convenience (only surfaced when tested under real Windows PowerShell 5.1), and a literal-backslash-in-path bug that silently breaks Join-Path calls under macOS/Linux pwsh.",
+    "relationship": "Principles 5-6 added 2026-09 identically to both ai-toolkit and es-ai-toolkit — general git-bash/shell tooling facts, not employer-specific."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

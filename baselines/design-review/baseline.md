@@ -1,7 +1,7 @@
 # Design Review Baseline
 
 Status: active
-Version: 0.1.0
+Version: 0.2.0
 
 Always-on discipline for critiquing a *design proposal* before or during
 implementation — tracing whether a claimed guarantee actually holds, whether
@@ -165,6 +165,32 @@ several independent findings.
     cached value — never from a wall-clock timestamp or run identifier,
     since those always register as "changed" independent of actual content
     drift.
+
+12. For a genuinely speculative, unbuilt design, offer labeled options with
+    a tradeoff comparison instead of a single confident answer.
+    When presenting a design that is genuinely speculative — nothing has
+    been built yet to verify it against — offer 2-3 labeled options with an
+    explicit tradeoff comparison between them, and mark exactly one as
+    recommended, rather than asserting a single answer as if it were already
+    validated. A lone recommendation with nothing built to check it against
+    tends to get corrected repeatedly, one round at a time, as gaps surface
+    one by one, instead of the real alternatives being weighed once up
+    front. Doesn't apply once a design has been implemented or otherwise
+    verified against reality — at that point converge on a single
+    recommendation instead of re-opening options that a build has already
+    settled.
+
+13. Reordering two workflow steps to eliminate a known failure risk usually
+    substitutes a new, structurally different risk — name it explicitly.
+    When a proposed fix reorders two workflow steps to eliminate a known
+    failure risk (e.g. moving an irreversible external call to after a
+    payment completes), treat that reorder as trading one risk for a
+    different one, not as eliminating risk outright. Explicitly name the new
+    risk the reorder introduces and design remediation for it, verified
+    against the actual system's code or state machine — not asserted from
+    general principle. Don't present the reorder as simply "safer" without
+    doing this trace; a reorder that isn't checked this way often just moves
+    the failure mode somewhere less visible rather than removing it.
 
 ## Priority
 

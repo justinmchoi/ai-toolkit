@@ -1,13 +1,13 @@
 {
   "name": "dotnet-conventions",
-  "version": "0.4.0",
+  "version": "0.6.0",
   "status": "active",
-  "description": "Always-on .NET/C# conventions covering DI registration traps and codegen/scaffold drift discipline.",
+  "description": "Always-on .NET/C# conventions covering DI registration traps, codegen/scaffold drift discipline, EF Core persist-refetch value handling, loose-mock test-double gaps, NuGet/dependency pin discipline, marker-interface avoidance, XML-doc selectivity, Windows/.NET tooling gotchas (locked build output, MAX_PATH, DefaultAzureCredential cold-start), and HTTP-client resilience-policy scoping.",
   "source": {
     "title": ".NET Conventions Baseline",
     "repository": "local",
     "license": "repo-local",
-    "relationship": "Mirrored from es-ai-toolkit's dotnet-conventions pack — the DI-registration and codegen-drift facts are .NET-technical, not employer-specific, so this personal copy applies to any .NET work outside iQmetrix."
+    "relationship": "Mirrored from es-ai-toolkit's dotnet-conventions pack — the DI-registration and codegen-drift facts are .NET-technical, not employer-specific, so this personal copy applies to any .NET work outside iQmetrix. Principles 25-35 backfilled 2026-09-08 via the baseline-gap-review skill's occurrence #3 pass — es-ai-toolkit had added these 2026-09-01 (EpinServer T&C reliability hardening and EntityManagerCache perf work) without a corresponding mirror-back note, an unmanaged drift caught by this pass's baseline-diff step rather than by anything in _Improvements itself. Principle 36 added 2026-09-08 from a TradeInServer Polly-resilience-scoping investigation, mirrored the same day into es-ai-toolkit."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

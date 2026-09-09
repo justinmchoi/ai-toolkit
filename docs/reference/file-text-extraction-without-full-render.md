@@ -4,7 +4,10 @@ Status: technique note (2026-07-27, single occurrence so far — not yet a
 skill; see `process-vs-work-doctrine` rule 1). Promote to a skill if this
 recurs. The `.docx` technique below was corrected on 2026-08-25 after a real
 occurrence showed the original regex-based approach silently corrupting
-output.
+output. A 2026-09-08 occurrence (Rogers Trade-In spike) independently
+re-derived the pre-correction regex/tag-stripping approach from scratch —
+this doc already covers the fix; the recurrence is recorded here as
+reinforcement, not as a new rule.
 
 When the Read tool can't usefully return a file's text directly:
 
@@ -34,6 +37,13 @@ When the Read tool can't usefully return a file's text directly:
   elements — this correctly handles self-closing tags, attributes, and
   nesting that a regex strip cannot. Use the equivalent construct (a real XML
   library, not a regex) in whatever language is already in play for the task.
+- **`.xlsx`/`.pptx`**: same zip-plus-real-XML-parser approach, different
+  internal path. For `.xlsx`, read `xl/sharedStrings.xml` (or
+  `xl/worksheets/sheetN.xml` for values/formulas not in the shared-string
+  table) and pull text from `<t>` elements under the spreadsheetml namespace.
+  For `.pptx`, read each `ppt/slides/slideN.xml` and pull text from `<a:t>`
+  elements under the drawingml namespace. Do not regex-strip tags here
+  either — the same corruption risk applies.
 - **Large mermaid-exported `.svg`**: grep for the `>text<` patterns. A large
   rendered diagram's SVG can be too big to read in full, but the visible
   labels are still plain text between tag boundaries — `grep -oE '>[^<]+<'

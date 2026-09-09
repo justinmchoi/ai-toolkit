@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:git-collaboration-hygiene v0.10.0 -->
+<!-- BEGIN baseline:git-collaboration-hygiene v0.11.0 -->
 ## Portable Agent Baseline: Git Collaboration Hygiene
 
 - Inspect repository state before changing or committing: check the active branch and working tree when Git is available, especially before edits, staging, commits, pulls, merges, rebases, or pushes.
@@ -45,6 +45,7 @@
 - Default to a git worktree (`git worktree add -b <branch> ../<repo>-wt-<slug> <base>`) when starting new, unrelated work while the current branch is dirty, instead of stashing in place or switching branches — it fully isolates the new work from the other branch's live state.
 - Before scoping a change to a shared/multi-referenced structure (an in-use fallback list, a priority sequence), search git log/history for whether this exact class of change was done before anywhere in the codebase, even a one-off throwaway migration, before re-deriving constraints from current-state code alone.
 - When a file referenced by a ticket/doc can't be found via normal search, search all git history (`git log --all --oneline -- <path>`) before concluding it doesn't exist — if found on a non-ancestor commit, read it directly with `git show <ref>:<path>` rather than checking out that branch.
+- After renaming a cross-referenced tracked file, grep the whole repo/project for the old filename before declaring the rename complete, rather than relying on memory of which files reference it.
 
 This baseline takes precedence over ordinary Git habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:git-collaboration-hygiene -->

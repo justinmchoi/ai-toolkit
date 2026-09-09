@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:design-review v0.1.0 -->
+<!-- BEGIN baseline:design-review v0.2.0 -->
 ## Portable Agent Baseline: Design Review
 
 - Before re-implementing a persistence/failure-ordering decision a second time, confirm the tradeoff in prose first: write the causal sequence (call order, what data is available at each point, what breaks if reordered), get explicit confirmation, then implement once. A repeated "why is X needed" about a just-shipped design signals the tradeoff wasn't explained clearly, not a cue to immediately rebuild.
@@ -12,6 +12,8 @@
 - Before judging a shape-consistency refactor's risk (widening a return type, adding a parameter to match a sibling), grep every implementer and call site and let the empirical count drive the call, not intuition — one implementer and one call site is low-risk almost by definition.
 - When investigating a bug from a missing scoping invariant on a read endpoint, proactively check the corresponding write endpoint for the same defect — the write-side counterpart tends to be strictly more severe (corruption vs. a stale read) and easy to overlook once the read-path finding feels done.
 - Derive a synthetic version key from a content hash, never a wall-clock timestamp or run identifier, when a source system provides no native version field — a timestamp always registers as "changed" independent of actual content drift.
+- For a genuinely speculative, unbuilt design (nothing built yet to verify it against), offer 2-3 labeled options with an explicit tradeoff comparison and mark exactly one as recommended, rather than asserting a single answer as if already validated — a lone recommendation with nothing to check it against tends to get corrected repeatedly, one round at a time, instead of the alternatives being weighed once up front. Doesn't apply once a design is implemented/verified — converge to a single recommendation then.
+- Reordering two workflow steps to eliminate a known failure risk (e.g. moving an irreversible external call to after a payment completes) generally trades that risk for a new, structurally different one, not eliminates it — explicitly name the new risk and design remediation for it, verified against the actual system's code/state machine, rather than presenting the reorder as simply "safer."
 
 Apply this baseline when proposing, reviewing, or implementing a design decision, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:design-review -->

@@ -84,7 +84,12 @@ They are candidate patterns — record further evidence before promoting to SKIL
 
 - **Visual Mermaid legend** (small standalone diagram showing all node types with
   actual colours). Replacing a markdown colour table was accepted without
-  pushback. *Observed once.*
+  pushback. *Promoted to SKILL.md Step 3 (2026-09-03).* Independently observed
+  twice: 2026-06-08 (this session, as a standalone legend diagram) and
+  2026-09-03 (Rogers E-Pin flow-diagram redesign, formalized as an in-picture
+  legend built from a disconnected Mermaid subgraph — see the 2026-09-03 entry
+  below). Two independent dated observations cleared this skill's promotion
+  bar; see SKILL.md Step 3, Mermaid output, for the promoted pattern.
 
 - **Emoji on swimlane headers and outcome nodes** (✅ / ❌). User explicitly
   asked for icons and accepted the placement without revision. *Observed once.*
@@ -322,3 +327,62 @@ or hands the result back to the caller.
   center y-values differ, `orthogonalEdgeStyle` adds a visible jog. Computing
   `entryY = (desired_y − node_top) / node_height` forces the entry point to match the
   source exit y exactly, producing a clean horizontal segment. *Observed once.*
+
+---
+
+## 2026-09-03 — Fourth session (Rogers E-Pin flow-diagram redesign)
+
+**Task context:**
+Redesigning a client-facing Mermaid flow diagram for a Rogers E-Pin integration,
+with multiple rounds of layout and legend revisions within the same session.
+
+**Successes observed (validated):**
+
+- **In-picture legend as a disconnected Mermaid subgraph — confirmed a second
+  time.** Built the legend as its own `subgraph` block, styled with the same
+  `classDef` classes as the flow, with no edges connecting it to the rest of
+  the diagram. Accepted without pushback, independently of the 2026-06-08
+  session that first tried this.
+  — *Status*: Two independent dated observations (2026-06-08, 2026-09-03)
+  clears this skill's promotion bar. **Promoted to SKILL.md Step 3** (Mermaid
+  output). See the 2026-06-08 entry above, now marked promoted.
+
+**Mistakes and weaknesses observed:**
+
+1. **Handed over Mermaid source without re-rendering after an edit.**
+   A source edit was handed over without rendering it first; the edit had
+   introduced a problem that only showed up at render time, not by reading the
+   source text.
+   — *Cause*: Treated a text edit as self-evidently correct because it "looked
+   right" in the source.
+   — *Takeaway*: Never hand over generated Mermaid source without
+   rendering/re-rendering it after every edit. When no renderer is available,
+   fall back to structural text-checks (matching brackets/quotes, `classDef`
+   references actually defined, `subgraph`/`end` balance). Once a rendering
+   gotcha is found mid-session, treat it as a standing check applied to every
+   new element added for the rest of that session.
+   — *Reusable*: Yes.
+   — *Status*: Reinforced 2026-09-04 and 2026-09-08 (a box-title fill-colour
+   conflict was the concrete gotcha found on reinforcement). **Promoted to
+   SKILL.md Step 5** (Review before delivering) as a standing rendering check.
+
+2. **Assumed subgraph declaration order and `~~~` invisible-edge hints control
+   left-right column position.**
+   Reordered subgraph declarations and added `~~~` invisible edges to try to
+   move a node's column relative to its sibling; the rendered layout did not
+   change.
+   — *Cause*: Mermaid's dagre/ELK flowchart layout engine ignores subgraph
+   declaration order and invisible-edge hints for column/cluster left-right
+   positioning. The only real lever for two sibling nodes' relative position is
+   their declaration order within a shared subgraph.
+   — *Takeaway*: Don't rely on cross-subgraph declaration order or `~~~` edges
+   to fix column position — reorder the nodes within their shared subgraph
+   instead, and verify any layout fix by rendering (cropped/zoomed), never by
+   assuming the source change worked.
+   — *Reusable*: Yes.
+   — *Status*: Observed once (mermaid-cli ~11.17.0). Candidate pattern pending
+   a second independent observation before promotion.
+
+**Open questions after this session:**
+- Does the dagre/ELK ordering limitation hold across other Mermaid renderers
+  (not just mermaid-cli ~11.17.0), or is it specific to that engine/version?

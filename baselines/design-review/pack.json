@@ -1,6 +1,6 @@
 {
   "name": "design-review",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "active",
   "description": "Always-on discipline for critiquing a design proposal before or during implementation: confirm persistence/ordering tradeoffs in prose before re-implementing, name a reversed design principle before implementing it, check a mitigation's own failure mode and retry-compounding, split durability guarantees per piece of state, propagate a fix to every parallel representation, don't let a reversal path assume the forward action completed, verify ordering consistency across similar flows, read sibling idempotency guards as design-intent evidence, grep implementers/call-sites before judging refactor risk, check a sibling write endpoint for the same scoping bug, and derive synthetic version keys from content hashes not timestamps.",
   "source": {

@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:repo-context-grounding v0.5.0 -->
+<!-- BEGIN baseline:repo-context-grounding v0.6.0 -->
 ## Portable Agent Baseline: Repo Context Grounding
 
 - Start from local instructions: read repo-level agent instructions, README, and linked docs that define setup, boundaries, ownership, or workflow.
@@ -19,6 +19,7 @@
 - On Windows, a Bash tool's (git-bash) "command not found" for a documented CLI shim is not proof it's missing — git-bash's PATH can differ from the Windows user PATH a shim installer wrote to. Check `Get-Command <name>` in PowerShell before concluding a tool isn't installed.
 - On Windows, even under Git Bash, don't assume `/tmp` exists for ad hoc scratch files — write to the session's existing scratchpad directory instead.
 - To browse or read source in a third-party GitHub repo, skip `WebFetch` (it 404s on raw/tree URLs) and use `gh api repos/{owner}/{repo}/contents/{path}` plus `--jq '.content' | base64 -d` instead, when `gh` is installed and authenticated.
+- A newly-configured MCP server won't appear mid-session no matter how many retries — the client process needs a full restart, not just a reconnect, to pick it up.
 
 Apply this baseline as a startup habit for existing repositories, but never use
 it to override explicit user instructions, safety rules, privacy boundaries, or

@@ -1,7 +1,7 @@
 # Documentation Craft Baseline
 
 Status: active
-Version: 0.4.0
+Version: 0.5.0
 
 Always-on discipline for documentation structure, mechanics, and prose-style
 decisions — how a document is organized, linked, scoped, and worded. This is
@@ -247,10 +247,26 @@ independent of whether that documentation happens to describe code.
     comment's per-member shape — converting it is pure churn against the
     file's established style.
 
+24. Never manually hard-wrap prose in a markdown file — write each
+    paragraph/bullet as one continuous line and let the renderer
+    soft-wrap. Manual line breaks render as garbled mid-sentence breaks in
+    plain-text viewers, narrow terminals, and some diff tools.
+
+25. Renumbering a markdown doc's sections after an insertion should be one
+    scripted old→new mapping pass over headers, the TOC, and every
+    cross-reference — not manual header-by-header edits discovered
+    piecemeal across multiple ad hoc greps.
+
+26. When adding a markdown TOC to a doc with non-trivial headers
+    (punctuation, dashes, backticks), generate the anchor slugs via a
+    script implementing the real GFM slug algorithm rather than
+    hand-typing them, and cross-check against any existing TOC in the same
+    project.
+
 ## Priority
 
 **Principle 1 outranks every other principle in this baseline, including the
-other twenty-two below it** — it is not one of twenty-three equally-weighted
+other twenty-five below it** — it is not one of twenty-six equally-weighted
 rules, it is the lens the rest get read through. Apply the whole baseline
 whenever writing, restructuring, relocating, or reviewing documentation, but
 never use it to override explicit user instructions, safety rules, privacy

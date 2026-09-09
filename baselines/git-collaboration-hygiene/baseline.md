@@ -1,7 +1,7 @@
 # Git Collaboration Hygiene Baseline
 
 Status: active
-Version: 0.10.0
+Version: 0.11.0
 
 This is a tool-neutral always-on baseline for AI coding agents working in Git
 repositories. It captures collaboration safety that should apply before
@@ -328,6 +328,10 @@ workflow-specific PR, release, deploy, or multi-agent procedures.
     with `git show <remote-branch-or-sha>:<path>` rather than checking out
     that branch — this recovers content on unmerged or abandoned branches
     without disturbing the current working tree.
+
+45. After renaming a cross-referenced tracked file, grep the whole
+    repo/project for the old filename before declaring the rename
+    complete, rather than relying on memory of which files reference it.
 
 ## Priority
 

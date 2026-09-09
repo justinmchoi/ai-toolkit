@@ -35,6 +35,17 @@ Read this whole file before scaffolding or auditing anything — the convention 
 
 A request that sounds like "add more to what's already there" is sometimes actually a different information *grain* — e.g. per-unit detail (one file per endpoint/flow/term) vs. a cross-unit journey (the sequence several of those units get used in together). The test: does the new content naturally belong inside one existing file, or does it only make sense described across several of them? If the latter, it's a grain shift — create a new, clearly-labeled parallel category (a sibling folder, or a subfolder like `SystemFlows/lifecycles/`) and cross-link it, rather than forcing the new content into whichever existing file seems closest. Don't over-apply this: most follow-ups genuinely are "more detail on this one thing" and belong right there.
 
+## Observed but not yet formalized (candidates for a future pass)
+
+Real sessions occasionally invent structure this scaffold doesn't account for yet. When that happens, don't retrofit the skill on the spot — note the pattern here and revisit it deliberately later, the same way a grain shift gets flagged rather than forced into an existing file. Candidates observed so far, all from the 2026-09-04 Rogers Trade-In & Quick Quote Widget project session, none urgent or settled:
+
+- **`Templates/` folder** — a project-level folder holding reusable document templates specific to that project (distinct from this skill's own `references/*-template.md`, which are for scaffolding new projects, not for a project's own working documents).
+- **Dated Q&A closeout index** — a single file summarizing a session's resolved questions, separate from `Grilling/`'s design-decision output.
+- **Letter-suffix continuation files** — `open-items-b.md` continuing `open-items.md` once a topic file grows unwieldy, rather than growing one file indefinitely.
+- **Cross-project reference links** — a project's docs linking directly into a sibling project's docs instead of duplicating content.
+
+Whether any of these earn a place in the fixed convention above — and if so, what the naming/placement rule should be — is an open question for a future pass, not a decision made here.
+
 ## Scaffolding a new project
 
 1. Confirm the project name and location with the user if it's not obvious from context — default to a new folder directly under `a-projects/`, matching sibling project folders. List `a-projects/` first (`Glob`/`ls`) rather than assuming what's already there or what naming pattern siblings use.

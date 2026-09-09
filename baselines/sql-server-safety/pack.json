@@ -1,13 +1,13 @@
 {
   "name": "sql-server-safety",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "status": "active",
   "description": "Always-on SQL Server correctness rules for diagnostic, verification, and data-fix scripts: NOLOCK exceptions, CTE materialization, sargability, read-only/mutate script discipline, session-scoped temp-table cleanup, REPLICATE() truncation, and a local fault-injection decision table for retry testing.",
   "source": {
     "title": "SQL Server Safety Baseline",
     "repository": "local",
     "license": "repo-local",
-    "relationship": "Mirrored from es-ai-toolkit's sql-server-safety pack — the underlying facts are SQL Server technical correctness, not employer-specific, so this personal copy applies the same rules to any T-SQL work outside iQmetrix. Principles 13-14 added 2026-09-01, mirrored same day from es-ai-toolkit."
+    "relationship": "Mirrored from es-ai-toolkit's sql-server-safety pack — the underlying facts are SQL Server technical correctness, not employer-specific, so this personal copy applies the same rules to any T-SQL work outside iQmetrix. Principles 13-14 added 2026-09-01, mirrored same day from es-ai-toolkit. Principle 16 added 2026-09, mirrored identically into the sibling pack the same day - keep both in sync going forward, consistent with prior practice for this pack."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

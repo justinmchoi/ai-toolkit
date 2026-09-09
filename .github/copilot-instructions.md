@@ -41,7 +41,7 @@ These principles are folder-name-agnostic. If the repo specifies where documenta
 This baseline takes precedence over ordinary implementation habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:code-doc-sync -->
 
-<!-- BEGIN baseline:git-collaboration-hygiene v0.10.0 -->
+<!-- BEGIN baseline:git-collaboration-hygiene v0.11.0 -->
 ## Portable Agent Baseline: Git Collaboration Hygiene
 
 - Inspect repository state before changing or committing: check the active branch and working tree when Git is available, especially before edits, staging, commits, pulls, merges, rebases, or pushes.
@@ -88,6 +88,7 @@ This baseline takes precedence over ordinary implementation habits, but never us
 - Default to a git worktree (`git worktree add -b <branch> ../<repo>-wt-<slug> <base>`) when starting new, unrelated work while the current branch is dirty, instead of stashing in place or switching branches — it fully isolates the new work from the other branch's live state.
 - Before scoping a change to a shared/multi-referenced structure (an in-use fallback list, a priority sequence), search git log/history for whether this exact class of change was done before anywhere in the codebase, even a one-off throwaway migration, before re-deriving constraints from current-state code alone.
 - When a file referenced by a ticket/doc can't be found via normal search, search all git history (`git log --all --oneline -- <path>`) before concluding it doesn't exist — if found on a non-ancestor commit, read it directly with `git show <ref>:<path>` rather than checking out that branch.
+- After renaming a cross-referenced tracked file, grep the whole repo/project for the old filename before declaring the rename complete, rather than relying on memory of which files reference it.
 
 This baseline takes precedence over ordinary Git habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:git-collaboration-hygiene -->
@@ -122,7 +123,7 @@ This baseline takes precedence over ordinary implementation and test-writing hab
 This baseline takes precedence over ordinary planning habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:process-vs-work-doctrine -->
 
-<!-- BEGIN baseline:repo-context-grounding v0.5.0 -->
+<!-- BEGIN baseline:repo-context-grounding v0.6.0 -->
 ## Portable Agent Baseline: Repo Context Grounding
 
 - Start from local instructions: read repo-level agent instructions, README, and linked docs that define setup, boundaries, ownership, or workflow.
@@ -143,6 +144,7 @@ This baseline takes precedence over ordinary planning habits, but never use it t
 - On Windows, a Bash tool's (git-bash) "command not found" for a documented CLI shim is not proof it's missing — git-bash's PATH can differ from the Windows user PATH a shim installer wrote to. Check `Get-Command <name>` in PowerShell before concluding a tool isn't installed.
 - On Windows, even under Git Bash, don't assume `/tmp` exists for ad hoc scratch files — write to the session's existing scratchpad directory instead.
 - To browse or read source in a third-party GitHub repo, skip `WebFetch` (it 404s on raw/tree URLs) and use `gh api repos/{owner}/{repo}/contents/{path}` plus `--jq '.content' | base64 -d` instead, when `gh` is installed and authenticated.
+- A newly-configured MCP server won't appear mid-session no matter how many retries — the client process needs a full restart, not just a reconnect, to pick it up.
 
 Apply this baseline as a startup habit for existing repositories, but never use
 it to override explicit user instructions, safety rules, privacy boundaries, or
@@ -177,7 +179,7 @@ This baseline takes precedence over ordinary commit habits, but never use it to 
 Apply this baseline before dispatching, coordinating, or reporting on sub-agent/background-agent work, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions. This does not cover which agent/model to pick, or prompt-engineering content quality — only dispatch/coordination/scope mechanics.
 <!-- END baseline:agent-orchestration -->
 
-<!-- BEGIN baseline:documentation-craft v0.4.0 -->
+<!-- BEGIN baseline:documentation-craft v0.5.0 -->
 ## Portable Agent Baseline: Documentation Craft
 
 - **[Top-priority principle — outranks the rest below.]** Use one word if it conveys what two would; two words if they convey what more than two would; one sentence if it conveys what more than one would — apply this recursively at every level (word, phrase, clause, sentence, paragraph, section), not just once. Length is not neutral; it's the default this principle pushes back against. Does not apply to durable audit/decision records (ADRs, incident writeups, handoff docs) where completeness outweighs brevity.
@@ -203,6 +205,9 @@ Apply this baseline before dispatching, coordinating, or reporting on sub-agent/
 - Given a false claim already found once, grep the literal text across every touched directory, classify each hit as live vs. deliberately-historical and apply the matching fix, then re-scan every document of the same genre for the same class of issue, not just the one hit.
 - When trimming drafted content to a known hard platform character limit, compute the exact excess up front and make one deliberate cut sized to it, rather than iterating blind small edits with a recount after each one.
 - Match the codebase's existing selective doc-comment convention (structured comments on some public members, plain comments on implementation detail) rather than defaulting to documenting everything or nothing in a pass.
+- Never manually hard-wrap prose in a markdown file — write each paragraph/bullet as one continuous line and let the renderer soft-wrap; manual line breaks render as garbled mid-sentence breaks in plain-text viewers, narrow terminals, and some diff tools.
+- Renumbering a markdown doc's sections after an insertion should be one scripted old→new mapping pass over headers, the TOC, and every cross-reference — not manual header-by-header edits discovered piecemeal across multiple ad hoc greps.
+- When adding a markdown TOC to a doc with non-trivial headers (punctuation, dashes, backticks), generate the anchor slugs via a script implementing the real GFM slug algorithm rather than hand-typing them, and cross-check against any existing TOC in the same project.
 
 Apply this baseline whenever writing, restructuring, relocating, or reviewing documentation, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions. This does not cover code/doc sync (see `code-doc-sync`) or living-handoff-document lifecycle (see `handoff-doc-discipline`).
 <!-- END baseline:documentation-craft -->

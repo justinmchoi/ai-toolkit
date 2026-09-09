@@ -1,7 +1,7 @@
 # Code-Doc Sync Baseline
 
 Status: active
-Version: 0.5.0
+Version: 0.6.0
 
 Always-on documentation hygiene for AI coding agents working in repositories
 that contain architecture documentation, flow diagrams, or developer references
@@ -100,6 +100,11 @@ an abstract declaration site instead of the concrete runtime type.
    linked docs to match; (7) a final stale-reference grep; (8) `git status`
    sanity check. A one-off single-file rename with no accompanying doc
    doesn't need this.
+
+10. When a runbook step says "manually build a follow-up query/artifact
+    from a script's output," check whether the script can instead emit
+    that follow-up as a generated file directly, rather than leaving the
+    derivation as a manual step.
 
 ## Applying in a Repo
 

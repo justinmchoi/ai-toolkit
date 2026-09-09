@@ -1,6 +1,6 @@
 {
   "name": "documentation-craft",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "status": "active",
   "description": "Always-on documentation structure/mechanics/prose discipline. Top-priority principle: collapse to the smallest unit (word/phrase/clause/sentence/paragraph) that still carries the full idea, applied recursively — this outranks all 22 others. The rest cover: tracking cross-file edit recommendations as actions, link-integrity verification, information-grain shifts, producer/consumer doc placement, comment-tightening sweeps, flagging source contradictions, proactive knowledge-folder updates, Mermaid/HTML publish checks, honest mitigation labeling, fact-correction sweeps, platform character-limit trimming, and matching a codebase's selective doc-comment convention.",
   "source": {

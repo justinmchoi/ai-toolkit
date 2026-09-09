@@ -1,7 +1,7 @@
 # Verification Epistemics Baseline
 
 Status: active
-Version: 0.5.0
+Version: 0.6.0
 
 Always-on discipline for a recurring failure mode: treating an inherited,
 paraphrased, or confidently-stated claim as verified fact without checking it
@@ -597,6 +597,118 @@ producing a wrong conclusion that direct verification would have caught.
     contract — surface the gap in the success message itself, not only when
     directly asked "have you confirmed this resolves the issue?"
 
+68. Verify a source-derived architecture/mechanism understanding against the
+    authoritative design-record archive before treating it as final.
+    When reverse-engineering how a system or mechanism works purely from
+    source code, cross-check the resulting understanding against the
+    authoritative design-record archive (ADRs, design docs) before treating
+    it as final — source-only reverse-engineering can get the actual
+    mechanism shape wrong even when each individual code read was accurate.
+
+69. A declared/pinned version is evidence of intent, not of live runtime
+    state — verify the actual runtime/bundled version directly.
+    A compile-time SDK/package pin, or a config that says a dependency
+    arrived via sync (git pull, IaC apply), is evidence of intent or a
+    compatibility floor, not of live runtime state. Verify the actual
+    runtime/bundled version directly (e.g. check for bundling evidence with
+    an embedded browser/runtime engine like WebView2, Electron, or a JVM)
+    before characterizing "what version we're on."
+
+70. Identify which repo owns a cross-repo question's subject before
+    answering from whichever repo is already open.
+    Before answering a question that spans multiple repos/systems, identify
+    which repo actually owns the question's subject rather than answering
+    from whichever repo is already open in the session — the wrong-repo
+    default can miss a directly relevant, already-shipped precedent.
+
+71. Split a multi-repo search into per-repo, per-tool calls and check exit
+    codes rather than batching raw shell search chains.
+    A chained multi-repo `find`/`grep` Bash command that times out
+    (non-zero exit) can leave a truncated tail indistinguishable from a
+    genuine "no matches" result. Split searches per repo/tool call and check
+    exit codes rather than batching raw shell search chains for efficiency.
+
+72. Two independently-existing things are not evidence they interact as
+    assumed — grep the mechanism for a direct reference to the specific
+    subject and check every layer's registration/scope.
+    A general mechanism and a specific subject both existing doesn't mean
+    they're wired together, and two independent policy/retry layers (e.g. a
+    message-bus retry loop and an HTTP-client resilience policy) can each
+    look complete while one silently overrides the other. Grep the
+    mechanism's implementation for a direct reference to the specific
+    subject, and check every layer's registration/scope, before claiming
+    coverage.
+
+73. A single derived boolean/summary signal can silently conflate distinct
+    underlying causes — require a second discriminating field.
+    A single derived boolean/summary signal (e.g. a "safe to retry" column
+    produced by a join or correlation) can silently conflate two different
+    underlying causes (genuinely-true vs. undetermined/no-match). Such
+    filters need a second discriminating field before being trusted as one
+    source of truth.
+
+74. Re-fetch an externally-editable artifact's live state before answering a
+    question about its current status.
+    Re-fetch an externally-editable artifact's live state (an ADO/Jira
+    ticket, a wiki page, a shared spec) before answering a question about
+    its current status — don't trust a saved snapshot or an earlier
+    summary, even one you wrote yourself, since other people can modify it
+    between reads.
+
+75. A shared proper noun between two documents is not evidence of
+    architectural equivalence — verify structural compatibility.
+    A shared proper noun (client, carrier, feature name) between two
+    documents or initiatives is not evidence of architectural equivalence.
+    Verify structural compatibility (shared preconditions, keying/
+    identifier, triggering mechanism) before treating one as a reusable
+    precedent for the other.
+
+76. Re-grep a shared ID registry immediately before allocating the next
+    slot, not from an earlier grep in the same turn.
+    Re-grep a shared, hand-maintained ID registry (lettered open-items, ADR
+    numbers, etc.) immediately before writing the next allocation, not from
+    an earlier grep in the same turn — a concurrent session can claim the
+    same slot in the gap. If a collision is found after the fact, resolve
+    it by keeping the occurrence with more existing references and
+    renaming the other, with an explicit written note rather than a silent
+    patch.
+
+77. Before recommending batching an API call for latency, verify which cost
+    actually dominates.
+    Before recommending batching an API call to cut latency, verify which
+    cost actually dominates by checking the callee's own loop (sequential
+    vs. parallel) and whether the deepest dependency accepts multiple items
+    at all — batching a shallow layer doesn't help if a deeper layer is
+    still sequential.
+
+78. Verify each diagram component's actual repo/namespace directly, and pull
+    an existing artifact's literal source data before matching its
+    convention.
+    Before finalizing an architecture/sequence diagram, verify each
+    component's actual repo/namespace directly rather than grouping it by
+    assumed logical ownership, and pull an existing artifact's literal
+    source data (colors, naming, formatting) before matching its convention
+    from a remembered impression.
+
+79. Lean into a narrow, rigorously-verified question snowballing into
+    comprehensive understanding.
+    A narrow question, verified rigorously against source rather than
+    assumption, naturally snowballs into comprehensive understanding — lean
+    into that: chase verified adjacent questions, delegate wide
+    sub-investigations to parallel agents, and periodically distill what
+    surfaces into a reusable reference rather than letting it stay
+    scattered.
+
+80. Read a shared code path's full method body before asserting
+    reusability, and confirm a citation is accessible to its actual
+    audience.
+    When asserting a shared/generic code path is reusable, read the full
+    method body end-to-end — a verified guard clause is not the same as a
+    verified method body. And when citing sources in a doc for a specific
+    audience, the citation must be accessible to that audience, not just
+    technically present (e.g. a link only the author can open doesn't count
+    as grounding for the reader).
+
 ## Priority
 
 Apply this baseline before presenting a conclusion, a fix, or a summary of
@@ -613,8 +725,9 @@ safety rules, privacy boundaries, or stricter repo-local instructions.
 
 ## Editorial note
 
-This baseline has grown very large (67 principles as of 2026-09-01, up from
-57) across three consolidation passes. It likely needs a structural/
+This baseline has grown very large (80 principles as of 2026-09-08, up from
+67 on 2026-09-01, up from 57 before that) across three consolidation passes.
+It likely needs a structural/
 consolidation pass — grouping principles into sub-categories and merging
 near-duplicates — before further additions. Flagging this for a future
 maintainer; not acted on here.

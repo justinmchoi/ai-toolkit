@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:dotnet-conventions v0.4.0 -->
+<!-- BEGIN baseline:dotnet-conventions v0.6.0 -->
 ## Portable Agent Baseline: .NET Conventions
 
 - Use `Add*`, not `TryAdd*`, when registering every implementation of a multi-implementation interface (one resolved as `IEnumerable<T>`, e.g. a strategy pattern) — `TryAdd*` dedups by service type alone and silently no-ops a second implementation, with no error.
@@ -25,6 +25,18 @@
 - A shared "sync whole object graph" update method must not treat a missing/null collection on the input object as "clear this in the DB" when narrow-purpose callers pass partial objects — narrow callers should re-fetch the full object and mutate only their own field, not hand a partial object to a full-sync method.
 - Before attaching a shared request/response logging middleware to an HttpClient carrying secrets in the body (e.g. an OAuth client-credentials form POST), verify its default masking scope explicitly covers body content, not just header names — many masking libraries default to header-only redaction.
 - A migration rollback can only undo migrations whose Down()/reverse code is compiled into the branch you run it from — if a shared environment's migration history shows entries beyond your current branch, locate the branch that actually owns those extra migrations (search all branches) and roll back from there.
+- On Windows, when `dotnet build`/`test` fails with file-copy/file-in-use errors (MSB3026, MSB3027) on a project's own output DLL, check for another running process holding that binary (an IDE debug session, a leftover `dotnet run`) before treating it as a code bug.
+- Carry an unconfirmed candidate value alongside an entity (a wrapper record), not as a mutable property on it, when the value must survive an EF Core persist call that returns a fresh re-fetched instance — a mutable property needs an explicit restoration step after every persist call, and misses silently vanish the value.
+- Before adding a fetch inside a shared helper, check whether every caller already has the value in scope from an earlier step and thread it through as a parameter instead of re-deriving it.
+- After adding a member to a widely-mocked interface, explicitly configure every test double for it — loose mocks (Moq/FakeItEasy defaults) silently default value-type members (`bool`, `int`, enums) with no exception, unlike `Task`-returning members. A green build doesn't prove the doubles are wired correctly.
+- When a transitive dependency forces a NuGet version bump and trips `NU1605`, grep the solution for that package's existing pinned version and match the prevailing pin — don't pick the bare minimum that merely satisfies the error.
+- Prefer a required property on a shared base interface over an empty marker interface for per-type policy that every implementer must declare — marker interfaces carry no compiler-enforced contract and scatter `is`/`as` checks across call sites.
+- Match the codebase's existing selective XML-doc convention (structured docs on public API where the contract isn't obvious, plain `//` on private implementation) rather than converting everything or nothing.
+- Build/run throwaway .NET executables under a short path (e.g. `C:\tmp\<short-name>`), not a deep harness-generated scratchpad — `dotnet run` can fail on Windows `MAX_PATH` (~260 chars) even when build/restore succeeded.
+- Suspect `DefaultAzureCredential`'s credential-probing chain for unexplained multi-second cold-start latency before blaming DB/HTTP/business logic, especially on a non-Azure-hosted dev machine.
+- After an EF Core model/entity-config change, grep the scaffolded `ModelSnapshot.cs` for the expected new DDL to confirm it was actually captured — don't trust "build succeeded." Then prove zero remaining drift with a throwaway empty migration add→remove cycle, and verify boundary behavior against a disposable local DB with raw `sqlcmd`.
+- To resolve a NuGet package's exact public API without a decompiler: read its `.nuspec` for the GitHub repo URL, then `gh api repos/{owner}/{repo}/contents/{path}` to fetch and grep the real source — faster than extracting strings from the binary, for open-source packages only.
+- Before trusting a "will/won't retry" claim, check the HTTP-client-level resilience policy (e.g. Polly) registration and its per-endpoint scoping explicitly — a message-bus retry loop and an HTTP-client resilience policy are two independent layers that can silently override or exclude each other, and neither an agent's sweep nor a stated belief substitutes for reading the actual policy registration code.
 
 Apply this baseline before ordinary .NET DI and codegen habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:dotnet-conventions -->

@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:sql-server-safety v0.4.0 -->
+<!-- BEGIN baseline:sql-server-safety v0.5.0 -->
 ## Portable Agent Baseline: SQL Server Safety
 
 - Never `NOLOCK` a LOB column (`nvarchar(max)`, `varchar(max)`, `xml`, etc.) read under concurrent writes — it can return a torn/inconsistent read. Scope `NOLOCK` to small fixed-size columns only, or use snapshot isolation when LOB columns must be read under load.
@@ -16,6 +16,7 @@
 - Local temp tables (`#temp`) are session-scoped — when re-running a multi-step script in pieces during manual testing, close and reopen the database connection rather than manually cleaning up temp tables, to guarantee a genuinely clean slate between runs.
 - Cast to `nvarchar(max)` before `REPLICATE()` when generating long T-SQL test strings — on a plain `nvarchar` literal it silently truncates to 4000 chars, which can make a correctly-working length constraint look broken.
 - For local SQL Server fault injection when testing retry logic, use a fixed decision table instead of trial and error: wrong DB name → 4060 (transient) · unreachable IP/blocked port → 10060 (transient, recoverable) · `sp_rename` a table → 208 (permanent, isolated) · row lock + timeout → -2 (NOT transient by EF Core's design) · bad password → 18456 (permanent). If using a loopback firewall block, verify it actually took with `Test-NetConnection` first — Windows Firewall enforcement on loopback traffic is inconsistent — or default to an unreachable IP instead.
+- An OR-chained `(colA = x AND colB = y)` diagnostic query needs every column checked for index support — if `colB` is unindexed, add a redundant `colA IN (...)` prefix so the optimizer gets a real seek path on the composite index.
 
 Apply this baseline before ordinary SQL-authoring habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:sql-server-safety -->

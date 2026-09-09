@@ -1,7 +1,7 @@
 # SQL Server Safety Baseline
 
 Status: active
-Version: 0.4.0
+Version: 0.5.0
 
 Always-on correctness rules for T-SQL an agent writes or hands off — diagnostic
 queries, verification queries, and data-fix/backfill scripts against SQL
@@ -143,6 +143,11 @@ predicate, unbounded scan).
     When re-running a multi-step script in pieces during manual testing,
     close and reopen the database connection rather than manually cleaning
     up temp tables, to guarantee a genuinely clean slate between runs.
+
+16. An OR-chained `(colA = x AND colB = y)` diagnostic query needs every
+    column checked for index support — if `colB` is unindexed, add a
+    redundant `colA IN (...)` prefix so the optimizer gets a real seek path
+    on the composite index.
 
 ## Priority
 
