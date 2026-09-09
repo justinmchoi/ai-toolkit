@@ -4,7 +4,7 @@
   "status": "active",
   "description": "Always-on guards for OOP extension points: complete template methods, prefer primitive hook parameters, mock concrete injected types in tests, declare concrete delegate types at the class level, and prefer a DI-wired subclass hook over an inline caller-type check for caller-specific behavior.",
   "origin": {
-    "note": "Distilled from two production bugs in the Rogers/Fido carrier integration where inheritance extension points were bypassed or mis-typed. See CarrierIntegrationServer commits 613daf50 and 2a7152ea."
+    "note": "Distilled from two production bugs in a carrier integration where inheritance extension points were bypassed or mis-typed."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

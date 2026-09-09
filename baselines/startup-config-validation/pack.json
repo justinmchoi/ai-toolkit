@@ -7,7 +7,7 @@
     "title": "Startup Config Validation Baseline",
     "repository": "local",
     "license": "repo-local",
-    "relationship": "Mirrored from es-ai-toolkit's startup-config-validation pack — the four validate-at-startup principles are generic ASP.NET Core/.NET practice, not employer-specific, so this personal copy applies to any .NET service work outside iQmetrix."
+    "relationship": "Mirrored from the work toolkit's startup-config-validation pack — the four validate-at-startup principles are generic ASP.NET Core/.NET practice, not employer-specific, so this personal copy applies to any .NET service work outside work."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

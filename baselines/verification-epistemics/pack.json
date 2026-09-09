@@ -7,7 +7,7 @@
     "title": "Verification Epistemics Baseline",
     "repository": "local",
     "license": "repo-local",
-    "relationship": "Distilled from 2026-07 sessions (cross-repo Carrier/Luna investigation, ambiguous domain-term resolution, a stalled code trace, a misread alignment request) where trusting an inherited or paraphrased claim instead of re-verifying it against source produced a wrong conclusion. Principles 58-67 added 2026-09-01 from EpinServer T&C/EntityManagerCache work via the baseline-gap-review skill's occurrence #2 pass over _Improvements."
+    "relationship": "Distilled from 2026-07 sessions (a cross-repo service investigation, ambiguous domain-term resolution, a stalled code trace, a misread alignment request) where trusting an inherited or paraphrased claim instead of re-verifying it against source produced a wrong conclusion. Principles 58-67 added 2026-09-01 from reliability and entity-cache work on a payments service via the baseline-gap-review skill's occurrence #2 pass over _Improvements."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

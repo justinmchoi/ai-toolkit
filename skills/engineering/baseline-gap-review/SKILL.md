@@ -19,18 +19,30 @@ CONTEXT.md, no supporting scripts. Do not scaffold further on your own
 initiative; a third occurrence is what would justify that conversation, not
 this one.
 
+## Paths
+
+Resolve all three from the environment. Do **not** prompt for them, and do not
+write literal machine paths back into this file:
+
+- `_Improvements/` root: `$IMPROVEMENTS_ROOT` (the same variable
+  `improvement-extraction` writes to — they must agree)
+- work toolkit repo: `$WORK_TOOLKIT_ROOT`
+- personal toolkit repo (this repo): `$AI_TOOLKIT_ROOT`, or the repo root
+  containing this skill
+
+If a variable is unset, ask for that one path once and use it for the run only.
+
+> Superseded 2026-09-09: these were previously three hardcoded absolute paths,
+> kept that way on a standing "don't parameterize" instruction. That is now
+> overridden by a stricter constraint — the paths embedded the employer's name,
+> and this repo must carry no company-identifying information. Reading them from
+> the environment satisfies both: still no prompting in the normal case, and
+> nothing employer-specific committed. It also makes the skill work on a second
+> machine, which the hardcoded form never did.
+
 See the disposition record of occurrence #1 for the concrete shape this
 procedure is distilled from:
-`_Improvements/Done/2026-07-29-baseline-consolidation-manifest.md`.
-
-## Hardcoded paths (this machine)
-
-- `_Improvements/` root: `C:\Users\Justin.Choi\OneDrive - iQmetrix Software Development Corp\Documents\a-projects\_Improvements`
-- `es-ai-toolkit` repo: `C:\Users\Justin.Choi\OneDrive - iQmetrix Software Development Corp\Documents\a-github\es-ai-toolkit`
-- `ai-toolkit` repo (this repo): `C:\Users\Justin.Choi\OneDrive - iQmetrix Software Development Corp\Documents\a-github\_a-codex\ai-toolkit`
-
-These are hardcoded per Justin's own standing offer in the candidate note
-that produced this skill — do not parameterize or prompt for them.
+`$IMPROVEMENTS_ROOT/Done/2026-07-29-baseline-consolidation-manifest.md`.
 
 ## Procedure
 

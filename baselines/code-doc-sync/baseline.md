@@ -130,8 +130,8 @@ stricter repo-local instructions.
 
 ## Origin
 
-Rogers/Fido carrier integration (CarrierIntegrationServer). Two bug-fix commits
-(613daf50, 2a7152ea) were merged without reviewing adjacent flow trees or the
+A carrier-integration service. Two bug-fix commits
+were merged without reviewing adjacent flow trees or the
 architecture progress log. A flow tree also labeled a virtual call as
-`BaseRogersCorpService.BuildConfiguration` when the method that executes at
-runtime is `FidoCorpService.BuildConfiguration`.
+its abstract base class's method when the method that executes at
+runtime is the carrier-specific subclass override.

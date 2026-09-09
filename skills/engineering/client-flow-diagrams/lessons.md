@@ -86,7 +86,7 @@ They are candidate patterns — record further evidence before promoting to SKIL
   actual colours). Replacing a markdown colour table was accepted without
   pushback. *Promoted to SKILL.md Step 3 (2026-09-03).* Independently observed
   twice: 2026-06-08 (this session, as a standalone legend diagram) and
-  2026-09-03 (Rogers E-Pin flow-diagram redesign, formalized as an in-picture
+  2026-09-03 (a carrier PIN-distribution flow-diagram redesign, formalized as an in-picture
   legend built from a disconnected Mermaid subgraph — see the 2026-09-03 entry
   below). Two independent dated observations cleared this skill's promotion
   bar; see SKILL.md Step 3, Mermaid output, for the promoted pattern.
@@ -330,10 +330,10 @@ or hands the result back to the caller.
 
 ---
 
-## 2026-09-03 — Fourth session (Rogers E-Pin flow-diagram redesign)
+## 2026-09-03 — Fourth session (carrier PIN-distribution flow-diagram redesign)
 
 **Task context:**
-Redesigning a client-facing Mermaid flow diagram for a Rogers E-Pin integration,
+Redesigning a client-facing Mermaid flow diagram for a carrier PIN-distribution integration,
 with multiple rounds of layout and legend revisions within the same session.
 
 **Successes observed (validated):**

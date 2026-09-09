@@ -14,8 +14,8 @@ extension-point bugs specifically). Design review is about the correctness
 of a proposed design itself, independent of whether any code has been
 written yet.
 
-Distilled from a single intense one-shot design-feedback session (EpinServer
-T&C reliability hardening) where the same reviewing move — "does this
+Distilled from a single intense one-shot design-feedback session (reliability
+hardening on a payments service) where the same reviewing move — "does this
 guarantee actually hold under a second-order failure?" — recurred across
 several independent findings.
 

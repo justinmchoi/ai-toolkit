@@ -4,7 +4,7 @@ Status: active
 Version: 0.6.0
 
 Always-on .NET/C# conventions for dependency-injection registration and
-codegen/scaffold output. Distilled from 2026-07 EpinServer work where DI
+codegen/scaffold output. Distilled from 2026-07 work on a .NET payments service where DI
 registration semantics silently dropped a second implementation, and a
 scaffolded EF Core migration surfaced changes the agent hadn't caused.
 

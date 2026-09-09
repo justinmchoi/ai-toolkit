@@ -7,7 +7,7 @@
     "title": ".NET Conventions Baseline",
     "repository": "local",
     "license": "repo-local",
-    "relationship": "Mirrored from es-ai-toolkit's dotnet-conventions pack — the DI-registration and codegen-drift facts are .NET-technical, not employer-specific, so this personal copy applies to any .NET work outside iQmetrix. Principles 25-35 backfilled 2026-09-08 via the baseline-gap-review skill's occurrence #3 pass — es-ai-toolkit had added these 2026-09-01 (EpinServer T&C reliability hardening and EntityManagerCache perf work) without a corresponding mirror-back note, an unmanaged drift caught by this pass's baseline-diff step rather than by anything in _Improvements itself. Principle 36 added 2026-09-08 from a TradeInServer Polly-resilience-scoping investigation, mirrored the same day into es-ai-toolkit."
+    "relationship": "Mirrored from the work toolkit's dotnet-conventions pack — the DI-registration and codegen-drift facts are .NET-technical, not employer-specific, so this personal copy applies to any .NET work outside work. Principles 25-35 backfilled 2026-09-08 via the baseline-gap-review skill's occurrence #3 pass — the work toolkit had added these 2026-09-01 (reliability-hardening and entity-cache performance work on a payments service) without a corresponding mirror-back note, an unmanaged drift caught by this pass's baseline-diff step rather than by anything in _Improvements itself. Principle 36 added 2026-09-08 from a Polly-resilience-scoping investigation on a trade-in service, mirrored the same day into the work toolkit."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

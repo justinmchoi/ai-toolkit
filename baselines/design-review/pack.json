@@ -7,7 +7,7 @@
     "title": "Design Review Baseline",
     "repository": "local",
     "license": "repo-local",
-    "relationship": "New baseline created 2026-09-01 from the baseline-gap-review skill's occurrence #2 pass over _Improvements — 11 principles from a single intense one-shot design-feedback session (EpinServer T&C reliability hardening) that didn't fit verification-epistemics's claim-verification scope or any other existing pack."
+    "relationship": "New baseline created 2026-09-01 from the baseline-gap-review skill's occurrence #2 pass over _Improvements — 11 principles from a single intense one-shot design-feedback session (reliability hardening on a payments service) that didn't fit verification-epistemics's claim-verification scope or any other existing pack."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

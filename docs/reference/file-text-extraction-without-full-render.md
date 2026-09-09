@@ -4,7 +4,7 @@ Status: technique note (2026-07-27, single occurrence so far — not yet a
 skill; see `process-vs-work-doctrine` rule 1). Promote to a skill if this
 recurs. The `.docx` technique below was corrected on 2026-08-25 after a real
 occurrence showed the original regex-based approach silently corrupting
-output. A 2026-09-08 occurrence (Rogers Trade-In spike) independently
+output. A 2026-09-08 occurrence (a device trade-in spike) independently
 re-derived the pre-correction regex/tag-stripping approach from scratch —
 this doc already covers the fix; the recurrence is recorded here as
 reinforcement, not as a new rule.

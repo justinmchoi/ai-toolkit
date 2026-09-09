@@ -37,7 +37,7 @@ A request that sounds like "add more to what's already there" is sometimes actua
 
 ## Observed but not yet formalized (candidates for a future pass)
 
-Real sessions occasionally invent structure this scaffold doesn't account for yet. When that happens, don't retrofit the skill on the spot — note the pattern here and revisit it deliberately later, the same way a grain shift gets flagged rather than forced into an existing file. Candidates observed so far, all from the 2026-09-04 Rogers Trade-In & Quick Quote Widget project session, none urgent or settled:
+Real sessions occasionally invent structure this scaffold doesn't account for yet. When that happens, don't retrofit the skill on the spot — note the pattern here and revisit it deliberately later, the same way a grain shift gets flagged rather than forced into an existing file. Candidates observed so far, all from one 2026-09-04 device-trade-in project session, none urgent or settled:
 
 - **`Templates/` folder** — a project-level folder holding reusable document templates specific to that project (distinct from this skill's own `references/*-template.md`, which are for scaffolding new projects, not for a project's own working documents).
 - **Dated Q&A closeout index** — a single file summarizing a session's resolved questions, separate from `Grilling/`'s design-decision output.

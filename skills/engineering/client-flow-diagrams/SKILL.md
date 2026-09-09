@@ -66,7 +66,7 @@ end
 
 Apply consistent visual differentiation between node types: at minimum distinguish process steps, decision points, success outcomes, and error outcomes. Specific `classDef` colour values and other conventions are recorded in `lessons.md` as candidate patterns pending further validation.
 
-When colour or shape carries meaning, add an in-picture legend: a separate `subgraph` block (e.g. `subgraph Legend["Legend"]`) containing one node per node type, styled with the same `classDef` classes used in the flow, deliberately left with no edges connecting it to the rest of the diagram — it reads as a key, not a flow step. Validated across two independent sessions (2026-06-08; 2026-09-03, Rogers E-Pin flow-diagram redesign).
+When colour or shape carries meaning, add an in-picture legend: a separate `subgraph` block (e.g. `subgraph Legend["Legend"]`) containing one node per node type, styled with the same `classDef` classes used in the flow, deliberately left with no edges connecting it to the rest of the diagram — it reads as a key, not a flow step. Validated across two independent sessions (2026-06-08; 2026-09-03, a carrier PIN-distribution flow-diagram redesign).
 
 ---
 

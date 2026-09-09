@@ -71,8 +71,8 @@ boundaries, or stricter repo-local instructions.
 
 ## Origin
 
-Distilled from Rogers/Fido carrier integration work (commits 613daf50,
-2a7152ea). The three bugs were: a service factory injecting a base-class builder
+Distilled from carrier-integration work. The three bugs were: a service
+factory injecting a base-class builder
 instead of the carrier-specific subtype; a confirmation flow calling the base
 builder directly instead of the polymorphic hook; and a hook signature that
 accepted a full aggregate object, preventing reuse from a second caller.

@@ -7,7 +7,7 @@
     "title": "SQL Server Safety Baseline",
     "repository": "local",
     "license": "repo-local",
-    "relationship": "Mirrored from es-ai-toolkit's sql-server-safety pack — the underlying facts are SQL Server technical correctness, not employer-specific, so this personal copy applies the same rules to any T-SQL work outside iQmetrix. Principles 13-14 added 2026-09-01, mirrored same day from es-ai-toolkit. Principle 16 added 2026-09, mirrored identically into the sibling pack the same day - keep both in sync going forward, consistent with prior practice for this pack."
+    "relationship": "Mirrored from the work toolkit's sql-server-safety pack — the underlying facts are SQL Server technical correctness, not employer-specific, so this personal copy applies the same rules to any T-SQL work outside work. Principles 13-14 added 2026-09-01, mirrored same day from the work toolkit. Principle 16 added 2026-09, mirrored identically into the sibling pack the same day - keep both in sync going forward, consistent with prior practice for this pack."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",

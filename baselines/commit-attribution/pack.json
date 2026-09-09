@@ -7,7 +7,7 @@
     "title": "Commit Attribution Baseline",
     "repository": "local",
     "license": "repo-local",
-    "relationship": "Mirrored from es-ai-toolkit's commit-attribution pack — the trailer/footer attribution rules are tool-neutral and not employer-specific, so this personal copy applies to any repository outside iQmetrix work."
+    "relationship": "Mirrored from the work toolkit's commit-attribution pack — the trailer/footer attribution rules are tool-neutral and not employer-specific, so this personal copy applies to any repository outside work."
   },
   "adapters": {
     "codex": "adapters/AGENTS.md.block",
