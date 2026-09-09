@@ -1,0 +1,15 @@
+{
+  "name": "improvement-pipeline",
+  "version": "0.1.0",
+  "status": "trial",
+  "kind": "flow",
+  "description": "How a lesson gets from a session into an always-on pack, and how a shipped rule that fails anyway gets back in. Two skills, one feedback loop.",
+  "skills": ["improvement-extraction", "baseline-gap-review"],
+  "entry": "Capture",
+  "terminals": ["NothingCaptured", "Archived", "PlacementFixed"],
+  "log": "$IMPROVEMENTS_ROOT/.flow-log",
+  "occurrences": [
+    { "date": "2026-09", "note": "session-closeout built as a hand-rolled multi-skill chain with fractional step numbers" },
+    { "date": "2026-09-09", "note": "extraction -> gap-review identified as a cycle; reopened-* feedback edge added without noticing it closed a loop" }
+  ]
+}

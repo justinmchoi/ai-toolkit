@@ -113,3 +113,9 @@ This is a third, distinct capture tool, not a replacement for whatever session-l
 - `improvement-extraction` (this skill) → things learned this session that could become a future CLAUDE.md/AGENTS.md baseline rule or a Claude Code skill, written as one candidate markdown file per idea so each can be reviewed and formalized into an actual baseline or skill later, one at a time. Stays inside the work context (a project folder), not a personal vault.
 
 If neither of the other two skills exists in this environment, that's fine — this skill still runs standalone.
+
+## Part of a flow
+
+This skill is a member of the **`improvement-pipeline`** flow (`flows/improvement-pipeline/flow.md`), together with `baseline-gap-review`. That file holds the normative state graph — the guards, the terminal states, and the feedback edge that returns a failed shipped rule to intake. Read it when the question is *where this step sits in the loop*; this file covers only how to run the step itself.
+
+On reaching a terminal state, append the flow's exit-log line to `$IMPROVEMENTS_ROOT/.flow-log`.

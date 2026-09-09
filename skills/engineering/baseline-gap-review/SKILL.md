@@ -269,3 +269,9 @@ automation on top of it needs its own justification, earned the same way
 this skill earned its own existence — a real, dated recurrence of the
 specific pain that automation would fix, not an assumption that it would
 help.
+
+## Part of a flow
+
+This skill is a member of the **`improvement-pipeline`** flow (`flows/improvement-pipeline/flow.md`), together with `improvement-extraction`. That file holds the normative state graph — the guards, the terminal states, and the feedback edge that returns a failed shipped rule to intake. Read it when the question is *where this step sits in the loop*; this file covers only how to run the step itself.
+
+On reaching a terminal state, append the flow's exit-log line to `$IMPROVEMENTS_ROOT/.flow-log`.
