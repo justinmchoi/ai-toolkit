@@ -58,6 +58,10 @@ Classify each into exactly one bucket:
   that belongs in `ai-toolkit`.
 - **skill-candidate** — proposes a new repeatable workflow/skill rather than
   a baseline bullet.
+- **recurrence** — a `reopened-*.md` note, written by `improvement-extraction`
+  when a candidate matched a rule already promoted into a pack. These are **not**
+  new rules and must never be processed as one. They are evidence that a shipped
+  rule failed to fire, and they route to step 5, not step 4.
 - **not-actionable** — empty placeholder, unreadable attachment, or too
   repo-narrow to generalize into either shared toolkit.
 
@@ -128,7 +132,64 @@ If a note doesn't cleanly fit one of these three, ask Justin rather than
 guessing — occurrence #1 resolved the ambiguous middle by asking, not by
 mechanically filing by "which employer's session produced this."
 
-### 5. Write the content
+### 5. Activation test — would this rule actually have fired?
+
+Before writing a single bullet, answer both questions **in writing** for each
+candidate. This step exists because the pipeline's dominant failure is not a
+badly-worded rule; it is a correct rule that never reaches the session where the
+mistake recurs.
+
+1. **What specific failure would this have prevented?** Name the incident, with a
+   date. If no concrete failure can be named, it is documentation, not a rule —
+   file it as a reference note and stop. "Sounds like good practice" is how packs
+   grow without getting better.
+2. **Given where it would be installed, would it have fired?** Check the tier the
+   target pack is actually applied at, on disk — not where you assume it is. A rule
+   promoted into a pack installed nowhere near the failure changes nothing, however
+   well written. If the honest answer is no, **the fix is placement, not text**:
+   record it as an activation problem and resolve that instead.
+
+For every note in the **recurrence** bucket, question 2 is the whole job. The rule
+text is already correct — it shipped and the failure happened anyway. Diagnose the
+delivery mechanism: installed at an unreachable level, buried mid-pack among
+dozens of bullets, or worded for a situation that didn't look like this one.
+**Rewording a rule that failed for activation reasons is the trap** — it looks like
+progress and changes nothing. Only touch the wording if the third cause is the
+real one, and say so explicitly.
+
+Record each answer in the disposition manifest (step 8). They are what makes the
+next eviction pass possible.
+
+### 6. Eviction pass — what leaves?
+
+An always-on pack is a **fixed budget, not an append-only log**, and every bullet
+is billed on every turn in every repo that inherits it. Nothing in this pipeline
+removes anything, so packs only grow. Fix that here, in the same pass that adds.
+
+For any pack receiving new principles this round, review its existing ones against
+four tests:
+
+- **Age + silence** — provenance says it was added N months ago and no note has
+  cited it since. A candidate, not yet a verdict.
+- **Ablation** — remove it, run a representative task, compare. The only real
+  evidence. Do this for at most one bullet per pass; it is the expensive test.
+- **Generality drift** — worded so narrowly it can only ever match the single
+  incident it came from. That is a reference note, not an always-on rule.
+- **Internalization** — general engineering advice current models now follow
+  unprompted. Depreciating inventory. Org-local facts are not in this category and
+  should not be evicted for looking mundane.
+
+**Do not evict on elegance.** A bullet that reads as blindingly obvious and still
+catches real mistakes is doing its job — this pipeline has already recorded rules
+that were violated *because they were not installed*, not because they were
+redundant. Eviction needs evidence of silence, not a judgment that a rule sounds
+unnecessary.
+
+Aim for a pack's net bullet count not to grow every single pass. If nothing can be
+evicted, say so explicitly in the manifest and move on — a deliberate "nothing
+left this round" is a finding; silently skipping the step is how the budget breaks.
+
+### 7. Write the content
 
 - **`es-ai-toolkit`** (shared team repo): create a fresh branch off an
   up-to-date `main` — never the currently-checked-out WIP branch, whatever
@@ -138,6 +199,15 @@ mechanically filing by "which employer's session produced this."
 - **`ai-toolkit`** (this repo, personal, solo): write directly to `main`,
   verify structural completeness, and push. No PR, no review gate — this is
   a personal repo.
+
+**Stamp provenance on every new principle.** In `baseline.md`, append to each
+principle a marker naming the date it landed and the note it came from:
+`_(added 2026-09-09, from `note-slug`)_`. This is not bookkeeping — it is the only
+thing that makes "when was this added, what incident produced it, and has anything
+cited it since?" answerable later. Without it the age-and-silence test in step 6
+has no input, and the pipeline can never tell a load-bearing rule from a
+decorative one. Backfill provenance for any principle you touch while you are in
+the file anyway; do not attempt a full historical backfill in one pass.
 
 For every existing baseline that gets NEW principles added (not brand-new
 baselines — those get fresh adapters as part of creating them), a
@@ -159,7 +229,7 @@ sync if left untouched, and occurrence #2 shipped both mistakes at first:
   up the fix immediately rather than staying stale until someone happens to
   re-apply it later.
 
-### 6. Archive every processed source file
+### 8. Archive every processed source file
 
 Move every file this pass touched — including `not-actionable` ones — into
 `_Improvements/Done/`. Write a new dated disposition manifest alongside them
@@ -172,6 +242,10 @@ following the shape of the 2026-07-29 one) recording:
   content landed (or why it didn't).
 - The placement heuristic actually used this round, and any refinements to
   it.
+- **The step-5 activation answers** for every promoted rule, and for every
+  recurrence note the diagnosed reason the shipped rule didn't fire.
+- **The step-6 eviction outcome** — what was removed, what was considered and
+  kept, or an explicit "nothing evicted this round" with the reason.
 - Landing status for both repos (branch/PR link for `es-ai-toolkit`; merged
   confirmation for `ai-toolkit`).
 
