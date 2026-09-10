@@ -30,6 +30,9 @@ param(
     # For 'doctor': suppress per-check progress lines.
     [switch] $Quiet,
 
+    # For 'doctor': repair the unambiguous problems (stale installs, orphaned rules).
+    [switch] $Fix,
+
     # For 'audit': act on the safe parts instead of only reporting.
     [switch] $Apply,
 
@@ -157,7 +160,7 @@ function Invoke-BaselineCommand {
     }
 
     if ($Command -eq "doctor") {
-        & (Join-Path $scriptDir "baselines/doctor.ps1") -Repos $Repos -Here:$Here -Quiet:$Quiet
+        & (Join-Path $scriptDir "baselines/doctor.ps1") -Repos $Repos -Here:$Here -Quiet:$Quiet -Fix:$Fix
         return
     }
 

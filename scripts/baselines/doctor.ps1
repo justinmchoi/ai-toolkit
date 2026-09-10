@@ -28,13 +28,24 @@ param(
     [string] $Repos = "",
 
     # Shorthand for -Repos .
-    [switch] $Here
+    [switch] $Here,
+
+    # Repair the unambiguous problems instead of only reporting them:
+    #   stale install   -> re-apply from source (source is truth, no judgment needed)
+    #   orphaned rule   -> delete the rule file (its pack no longer declares paths, so it
+    #                      now loads eagerly, which is strictly worse than absent)
+    # Deliberately NOT fixed: duplicate tier. Which tier should own a pack is a real decision
+    # -- usually the inherited copy is newer and the local one should go, but a repo may pin an
+    # older or stricter variant on purpose, and a tool that silently deletes instruction blocks
+    # will eventually delete something someone meant.
+    [switch] $Fix
 )
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $problems = @()
 $advisories = @()
+$fixes = @()
 $checked = 0
 
 function Resolve-RepoTargets([string] $Spec, [switch] $IncludeCwd) {
@@ -237,7 +248,13 @@ if (Test-Path -LiteralPath $userClaude) {
         if (-not (Test-Path -LiteralPath $srcJson)) { continue }   # owned by the other toolkit
         $srcVer = (Get-Content -LiteralPath $srcJson -Raw | ConvertFrom-Json).version
         if ($m.Groups["v"].Value -ne $srcVer) {
-            Add-Problem "stale install" "user tier has $pk v$($m.Groups['v'].Value) but source is v$srcVer -- re-apply"
+            if ($Fix) {
+                $variant = if ($m.Groups["variant"].Success) { $m.Groups["variant"].Value } else { "auto" }
+                & (Join-Path (Split-Path -Parent $PSScriptRoot) "baseline.ps1") apply $pk -Tools claude -Variant $variant -TargetRepo (Join-Path $HOME ".claude") *>$null
+                $fixes += "re-applied $pk at the user tier (was v$($m.Groups['v'].Value), source v$srcVer, variant $variant)"
+            } else {
+                Add-Problem "stale install" "user tier has $pk v$($m.Groups['v'].Value) but source is v$srcVer -- re-apply (or run -Fix)"
+            }
         }
     }
 }
@@ -250,7 +267,12 @@ if (Test-Path -LiteralPath $userRules) {
         if (-not (Test-Path -LiteralPath $srcJson)) { continue }
         $meta = Get-Content -LiteralPath $srcJson -Raw | ConvertFrom-Json
         if (-not ($meta.PSObject.Properties.Name -contains "paths")) {
-            Add-Problem "orphaned rule" "$($rf.Name): installed as a path-scoped rule but the pack no longer declares paths, so it now loads eagerly"
+            if ($Fix) {
+                Remove-Item -LiteralPath $rf.FullName -Force
+                $fixes += "deleted $($rf.Name) (its pack no longer declares paths, so the rule loaded eagerly)"
+                continue
+            }
+            Add-Problem "orphaned rule" "$($rf.Name): installed as a path-scoped rule but the pack no longer declares paths, so it now loads eagerly (or run -Fix)"
         }
         if ((Get-Content -LiteralPath $rf.FullName -Raw) -notmatch "(?s)^---\s*\r?\npaths:") {
             Add-Problem "orphaned rule" "$($rf.Name): missing paths: frontmatter -- it loads on every turn"
@@ -349,6 +371,13 @@ if (Test-Path -LiteralPath (Join-Path $repoRoot "workflows")) {
 
 # --- report -------------------------------------------------------------------------------------
 Write-Host ""
+function Write-Fixes {
+    if ($fixes.Count -eq 0) { return }
+    Write-Host ""
+    Write-Host "  repaired"
+    foreach ($f in $fixes) { Write-Host ("    + " + $f) }
+}
+
 function Write-Advisories {
     if ($advisories.Count -eq 0) { return }
     Write-Host ""
@@ -358,6 +387,7 @@ function Write-Advisories {
 
 if ($problems.Count -eq 0) {
     Write-Host "doctor: $checked invariants checked, no drift found"
+    Write-Fixes
     Write-Advisories
     exit 0
 }
@@ -367,6 +397,7 @@ foreach ($group in ($problems | Group-Object Invariant | Sort-Object Name)) {
     Write-Host ("  " + $group.Name)
     foreach ($p in $group.Group) { Write-Host ("    - " + $p.Detail) }
 }
+Write-Fixes
 Write-Advisories
 Write-Host ""
 exit 1

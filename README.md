@@ -98,6 +98,13 @@ in other repos (a path, a glob ending in `*`, or `.`/`cwd`); `-Here` is shorthan
 It also prints **advisories** — judgment calls that do not fail the build, such as a skill that
 loops and names other skills but belongs to no flow.
 
+`-Fix` repairs the two unambiguous problems: a **stale install** (re-applied from source, preserving
+the installed variant) and an **orphaned rule** (deleted — its pack no longer declares `paths`, so
+it had started loading eagerly, which is worse than absent). It deliberately does **not** fix a
+**duplicate tier**: which tier should own a pack is a real decision, and a tool that silently deletes
+instruction blocks will eventually delete one someone meant. Use `baseline remove <pack>` in the
+repo that should give it up.
+
 `scripts/tests/baseline-tests.ps1` (13 cases) covers the CLI; `scripts/tests/install-tests.sh`
 (4 cases) covers skill installation. Both are mutation-tested.
 
