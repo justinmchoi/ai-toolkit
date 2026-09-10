@@ -26,8 +26,11 @@ historical reference; do not treat it as current.
 - Recommended repo name: `ai-toolkit`.
 - `skills/` is the canonical source for reusable skills.
 - `baselines/` is the canonical source for always-on agent baseline packs.
-- `workflows/`, `agents/`, and `templates/` are planned source trees for
-  reusable workflow definitions, role packs, and supporting templates.
+- `flows/` is the canonical source for multi-skill methodologies declared as state
+  graphs. It is what the previously-planned `workflows/` tree became — one concept,
+  one directory; do not create `workflows/` alongside it.
+- `agents/` and `templates/` remain planned source trees for role packs and
+  supporting templates.
 - `.claude/skills/` is the Claude Code project adapter.
 - `scripts/skills.ps1` is the public skill CLI.
 - `scripts/baseline.ps1` is the public baseline CLI.

@@ -337,6 +337,16 @@ if (Test-Path -LiteralPath $presetsDir) {
     }
 }
 
+# --- 14. a retired domain name must not come back -----------------------------------------------
+# `workflows/` was a planned tree for years and shipped as `flows/`. Two directories for one concept
+# is how a codebase ends up with a lagging duplicate, so the decision is enforced rather than
+# recorded: if someone (or some future session) creates workflows/, this fails and points at flows/.
+Note "checking retired domain names..."
+$checked++
+if (Test-Path -LiteralPath (Join-Path $repoRoot "workflows")) {
+    Add-Problem "retired domain name" "workflows/ exists -- that concept shipped as flows/. Move its contents there and delete it; two trees for one concept is how a lagging duplicate starts."
+}
+
 # --- report -------------------------------------------------------------------------------------
 Write-Host ""
 function Write-Advisories {

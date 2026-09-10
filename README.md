@@ -42,9 +42,11 @@ Planned future source trees:
 
 ```text
 agents/
-workflows/
 templates/
 ```
+
+> `workflows/` used to be listed here. It shipped as **`flows/`** — same concept, realized name.
+> There is no separate `workflows/` tree and there should not be one.
 
 ### Domains, by when they load
 
@@ -80,6 +82,14 @@ git config core.hooksPath .githooks
 
 Bypass deliberately with `git commit --no-verify` when you mean to.
 
+**`AGENTS.md` and `.github/copilot-instructions.md` in consuming repos are knowingly
+unmanaged.** Only Claude inherits instruction files, so a baseline block in one of those two is the
+*only* copy Codex or Copilot gets — correct, not redundant. Many repos therefore carry blocks there
+at versions of packs that no longer exist upstream. **This is a deliberate hold, not an oversight:**
+they are stale, `audit` reports them as such and never edits them, and bringing them current is a
+separate decision that depends on whether those tools are actually in use. Do not "fix" them as part
+of a Claude-side cleanup — deleting them removes the only guidance those tools have.
+
 **Drift checking.** `baseline doctor` verifies every invariant this repo has actually broken before:
 version coherence across `pack.json` / `baseline.md` / adapter markers, the three full adapters being
 identical, core tagging, apply/remove target parity, skill frontmatter, installed skills being links
@@ -98,8 +108,9 @@ loops and names other skills but belongs to no flow.
 - `baselines/` owns always-on managed instruction packs.
 - `bookshelf/` owns unprocessed external resource pointers (skill repos,
   tools, articles) — one note per resource, indexed in `bookshelf/INDEX.md`.
-- `workflows/` will own reusable tool-neutral workflow definitions when they
-  graduate out of specs.
+- `flows/` owns multi-skill methodologies declared as state graphs. This is what the
+  long-planned `workflows/` tree became — one concept, one directory. Do not add a
+  `workflows/` tree alongside it.
 - `agents/` will own reusable role or agent profiles when the contract is
   proven.
 - `scripts/` owns deterministic install, apply, remove, verify, and shim

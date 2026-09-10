@@ -134,7 +134,7 @@ foreach ($repo in $targets) {
             @($f.Packs | Where-Object { $effective.ContainsKey($_.Pack) -and ($effective[$_.Pack] -split ";").Count -gt 1 })
         } else { @() }
         $tag = if ($f.Tracked) { "TRACKED - team file, needs a PR" } else { "untracked - local only" }
-        $dupeNote = if ($inherits) { "$($dupes.Count) also inherited (in context twice)" } else { "no inheritance for this tool - local is the only copy" }
+        $dupeNote = if ($inherits) { "$($dupes.Count) also inherited (in context twice)" } else { "KNOWINGLY UNMANAGED - no inheritance for this tool, so local is the only copy" }
         Write-Host ("  " + $f.Rel + ": " + $f.Packs.Count + " local block(s), " + $dupeNote + "  [" + $tag + "]")
         foreach ($d in ($dupes | Select-Object -First 4)) {
             Write-Host ("      ~ " + $d.Pack + "  ->  " + $effective[$d.Pack])
@@ -148,7 +148,10 @@ foreach ($repo in $targets) {
                 foreach ($d in $dupes) { & $cli remove $d.Pack -Tools claude -TargetRepo $repo *>$null }
                 Write-Host ("      -> removed " + $dupes.Count + " duplicate block(s) from this untracked file")
             } else {
-                Write-Host "      -> left alone: AGENTS.md / copilot have no inheritance, so a local block is their only copy."
+                Write-Host "      -> left alone by design. Codex/Copilot do not inherit, so this is their only copy."
+                Write-Host "         These blocks are often stale (packs at versions no longer upstream). That is a"
+                Write-Host "         deliberate hold, not an oversight -- bringing them current depends on whether those"
+                Write-Host "         tools are in use, and deleting them removes the only guidance they have."
             }
         }
     }
