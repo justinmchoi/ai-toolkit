@@ -1,7 +1,7 @@
 # Verification Epistemics Baseline
 
 Status: active
-Version: 0.8.0
+Version: 0.9.0
 
 Always-on discipline for a recurring failure mode: treating an inherited,
 paraphrased, or confidently-stated claim as verified fact without checking it
@@ -744,6 +744,20 @@ producing a wrong conclusion that direct verification would have caught.
     artifact is only a hypothesis about the rest, and an assertion fails loudly
     on the one that differs instead of silently corrupting it.
     _(added 2026-09-09, from `encode-preconditions-as-assertions-not-beliefs`)_
+
+84. Verify a checker before believing either of its verdicts.
+    A checker's false negative looks exactly like a clean result, and its false
+    positive looks exactly like a real defect, so a surprising verdict is
+    evidence about the checker at least as much as about the thing checked.
+    Three instances in one session: a fuzzy text matcher reported a principle
+    missing that was present but reworded (it keyed on the first 60
+    characters); a mutation test passed because a fallback repaired the
+    mutation, making a working suite look worthless; and a preset parser
+    reported every entry missing because CRLF put a trailing carriage return
+    inside each path, while separately mis-reading section markers. When a
+    check says everything is broken, or nothing is, run it against a case whose
+    answer you already know before acting on it.
+    _(added 2026-09-10, from three self-inflicted instances in the 2026-09-09 toolkit session)_
 
 ## Priority
 
