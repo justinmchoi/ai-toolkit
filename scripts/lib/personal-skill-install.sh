@@ -45,17 +45,43 @@ HINT
   esac
 }
 
+# Windows note: under Git Bash, `ln -s` does not fail when symlink creation is unavailable -- it
+# silently COPIES the directory instead. A copy then drifts from the source in both directions, and
+# a later reinstall destroys whatever was edited in the installed copy. That has already happened
+# here (the eli5 recovery, 2026-09-09), so a copy is never an acceptable outcome.
+#
+# Real symlinks need elevation on Windows even with Developer Mode enabled, but a directory
+# JUNCTION needs neither and resolves identically for reads. Try the symlink; fall back to a
+# junction rather than erroring out.
 create_symlink() {
   local link_source="$1"
   local link_target="$2"
 
-  ln -s "$link_source" "$link_target"
+  ln -s "$link_source" "$link_target" 2>/dev/null || true
 
-  if [ ! -L "$link_target" ]; then
-    printf 'ERROR: ln -s did not create a real symlink: %s -> %s\n' "$link_target" "$link_source" >&2
-    symlink_failure_hint
-    exit 1
+  if [ -L "$link_target" ]; then
+    return 0
   fi
+
+  # ln -s produced a copy (or nothing). Remove it before the fallback so a half-installed
+  # directory is never left behind.
+  [ ! -e "$link_target" ] || rm -rf "$link_target"
+
+  if command -v powershell.exe >/dev/null 2>&1; then
+    win_target="$(cygpath -w "$link_target" 2>/dev/null || printf '%s' "$link_target")"
+    win_source="$(cygpath -w "$link_source" 2>/dev/null || printf '%s' "$link_source")"
+    powershell.exe -NoProfile -Command "New-Item -ItemType Junction -Path '$win_target' -Target '$win_source' -Force | Out-Null" >/dev/null 2>&1 || true
+    if [ -d "$link_target" ]; then
+      printf 'note: used a directory junction instead of a symlink: %s -> %s
+' "$link_target" "$link_source"
+      return 0
+    fi
+  fi
+
+  printf 'ERROR: could not link (symlink and junction both failed): %s -> %s
+' "$link_target" "$link_source" >&2
+  symlink_failure_hint
+  exit 1
 }
 
 move_to_backup() {

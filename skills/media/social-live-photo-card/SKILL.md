@@ -6,6 +6,8 @@ metadata:
   problem: Agents often treat Live Photo work as generic video export, missing the static first-frame requirement, short platform duration limits, card layout constraints, and phone-side publishing path.
   when-not-to-use: Do not use for long-form video editing, pure photo retouching, unauthorized public-media harvesting, full tutorials that need sequential explanation, or static social cards with no motion evidence.
   maintainer: Justin Choi
+maintainer: justin.choi
+status: stable
 ---
 
 # Social Live Photo Card

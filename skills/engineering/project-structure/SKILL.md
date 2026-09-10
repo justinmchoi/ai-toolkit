@@ -1,6 +1,8 @@
 ---
 name: project-structure
 description: Scaffold a new personal project folder under a-projects/ with a standardized skeleton (master index, business/domain glossary, external-documentation folder, a stable home for design-decision sessions), or audit an existing organically-evolved project folder against that same convention and propose a migration plan for approval. Use this whenever the user wants to start a new project folder for ongoing multi-session work (a new client, initiative, or investigation), says things like "set up a project structure," "scaffold a project," "apply the project structure to X," or is about to create a new top-level folder/file in an existing a-projects/ folder without first checking whether an established convention already covers it. Also trigger proactively when a project folder has clearly grown ad hoc — multiple sessions each inventing new top-level folders with inconsistent naming (numbered vs. not, PascalCase vs. spaces vs. underscores) — even if the user hasn't explicitly asked to fix it.
+maintainer: justin.choi
+status: stable
 ---
 
 # Project Structure

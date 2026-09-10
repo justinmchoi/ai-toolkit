@@ -11,10 +11,15 @@ param(
 $ErrorActionPreference = "Stop"
 
 $toolMap = @{
-    codex = "AGENTS.md"
-    claude = "CLAUDE.md"
-    copilot = ".github/copilot-instructions.md"
+    codex         = "AGENTS.md"
+    claude        = "CLAUDE.md"
+    copilot       = ".github/copilot-instructions.md"
+    "claude-rule" = ".claude/rules/$Pack.md"
 }
+
+# A path-scoped rule file exists solely to carry one pack, so removing that pack means deleting
+# the file. Stripping the block would leave an orphaned `paths:` frontmatter that still loads.
+$ruleTools = @("claude-rule")
 
 function Read-Utf8Text($Path) {
     return [System.IO.File]::ReadAllText($Path, [System.Text.Encoding]::UTF8)
@@ -46,6 +51,16 @@ foreach ($tool in $Tools) {
 
     if (-not (Test-Path -LiteralPath $targetPath)) {
         Write-Output "skip missing $targetRel for $tool in $resolvedTarget"
+        continue
+    }
+
+    if ($ruleTools -contains $tool) {
+        if ($DryRun) {
+            Write-Output "would delete $targetRel for $tool"
+            continue
+        }
+        Remove-Item -LiteralPath $targetPath -Force
+        Write-Output "deleted $targetRel for $tool"
         continue
     }
 

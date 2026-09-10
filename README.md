@@ -16,8 +16,12 @@ scripts.
 ├── CONTEXT.md
 ├── .claude/
 │   └── skills/
+├── Glossary/
 ├── baselines/
 ├── bookshelf/
+├── flows/
+├── hooks/
+├── presets/
 ├── docs/
 │   ├── adr/
 │   ├── agents/
@@ -41,6 +45,37 @@ agents/
 workflows/
 templates/
 ```
+
+### Domains, by when they load
+
+The axis that decides most placement questions is not *what* an artifact is but *when it costs you
+context*.
+
+| Domain | What it is | Loads |
+|---|---|---|
+| `baselines/` | always-on context packs | every turn (see the core/full split) |
+| `skills/` | on-demand procedures | on invocation; only name + description stay always-on |
+| `hooks/` | mechanical enforcement | on a tool event |
+| `flows/` | a methodology spanning several skills, as a state graph | referenced by its entry skill |
+| `Glossary/` | this toolkit's own vocabulary, one file per term | read on demand |
+| `presets/` | named subsets of baseline packs | n/a |
+
+**Core / full split.** An always-on pack may ship two renderings: `adapters/CLAUDE.md.block` (the
+full, append-only reference) and `adapters/CLAUDE.md.core.block` (slim, target under 15 lines,
+tagged `(core)` in its marker). `apply` installs core by default when one exists and **preserves
+whatever is already installed**; `-Variant core|full` chooses explicitly. This bounds always-on cost
+by construction instead of by deleting rules.
+
+**Path-scoped rules.** A pack whose rules are file-type-specific declares `paths` in `pack.json` and
+installs with `-Tools claude-rule`, writing `.claude/rules/<pack>.md` with `paths:` frontmatter so it
+loads only when a matching file is read. `-Tools all` does not include it — it is opt-in by name.
+
+**Drift checking.** `baseline doctor` verifies every invariant this repo has actually broken before:
+version coherence across `pack.json` / `baseline.md` / adapter markers, the three full adapters being
+identical, core tagging, apply/remove target parity, skill frontmatter, installed skills being links
+rather than copies, and every on-disk domain appearing above. Run it before committing.
+`scripts/tests/baseline-tests.ps1` covers the CLI itself — run it after touching `scripts/`.
+
 
 ## Source Trees
 

@@ -1,6 +1,8 @@
 ---
 name: setup-agent-team
 description: Create a bounded manual execution packet for large AI-agent team workflows, or refuse/downgrade when the task should stay single-agent. Use when work is multi-domain, parallelizable, and context-heavy enough to need role selection, context packets, ownership boundaries, handoffs, budgets, verification, package-execution policy, and external-system credential policy before launching workers.
+maintainer: justin.choi
+status: stable
 ---
 
 # Setup Agent Team

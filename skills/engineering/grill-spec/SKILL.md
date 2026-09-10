@@ -1,6 +1,8 @@
 ---
 name: grill-spec
 description: 在還沒有具體計畫時盤問需求、術語、邊界與驗收條件，出口是第一個最小 vertical slice。Use when requirements are unclear and no concrete plan exists yet — the user has a goal or feature idea but scope, acceptance checks, or domain terms are still fuzzy. Do NOT use when a concrete plan already exists and needs challenging against documented decisions — use grill-with-docs for that.
+maintainer: justin.choi
+status: stable
 ---
 
 # Grill Spec

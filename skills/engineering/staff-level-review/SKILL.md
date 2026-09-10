@@ -1,6 +1,8 @@
 ---
 name: staff-level-review
 description: Read-only engineering review with a fixed findings/verdict output contract. Use when the review needs that contract, a review context bundle, or a non-GitHub diff source (e.g. Azure DevOps, a patch file, a bounded set of repos and docs). For routine review of a local diff or GitHub PR, prefer the built-in /code-review or /review instead.
+maintainer: justin.choi
+status: stable
 ---
 
 # Staff-Level Review

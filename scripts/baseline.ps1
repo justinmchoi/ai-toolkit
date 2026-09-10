@@ -115,7 +115,7 @@ function Invoke-BaselineCommand {
         }
     }
 
-    $validCommands = @("list", "show", "apply", "remove", "verify", "apply-preset", "presets", "status", "shim", "help", "--help", "-h")
+    $validCommands = @("list", "show", "apply", "remove", "verify", "apply-preset", "presets", "status", "shim", "doctor", "help", "--help", "-h")
     if ($validCommands -notcontains $Command) {
         throw "Unknown command: $Command"
     }
@@ -133,6 +133,11 @@ function Invoke-BaselineCommand {
         if ($Name -and -not $Pack) {
             $script:Pack = $Name
         }
+    }
+
+    if ($Command -eq "doctor") {
+        & (Join-Path $scriptDir "baselines/doctor.ps1")
+        return
     }
 
     if ($Command -eq "shim") {

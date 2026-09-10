@@ -44,6 +44,24 @@ $required = @(
     "adapters/copilot-instructions.md.block"
 )
 
+# The core adapter is optional -- only always-on packs need a slim rendering. When one exists it
+# must agree with pack.json, or `apply -Variant core` would install a stale version marker.
+$coreAdapter = Join-Path $packRoot "adapters/CLAUDE.md.core.block"
+if (Test-Path -LiteralPath $coreAdapter) {
+    $coreText = [System.IO.File]::ReadAllText($coreAdapter, [System.Text.Encoding]::UTF8)
+    $escapedPack = [regex]::Escape($Pack)
+    $m = [regex]::Match($coreText, "<!-- BEGIN baseline:$escapedPack v(?<v>[^ >]+)(?: \((?<variant>[a-z]+)\))? -->")
+    if (-not $m.Success) {
+        throw "Core adapter has no recognisable BEGIN marker for $Pack"
+    } elseif ($m.Groups["v"].Value -ne $packVersion) {
+        throw "Core adapter marker v$($m.Groups['v'].Value) does not match pack.json v$packVersion"
+    } elseif ($m.Groups["variant"].Value -ne "core") {
+        throw "Core adapter marker is not tagged (core); apply could not tell it apart from the full block"
+    } else {
+        Write-Output "ok   core adapter present and tagged (core) at v$packVersion"
+    }
+}
+
 foreach ($rel in $required) {
     $path = Join-Path $packRoot $rel
     if (-not (Test-Path -LiteralPath $path)) {
@@ -76,7 +94,7 @@ if ($TargetRepo) {
         claude = "CLAUDE.md"
         copilot = ".github/copilot-instructions.md"
     }
-    $newBeginPattern = "<!-- BEGIN baseline:$([regex]::Escape($Pack)) v(?<version>[^ >]+) -->"
+    $newBeginPattern = "<!-- BEGIN baseline:$([regex]::Escape($Pack)) v(?<version>[^ >]+)(?: \((?<variant>[a-z]+)\))? -->"
     $newBlockPattern = "$newBeginPattern.*?<!-- END baseline:$([regex]::Escape($Pack)) -->"
     $legacyBeginPattern = "<!-- BEGIN portable-agent-baseline:$([regex]::Escape($Pack)) v(?<version>[^ >]+) -->"
     $legacyBlockPattern = "$legacyBeginPattern.*?<!-- END portable-agent-baseline:$([regex]::Escape($Pack)) -->"
@@ -109,7 +127,8 @@ if ($TargetRepo) {
             throw "Stale $Pack managed block in ${targetRel}: installed v$installedVersion, source v$packVersion"
         }
 
+        $installedVariant = if ($match.Groups["variant"].Success) { $match.Groups["variant"].Value } else { "full" }
         $markerStatus = if ($legacyMatch.Success) { "legacy marker; run apply to migrate" } else { "marker ok" }
-        Write-Output "target ok: $targetRel contains $Pack v$installedVersion ($markerStatus)"
+        Write-Output "target ok: $targetRel contains $Pack v$installedVersion ($installedVariant, $markerStatus)"
     }
 }

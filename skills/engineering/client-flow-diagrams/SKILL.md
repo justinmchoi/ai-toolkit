@@ -1,6 +1,8 @@
 ---
 name: client-flow-diagrams
 description: Create or revise high-level flow diagrams for client or non-technical audiences. Use when the user needs a workflow, process, integration, or system-interaction diagram that communicates business-level behavior without exposing implementation details.
+maintainer: justin.choi
+status: stable
 ---
 
 # Client Flow Diagrams

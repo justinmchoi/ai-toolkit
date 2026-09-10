@@ -1,6 +1,8 @@
 ---
 name: draft-handoff
 description: Hand a drafted artifact to the user through the clipboard, with post-copy verification and on-demand re-copy, so the user can review it and paste it into a destination the agent must not or cannot write to directly (a review-gated personal vault such as Obsidian, a web form, another application). Trigger phrases include "copy for me", "幫我複製", "pbcopy", "過目再貼". Do NOT use when the agent can write the content into the target repo directly, or for multi-file transfers.
+maintainer: justin.choi
+status: stable
 ---
 
 # Draft Handoff（草稿剪貼簿交接）
