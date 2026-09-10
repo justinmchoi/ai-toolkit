@@ -30,6 +30,9 @@ param(
     # For 'doctor': suppress per-check progress lines.
     [switch] $Quiet,
 
+    # For 'audit': act on the safe parts instead of only reporting.
+    [switch] $Apply,
+
     [switch] $CreateMissing,
 
     [switch] $SkipMissing,
@@ -126,7 +129,7 @@ function Invoke-BaselineCommand {
         }
     }
 
-    $validCommands = @("list", "show", "apply", "remove", "verify", "apply-preset", "presets", "status", "shim", "doctor", "help", "--help", "-h")
+    $validCommands = @("list", "show", "apply", "remove", "verify", "apply-preset", "presets", "status", "shim", "doctor", "audit", "help", "--help", "-h")
     if ($validCommands -notcontains $Command) {
         throw "Unknown command: $Command"
     }
@@ -144,6 +147,13 @@ function Invoke-BaselineCommand {
         if ($Name -and -not $Pack) {
             $script:Pack = $Name
         }
+    }
+
+    if ($Command -eq "audit") {
+        if (-not $Repos -and -not $Here) { throw "audit needs -Repos <path|glob|.> (or -Here)" }
+        $spec = if ($Here) { "." } else { $Repos }
+        & (Join-Path $scriptDir "baselines/audit.ps1") -Repos $spec -Apply:$Apply
+        return
     }
 
     if ($Command -eq "doctor") {
