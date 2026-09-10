@@ -11,5 +11,13 @@
     "codex": "adapters/AGENTS.md.block",
     "claude": "adapters/CLAUDE.md.block",
     "copilot": "adapters/copilot-instructions.md.block"
-  }
+  },
+  "paths": [
+    "**/*[Tt]est*.cs",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/*_test.py",
+    "**/test/**",
+    "**/tests/**"
+  ]
 }

@@ -14,12 +14,20 @@ $toolMap = @{
     codex         = "AGENTS.md"
     claude        = "CLAUDE.md"
     copilot       = ".github/copilot-instructions.md"
-    "claude-rule" = ".claude/rules/$Pack.md"
+    "claude-rule" = ""
 }
 
 # A path-scoped rule file exists solely to carry one pack, so removing that pack means deleting
 # the file. Stripping the block would leave an orphaned `paths:` frontmatter that still loads.
 $ruleTools = @("claude-rule")
+
+# The rule target is ".claude/rules/<pack>.md" relative to a REPO. At the user tier the target
+# passed in is already ~/.claude, so naively prefixing produces ~/.claude/.claude/rules/<pack>.md --
+# a path Claude Code never reads, i.e. a file that installs cleanly and does nothing. Detect it.
+function Resolve-RuleRelativePath($ResolvedTarget, $PackName) {
+    if ((Split-Path -Leaf $ResolvedTarget) -eq ".claude") { return "rules/$PackName.md" }
+    return ".claude/rules/$PackName.md"
+}
 
 function Read-Utf8Text($Path) {
     return [System.IO.File]::ReadAllText($Path, [System.Text.Encoding]::UTF8)
@@ -46,7 +54,7 @@ foreach ($tool in $Tools) {
         throw "Unsupported tool '$tool'. Supported tools: $($toolMap.Keys -join ', ')"
     }
 
-    $targetRel = $toolMap[$tool]
+    $targetRel = if ($ruleTools -contains $tool) { Resolve-RuleRelativePath $resolvedTarget $Pack } else { $toolMap[$tool] }
     $targetPath = Join-Path $resolvedTarget $targetRel
 
     if (-not (Test-Path -LiteralPath $targetPath)) {

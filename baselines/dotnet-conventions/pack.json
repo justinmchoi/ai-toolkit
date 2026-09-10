@@ -13,5 +13,12 @@
     "codex": "adapters/AGENTS.md.block",
     "claude": "adapters/CLAUDE.md.block",
     "copilot": "adapters/copilot-instructions.md.block"
-  }
+  },
+  "paths": [
+    "**/*.cs",
+    "**/*.csproj",
+    "**/*.sln",
+    "**/*.slnx",
+    "**/Directory.Build.props"
+  ]
 }

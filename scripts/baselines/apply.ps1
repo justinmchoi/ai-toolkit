@@ -35,7 +35,15 @@ $toolMap = @{
     codex         = @{ Target = "AGENTS.md";                        Adapter = "AGENTS.md.block" }
     claude        = @{ Target = "CLAUDE.md";                        Adapter = "CLAUDE.md.block"; CoreAdapter = "CLAUDE.md.core.block" }
     copilot       = @{ Target = ".github/copilot-instructions.md";  Adapter = "copilot-instructions.md.block" }
-    "claude-rule" = @{ Target = ".claude/rules/$Pack.md";           Adapter = "CLAUDE.md.block"; IsRule = $true }
+    "claude-rule" = @{ Target = "";                                 Adapter = "CLAUDE.md.block"; IsRule = $true }
+}
+
+# The rule target is ".claude/rules/<pack>.md" relative to a REPO. At the user tier the target
+# passed in is already ~/.claude, so naively prefixing produces ~/.claude/.claude/rules/<pack>.md --
+# a path Claude Code never reads, i.e. a file that installs cleanly and does nothing. Detect it.
+function Resolve-RuleRelativePath($ResolvedTarget, $PackName) {
+    if ((Split-Path -Leaf $ResolvedTarget) -eq ".claude") { return "rules/$PackName.md" }
+    return ".claude/rules/$PackName.md"
 }
 
 function Read-Utf8Text($Path) {
@@ -88,7 +96,7 @@ foreach ($tool in $Tools) {
         throw "Unsupported tool '$tool'. Supported tools: $($toolMap.Keys -join ', ')"
     }
 
-    $targetRel = $toolMap[$tool].Target
+    $targetRel = if ($toolMap[$tool].IsRule) { Resolve-RuleRelativePath $resolvedTarget $Pack } else { $toolMap[$tool].Target }
     $targetPath = Join-Path $resolvedTarget $targetRel
     $coreAdapterRel = $toolMap[$tool].CoreAdapter
     $hasCore = $coreAdapterRel -and (Test-Path -LiteralPath (Join-Path (Join-Path $packRoot "adapters") $coreAdapterRel))

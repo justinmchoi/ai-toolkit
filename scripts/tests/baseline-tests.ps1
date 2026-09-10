@@ -138,6 +138,33 @@ Test-Case "-Tools all does not sweep in the named-only rule target" {
     }
 }
 
+Test-Case "REGRESSION: a rule installed at the user tier does not nest a second .claude" {
+    # ~/.claude is itself the target, so a naive ".claude/rules/<pack>.md" prefix yields
+    # ~/.claude/.claude/rules/<pack>.md -- a path Claude Code never reads. It installs cleanly
+    # and does nothing, which is the worst failure shape there is.
+    $fakeHome = New-Target
+    $userDir = Join-Path $fakeHome ".claude"
+    New-Item -ItemType Directory -Path $userDir -Force | Out-Null
+    Invoke-Cli @{Command="apply"; Name=$packWithPaths; Tools="claude-rule"; TargetRepo=$userDir} | Out-Null
+    if (Test-Path -LiteralPath (Join-Path $userDir ".claude")) {
+        throw "created a nested .claude under the user tier -- the rule is inert"
+    }
+    if (-not (Test-Path -LiteralPath (Join-Path $userDir "rules/$packWithPaths.md"))) {
+        throw "rule not written to <target>/rules/ at the user tier"
+    }
+}
+
+Test-Case "remove finds the user-tier rule it installed" {
+    $fakeHome = New-Target
+    $userDir = Join-Path $fakeHome ".claude"
+    New-Item -ItemType Directory -Path $userDir -Force | Out-Null
+    Invoke-Cli @{Command="apply"; Name=$packWithPaths; Tools="claude-rule"; TargetRepo=$userDir} | Out-Null
+    Invoke-Cli @{Command="remove"; Name=$packWithPaths; Tools="claude-rule"; TargetRepo=$userDir} | Out-Null
+    if (Test-Path -LiteralPath (Join-Path $userDir "rules/$packWithPaths.md")) {
+        throw "remove could not clean up what apply wrote at the user tier"
+    }
+}
+
 # --- remove ------------------------------------------------------------------------------------
 
 Test-Case "remove deletes the rule file rather than leaving orphaned frontmatter" {

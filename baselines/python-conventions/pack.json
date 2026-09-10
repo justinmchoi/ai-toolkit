@@ -10,5 +10,10 @@
     "codex": "adapters/AGENTS.md.block",
     "claude": "adapters/CLAUDE.md.block",
     "copilot": "adapters/copilot-instructions.md.block"
-  }
+  },
+  "paths": [
+    "**/*.py",
+    "**/pyproject.toml",
+    "**/requirements*.txt"
+  ]
 }
