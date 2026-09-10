@@ -1,7 +1,7 @@
 # Code-Doc Sync Baseline
 
 Status: active
-Version: 0.6.0
+Version: 0.7.0
 
 Always-on documentation hygiene for AI coding agents working in repositories
 that contain architecture documentation, flow diagrams, or developer references
@@ -105,6 +105,17 @@ an abstract declaration site instead of the concrete runtime type.
     from a script's output," check whether the script can instead emit
     that follow-up as a generated file directly, rather than leaving the
     derivation as a manual step.
+
+11. Propagate a scope change to every terser file that restates the same
+    fact, not just the detail file that owns it.
+    Broadening or narrowing what a folder or module covers usually gets fixed
+    in the detail file that defines it, while thin router/index files
+    restating that scope in a phrase go stale silently. One occurrence left
+    three separate restatements — a quick-answer row, a folder-map
+    description and a conventions line — contradicting the very file they
+    pointed at. Grep the old wording repo-wide rather than only the file you
+    edited, and refresh any "last built" date the change invalidates.
+    _(added 2026-09-09, from `propagate-scope-broadening-to-sibling-router-files`)_
 
 ## Applying in a Repo
 

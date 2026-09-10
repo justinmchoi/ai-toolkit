@@ -10,6 +10,7 @@
 - When resolving an ambiguity produces a manually-enforced cross-system invariant (two independently-created values that must be kept identical, with nothing automated checking it), add a call-out to the operational onboarding template/script that actually creates the value, in the same pass as writing the decision record — not as a follow-up, even when the triggering event was a zero-code-diff decision.
 - Before committing a change to an embedded Mermaid diagram, render it with mermaid-cli to catch parse-breaking syntax errors — visual inspection of the diagram source misses syntax that only fails at render time.
 - For a rename/reshape of a field or method used across multiple projects and referenced in a linked doc (ADR/test plan), run it as one deterministic checklist instead of reconstructing it by hand each time: grep all usage sites first, fix production code, fix tests, build each touched project incrementally, full-solution build, update linked docs to match, a final stale-reference grep, then `git status`.
+- Propagate a scope change to every terser router/index file that restates the same fact, not just the detail file that owns it — thin restatements go stale silently. Grep the old wording repo-wide, and refresh any "last built" date the change invalidates.
 
 These principles are folder-name-agnostic. If the repo specifies where documentation lives (in CLAUDE.md, README, or a project-specific section), read that first. If no documentation is found, these principles fire on nothing — that is acceptable.
 

@@ -1,6 +1,6 @@
 {
   "name": "code-doc-sync",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "status": "active",
   "description": "Always-on doc hygiene for AI coding agents: check adjacent architecture docs before closing any behavior-changing task (scoped to observable-behavior/contract changes only), show concrete runtime types in flow diagrams rather than abstract declaration sites, run a cross-project rename/reshape as a deterministic checklist that keeps linked docs in sync, and check whether a runbook's manual follow-up step can be script-generated instead.",
   "origin": {
