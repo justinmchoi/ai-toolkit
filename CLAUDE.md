@@ -75,17 +75,43 @@ Do not recreate thin local variants of imported skills.
 
 ## Verification
 
-Run this after skill or layout changes:
+**A pre-commit gate runs automatically** (`.githooks/pre-commit`): the drift check on every commit,
+plus both test suites whenever `scripts/` is touched. Enable it in a fresh clone with
+`git config core.hooksPath .githooks` — it is local config, so a clone has no gate until you do.
+Bypass deliberately with `git commit --no-verify`.
 
-```bash
-./scripts/skills-setup/verify.sh
-```
-
-Run this after portable baseline changes:
+Run by hand when you want the check without committing:
 
 ```powershell
-./scripts/baseline.ps1 verify
+./scripts/baseline.ps1 doctor              # every drift invariant; exits non-zero on any
+./scripts/baseline.ps1 doctor -Here        # also sweep installed state in the current repo
+./scripts/baseline.ps1 doctor -Repos "C:\path	oepos\*"
 ```
+
+```bash
+pwsh -NoProfile -File scripts/tests/baseline-tests.ps1   # CLI behaviour, 13 cases
+bash scripts/tests/install-tests.sh                      # skill install, 4 cases
+./scripts/skills-setup/verify.sh                         # skill layout
+```
+
+`doctor` also prints **advisories** — judgment calls that do not fail the build, such as a skill
+that loops and names other skills but belongs to no flow.
+
+## Things to know before editing packs
+
+- **A pack's version lives in four places** — `pack.json`, `baseline.md`'s `Version:` line, and the
+  marker in every adapter. Change one, change all four; `doctor` fails otherwise.
+- **The three full adapters are byte-identical by convention.** Make one edit and copy it three
+  ways, never three separate edits.
+- **Core / full split.** An always-on pack may ship `adapters/CLAUDE.md.core.block` (slim, under ~15
+  lines, marker tagged `(core)`) beside the full block. The full list is append-only; the core is
+  bounded. `apply` installs core by default when one exists and **preserves whatever is already
+  installed** — pass `-Variant core|full` to change it deliberately.
+- **Path-scoped rules.** A pack whose rules are file-type-specific declares `paths` in `pack.json`
+  and installs with `-Tools claude-rule`, writing `.claude/rules/<pack>.md`. It loads only when a
+  matching file is read. `-Tools all` does not include it.
+- **This repo must contain no employer, client, or internal-service name.** Port the abstracted
+  lesson, never the identifying detail; `doctor` enforces this.
 
 ## Safety
 
