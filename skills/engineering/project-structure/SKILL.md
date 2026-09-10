@@ -18,6 +18,12 @@ Read this whole file before scaffolding or auditing anything — the convention 
 **Fixed reference folders** — exactly one of each, not chronologically ordered relative to one another, so no number prefix: PascalCase, no spaces (spaces in folder names cause real friction — every shell command touching them needs quoting, which this exact convention has already been bitten by once).
 
 - **Always create when scaffolding a new project:**
+  - `CLAUDE.md` — the session entry point, and the file a fresh session reads before anything else.
+    It carries what the rest of the convention cannot: whether this is a docs/research project or a
+    code repo, "read `0000-INDEX.md` first", the locations of any code repos the project references,
+    and the read-only git guardrails for those clones. Copy `references/claude-md-template.md`.
+    Without it a scaffolded project silently loses the most useful file it could have had — the
+    project this convention was extracted from had one, and the convention did not.
   - `Glossary/` — business/domain term reference, one file per term, kept separate from any code-repo `CONTEXT.md` (that's precise code-domain vocabulary; this is "what does this business/telecom/industry term mean and why does the project care," for readers without that background). **A concept earns its own file once it's a distinct named entity/mechanism (not just a flag/field on another term) referenced from two or more other glossary entries** — this bar exists because it's easy to explain a related concept inline while writing a different term's file and never circle back to give it its own entry (this happened once already: a central connecting table got referenced from two files while writing them, met the bar, and had no file of its own until a direct re-check caught it). If a term meets the bar but doesn't get written yet, disclose that explicitly in `Glossary/README.md` rather than leaving the gap silent.
   - `ExternalDocumentation/` — specs, vendor docs, legacy internal docs, anything authored by someone else that the project treats as reference material rather than its own decisions.
   - `Grilling/` — design-decision / grilling-session output. One dated subfolder per session (`Grilling/YYYY-MM-DD-topic/`), not a new top-level `YYYYMMDD-Grilling/` folder invented each time — that ad hoc pattern is exactly what this skill exists to replace.
@@ -26,6 +32,12 @@ Read this whole file before scaffolding or auditing anything — the convention 
   - `SystemFlows/` — a systematically-built code-level flow/mechanism reference: one file per distinct flow or lifecycle (a class diagram + sequence diagram, or equivalent), built via deliberate exploration and kept current. Parallel to `Glossary/` but one layer down — business/domain *terms* vs. code-level *processes*. Worth creating once a project's own subject matter has enough distinct call-flow shapes that a reader benefits from one file per flow instead of scattered mentions across story folders; a subfolder inside it (e.g. `SystemFlows/lifecycles/`) is fine when a genuinely different grain of the same subject matter shows up (per-flow detail vs. cross-flow caller journeys) — see "Recognizing a grain shift," below.
 
 **Sequential story/ticket folders** — one per unit of work, numbered because creation order genuinely matters here: `00N-<ticket-id>-<short-kebab-name>/` (e.g. `007-4521-migrate-billing-export/`). This part already worked before this skill existed — don't change it, just keep using it.
+
+**Cross-project reference links** — when a sibling project already documents a term, flow, or
+decision this project needs, **link to it and record why the link exists** (supersedes / precedent /
+shared domain); never copy the content. Two copies drift, and the drift is silent. Formalized
+2026-09-09 after a second load-bearing use: a project superseding a sibling's scope inherited that
+sibling's 17-term glossary by reference rather than duplicating it.
 
 **One deliberate exception**: `0000-INDEX.md` keeps its numeric prefix specifically so it sorts before every PascalCase folder and every `00N-...` story folder in a plain alphabetical directory listing. State this explicitly inside the INDEX itself (the template below already does) so it reads as an intentional choice, not leftover inconsistency.
 
@@ -42,7 +54,6 @@ Real sessions occasionally invent structure this scaffold doesn't account for ye
 - **`Templates/` folder** — a project-level folder holding reusable document templates specific to that project (distinct from this skill's own `references/*-template.md`, which are for scaffolding new projects, not for a project's own working documents).
 - **Dated Q&A closeout index** — a single file summarizing a session's resolved questions, separate from `Grilling/`'s design-decision output.
 - **Letter-suffix continuation files** — `open-items-b.md` continuing `open-items.md` once a topic file grows unwieldy, rather than growing one file indefinitely.
-- **Cross-project reference links** — a project's docs linking directly into a sibling project's docs instead of duplicating content.
 
 Whether any of these earn a place in the fixed convention above — and if so, what the naming/placement rule should be — is an open question for a future pass, not a decision made here.
 
@@ -51,7 +62,10 @@ Whether any of these earn a place in the fixed convention above — and if so, w
 1. Confirm the project name and location with the user if it's not obvious from context — default to a new folder directly under `a-projects/`, matching sibling project folders. List `a-projects/` first (`Glob`/`ls`) rather than assuming what's already there or what naming pattern siblings use.
 2. Create:
    - `0000-INDEX.md` — copy `references/index-template.md`, filling in the project name and leaving the quick-answers table and folder map with their example/placeholder rows until real content exists to point at. Don't invent example content — an empty table with a header is more honest than filled-in placeholders that look like real entries.
-   - `Glossary/README.md` — copy `references/glossary-readme-template.md` verbatim (it's already generic).
+   - `Glossary/README.md` — copy `references/glossary-readme-template.md`, then append any
+     project-specific sections it needs (a cross-project inheritance table, an explicit disclosure of
+     terms that meet the own-file bar but aren't written yet). The template is a starting point, not
+     a file to leave untouched — "verbatim" was the original wording and did not survive contact.
    - `ExternalDocumentation/README.md` — copy `references/external-documentation-readme-template.md` verbatim.
    - `Grilling/` — create the empty folder itself; don't create a dated subfolder yet, that happens when an actual session needs one.
 3. Report the created structure back to the user, and mention explicitly: story folders (`00N-<ticket-id>-<short-name>/`) get created as real work starts, not upfront — an empty `001-.../` folder before any ticket exists is just clutter.
@@ -71,6 +85,9 @@ Existing projects evolved before this convention existed and won't match it exac
 4. Only after approval, execute the approved renames and fix every cross-reference that pointed at an old name. Re-`Glob` afterward to confirm nothing was missed, rather than trusting the plan matched what actually happened.
 
 ## Reference templates
+
+- `references/claude-md-template.md` — the project `CLAUDE.md` skeleton: project kind, "read the
+  index first", repo locations, and the read-don't-disturb git guardrails.
 
 - `references/index-template.md` — the `0000-INDEX.md` skeleton: quick-answers table, folder map grouped by category, a conventions section documenting the naming rules above, and the maintenance instruction ("when you add a new folder, add one line here").
 - `references/glossary-readme-template.md` — the `Glossary/README.md` skeleton.
