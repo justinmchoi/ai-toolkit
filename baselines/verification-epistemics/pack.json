@@ -1,6 +1,6 @@
 {
   "name": "verification-epistemics",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "status": "active",
   "description": "Always-on epistemic discipline: don't act on an inherited, paraphrased, or prior-session claim without re-verifying it against current ground truth. Now 80 principles - flagged as needing a future consolidation pass, not attempted here.",
   "source": {

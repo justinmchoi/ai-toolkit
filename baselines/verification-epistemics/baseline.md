@@ -1,7 +1,7 @@
 # Verification Epistemics Baseline
 
 Status: active
-Version: 0.6.0
+Version: 0.7.0
 
 Always-on discipline for a recurring failure mode: treating an inherited,
 paraphrased, or confidently-stated claim as verified fact without checking it
@@ -708,6 +708,27 @@ producing a wrong conclusion that direct verification would have caught.
     audience, the citation must be accessible to that audience, not just
     technically present (e.g. a link only the author can open doesn't count
     as grounding for the reader).
+
+81. Verify a cross-boundary data-flow claim at the consumer, never from the
+    comment asserting it.
+    A comment describing what some *other* component does with a value cannot
+    be checked from where it is written, so nothing keeps it honest — the code
+    beside it never breaks when the consumer changes. Grep the consumer before
+    repeating the claim. One occurrence escalated a field removal to a blocking
+    question for another team purely on the strength of two comments saying the
+    value was handed downstream; it was never read there at all. Where a repo's
+    prose and its code disagree, the code wins and the prose is a bug worth
+    reporting.
+    _(added 2026-09-09, from `in-repo-docs-went-stale-three-ways-in-one-module`)_
+82. Re-check tool and skill availability at the point of use, not from
+    conversation memory.
+    A skill or tool that worked earlier in the same conversation can be gone
+    later — a machine change, an environment reconfiguration, or the tool's own
+    lifecycle. Across a multi-day session this has already happened. Any
+    workflow that sequences sub-skills should treat "check availability first"
+    as a per-run step rather than an assumption carried forward from an earlier
+    turn.
+    _(added 2026-09-09, from `skill-availability-can-change-mid-conversation`)_
 
 ## Priority
 
