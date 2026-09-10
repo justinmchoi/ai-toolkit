@@ -58,6 +58,18 @@ Classify each into exactly one bucket:
   that belongs in `ai-toolkit`.
 - **skill-candidate** — proposes a new repeatable workflow/skill rather than
   a baseline bullet.
+- **flow-candidate** — a methodology that spans **more than one skill** and has
+  at least one loop, branch, or non-obvious terminal state. Belongs in `flows/`,
+  not as another orchestrator skill. The tell that one is hiding in an existing
+  skill: fractional step numbers (a "Step 0.5", a "Step 3.5") — that is a graph
+  being written as a numbered list.
+- **hook-candidate** — a hard prohibition with a **mechanically detectable
+  trigger** (a destructive command against a path, editing a generated
+  directory, committing without a typecheck). Belongs in `hooks/`, where it
+  fails closed, not in baseline prose where it is merely advisory. Judgment
+  cannot be hooked; only triggers can.
+- **glossary-term** — a term or concept this toolkit's own docs keep re-explaining
+  inline. Belongs in `Glossary/`, one file per term.
 - **recurrence** — a `reopened-*.md` note, written by `improvement-extraction`
   when a candidate matched a rule already promoted into a pack. These are **not**
   new rules and must never be processed as one. They are evidence that a shipped
@@ -78,6 +90,12 @@ contains. Go topic by topic (SQL Server safety, .NET conventions, git
 hygiene, Azure DevOps hygiene, verification epistemics, handoff-doc
 discipline, etc.) and check whether the candidate note's point is already
 covered, partially covered, or a genuine gap. Only genuine gaps get written.
+
+Survey **every domain**, not just baselines and skills: `ls baselines/`,
+`ls skills/`, `ls flows/`, `ls hooks/`, `ls Glossary/` in each repo. A candidate
+that looks like a new baseline is often an existing flow's missing guard, or a
+term already in the glossary. Checking only the two oldest domains is how a
+note gets filed into the wrong one.
 
 List every baseline directory in BOTH repos directly (`ls baselines/` in
 each, not a remembered list) before doing anything else — occurrence #2's
@@ -127,6 +145,21 @@ candidacy.
   .NET DI gotcha) → mirror into **both** toolkits, so the same mistake
   doesn't recur if `ai-toolkit` is ever used for similar work outside the
   company.
+
+Then place by **artifact type**, which is a separate question from which repo:
+
+| The note is… | Domain |
+|---|---|
+| a judgment that must fire unprompted | `baselines/` |
+| a repeatable procedure invoked on demand | `skills/` |
+| a methodology spanning several skills, with a loop or branch | `flows/` |
+| a hard prohibition with a detectable trigger | `hooks/` |
+| a term the docs keep re-explaining | `Glossary/` |
+
+The two axes are independent: *who inherits it* (which repo, which tier) and
+*when it loads* (always-on, path-scoped, on invocation, on a tool event). Decide
+both, explicitly. A pack destined for always-on also needs the core/full split
+(see step 7) so it does not silently grow the always-on budget.
 
 If a note doesn't cleanly fit one of these three, ask Justin rather than
 guessing — occurrence #1 resolved the ambiguous middle by asking, not by
@@ -199,6 +232,26 @@ left this round" is a finding; silently skipping the step is how the budget brea
 - **`ai-toolkit`** (this repo, personal, solo): write directly to `main`,
   verify structural completeness, and push. No PR, no review gate — this is
   a personal repo.
+
+**Keep the core adapter slim; never trim the full one.** An always-on pack has two
+renderings, and adding a principle touches both:
+
+- `adapters/CLAUDE.md.block` — the **full** list. This is the reference. It grows
+  freely and nothing is ever deleted from it.
+- `adapters/CLAUDE.md.core.block` — the **core**, and the only thing installed
+  always-on. A short list of the pack's load-bearing rules plus one line pointing
+  at the full version. Target **under 15 lines**.
+
+A new principle goes into the full block always, and into the core **only if it
+displaces something** or the core has room. This is what makes growth safe: the
+reference is append-only, while the always-on cost is bounded by construction.
+It also replaces deletion-based eviction, which needed provenance evidence the
+pipeline does not have yet — nothing is removed, so nothing needs proving.
+
+Packs whose rules are file-type-scoped (SQL, .NET, Python, PowerShell) skip the
+core/full question entirely: install the full block as a **path-scoped rule**
+(`~/.claude/rules/<pack>.md` with `paths:` frontmatter) so it loads only when a
+matching file is read, and costs nothing otherwise.
 
 **Stamp provenance on every new principle.** In `baseline.md`, append to each
 principle a marker naming the date it landed and the note it came from:

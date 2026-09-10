@@ -1,7 +1,28 @@
 ---
 name: methodology-intake
-description: Evaluate an external article, repository, tool list, paper, framework, or workflow before promoting it into repo artifacts. Use when deciding whether outside methodology material should become a Rule, Skill, Context term, ADR, Spec, Issue, or No-op.
+description: DEPRECATED - do not invoke. Evaluate an external article, repository, tool list, paper, framework, or workflow before promoting it into repo artifacts. Superseded by baseline-gap-review's placement heuristic and activation test.
+status: deprecated
+maintainer: justin.choi
+when-not-to-use: Do not use. Marked deprecated 2026-09-09 - see the deprecation notice below.
 ---
+
+> ## DEPRECATED (2026-09-09)
+>
+> **Do not invoke this skill.** Flagged by its maintainer as outdated and not fit for its stated
+> purpose. Its decision — "should this external material change repo artifacts, and which one?" —
+> now lives in `baseline-gap-review`, which has a fuller placement heuristic (baselines / skills /
+> flows / hooks / Glossary, across two independent axes) plus an activation test this skill never
+> had.
+>
+> It also predates the conventions around it: the frontmatter above was missing `status`,
+> `maintainer`, `problem` and `when-not-to-use` until this notice was added, and its own
+> "Skill Admission Gate" section now overlaps `process-vs-work-doctrine` rule 1.
+>
+> **Not removed, because it is load-bearing in ~10 places** — `CLAUDE.md`, `AGENTS.md`,
+> `CONTEXT.md`, `baselines/process-vs-work-doctrine/baseline.md`, `bookshelf/INDEX.md`,
+> `docs/intake.md` (its own verdict ledger), and `docs/specs/0005-capture-input-note-vs-methodology-intake.md`.
+> Deleting the folder alone would leave every one of those dangling and orphan the ledger. Removal
+> is its own pass, via `skill-lifecycle`; this notice is the safe first step.
 
 # Methodology Intake
 
