@@ -310,6 +310,33 @@ foreach ($sk in (Get-ChildItem -LiteralPath (Join-Path $repoRoot "skills") -Recu
     }
 }
 
+# --- 13. every preset entry must resolve to something that exists ------------------------------
+# A preset naming a pack that was renamed or removed fails only at apply-preset time, on someone
+# else's machine. Deleting 15 packs from the sibling toolkit left its preset pointing at 12 that
+# no longer existed, and nothing caught it.
+Note "checking presets..."
+$presetsDir = Join-Path $repoRoot "presets"
+if (Test-Path -LiteralPath $presetsDir) {
+    foreach ($preset in (Get-ChildItem -LiteralPath $presetsDir -Filter "*.txt" -File)) {
+        $section = "baselines"
+        foreach ($rawLine in (Get-Content -LiteralPath $preset.FullName)) {
+            $line = $rawLine.Trim()
+            if (-not $line -or $line.StartsWith("#")) { continue }
+            if ($line.StartsWith("[") -and $line.EndsWith("]")) {
+                $section = $line.Trim("[", "]")
+                if (-not (Test-Path -LiteralPath (Join-Path $repoRoot $section))) {
+                    Add-Problem "preset" "$($preset.Name): section [$section] is not a domain in this repo"
+                }
+                continue
+            }
+            $checked++
+            if (-not (Test-Path -LiteralPath (Join-Path $repoRoot (Join-Path $section $line)))) {
+                Add-Problem "preset" "$($preset.Name): '$line' does not exist under $section/ -- apply-preset would fail"
+            }
+        }
+    }
+}
+
 # --- report -------------------------------------------------------------------------------------
 Write-Host ""
 function Write-Advisories {
