@@ -24,6 +24,12 @@ param(
     [ValidateSet("auto", "core", "full")]
     [string] $Variant = "auto",
 
+    # For 'doctor': shorthand for -Repos . (the current working directory).
+    [switch] $Here,
+
+    # For 'doctor': suppress per-check progress lines.
+    [switch] $Quiet,
+
     [switch] $CreateMissing,
 
     [switch] $SkipMissing,
@@ -69,6 +75,11 @@ Compatibility:
   whatever is already installed, so apply never silently swaps core for full.
   -Tools claude-rule writes the full rendering to .claude/rules/<pack>.md with
   paths: frontmatter from pack.json, so it loads only when a matching file is read.
+
+  doctor [-Repos <list>] [-Here] [-Quiet]
+    Checks every drift invariant and exits non-zero on any. -Repos also sweeps
+    installed state in other repos; entries may be a path, a glob ending in *,
+    or "." / "cwd" for the current directory. -Here is shorthand for -Repos .
   -Pack accepts a comma-separated list of pack names, or 'all'.
   When -Tools is omitted, commands use all supported tools: codex, claude, copilot.
   Missing target instruction files are created unless -SkipMissing is passed.
@@ -136,7 +147,7 @@ function Invoke-BaselineCommand {
     }
 
     if ($Command -eq "doctor") {
-        & (Join-Path $scriptDir "baselines/doctor.ps1")
+        & (Join-Path $scriptDir "baselines/doctor.ps1") -Repos $Repos -Here:$Here -Quiet:$Quiet
         return
     }
 

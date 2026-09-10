@@ -18,12 +18,41 @@
     a lesson someone has to remember.
 #>
 [CmdletBinding()]
-param([switch] $Quiet)
+param(
+    [switch] $Quiet,
+
+    # Repos to check installed state in, beyond the user tier. Comma-separated. Accepts:
+    #   .   or  cwd            the current working directory
+    #   <path>\*               every immediate subdirectory (glob)
+    #   an explicit path
+    [string] $Repos = "",
+
+    # Shorthand for -Repos .
+    [switch] $Here
+)
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $problems = @()
+$advisories = @()
 $checked = 0
+
+function Resolve-RepoTargets([string] $Spec, [switch] $IncludeCwd) {
+    $out = @()
+    if ($IncludeCwd) { $out += (Get-Location).Path }
+    foreach ($raw in ($Spec -split ",")) {
+        $s = $raw.Trim()
+        if (-not $s) { continue }
+        if ($s -eq "." -or $s -eq "cwd") { $out += (Get-Location).Path; continue }
+        if ($s.Contains("*")) {
+            $out += (Get-ChildItem -Path $s -Directory -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })
+            continue
+        }
+        if (Test-Path -LiteralPath $s) { $out += (Resolve-Path -LiteralPath $s).Path }
+        else { Add-Problem "bad -Repos entry" "$s does not exist" }
+    }
+    return ($out | Select-Object -Unique)
+}
 
 function Add-Problem($Invariant, $Detail) { $script:problems += [pscustomobject]@{ Invariant = $Invariant; Detail = $Detail } }
 function Note($Text) { if (-not $Quiet) { Write-Host $Text } }
@@ -233,10 +262,66 @@ if (Test-Path -LiteralPath $userRules) {
     }
 }
 
+# --- 11. per-repo installed state: duplicate tiers and stale local copies ----------------------
+$repoTargets = Resolve-RepoTargets -Spec $Repos -IncludeCwd:$Here
+if ($repoTargets.Count -gt 0) {
+    Note "checking installed state in $($repoTargets.Count) repo(s)..."
+    $statusScript = Join-Path (Split-Path -Parent $PSScriptRoot) "baseline.ps1"
+    foreach ($repo in $repoTargets) {
+        $out = & $statusScript status -TargetRepo $repo 2>&1 | Out-String
+        foreach ($line in ($out -split "`r?`n")) {
+            # a pack resolving from more than one layer is literally in context twice
+            if ($line -match "^(?<pack>[A-Za-z0-9._-]+)\s+YES\s+(?<sources>.+)$") {
+                $checked++
+                $srcField = $Matches["sources"]
+                if (($srcField -split ";").Count -gt 1) {
+                    Add-Problem "duplicate tier" "$(Split-Path -Leaf $repo): $($Matches['pack']) resolves from more than one layer -- both blocks are in context"
+                }
+            }
+        }
+    }
+}
+
+# --- 12. ADVISORY: a loop that was never captured as a flow ------------------------------------
+# Not a failure -- whether something deserves a flow is a judgment call. But a skill that both
+# loops AND names another skill is the shape a flow is for, and those are exactly the ones that
+# stay invisible because nothing lists them.
+Note "looking for uncaptured loops..."
+$flowMembers = @{}
+$flowsDir = Join-Path $repoRoot "flows"
+if (Test-Path -LiteralPath $flowsDir) {
+    foreach ($fj in (Get-ChildItem -LiteralPath $flowsDir -Recurse -Filter "pack.json" -File)) {
+        foreach ($s in @((Get-Content -LiteralPath $fj.FullName -Raw | ConvertFrom-Json).skills)) { $flowMembers[$s] = $true }
+    }
+}
+$allSkillNames = @{}
+foreach ($sk in (Get-ChildItem -LiteralPath (Join-Path $repoRoot "skills") -Recurse -Filter "SKILL.md" -File)) {
+    $allSkillNames[$sk.Directory.Name] = $true
+}
+foreach ($sk in (Get-ChildItem -LiteralPath (Join-Path $repoRoot "skills") -Recurse -Filter "SKILL.md" -File)) {
+    $me = $sk.Directory.Name
+    if ($flowMembers.ContainsKey($me)) { continue }
+    $body = Get-Content -LiteralPath $sk.FullName -Raw
+    $loops = [regex]::IsMatch($body, "(?i)\b(until (zero|no more|it|the|every|all)|re-?run|repeat until|loop back|iterate until|retry)\b")
+    if (-not $loops) { continue }
+    $named = @($allSkillNames.Keys | Where-Object { $_ -ne $me -and $body -match "\b$([regex]::Escape($_))\b" })
+    if ($named.Count -gt 0) {
+        $advisories += "$me loops and names other skills ($($named -join ', ')) but belongs to no flow"
+    }
+}
+
 # --- report -------------------------------------------------------------------------------------
 Write-Host ""
+function Write-Advisories {
+    if ($advisories.Count -eq 0) { return }
+    Write-Host ""
+    Write-Host "  advisories (judgment calls, not failures)"
+    foreach ($a in $advisories) { Write-Host ("    ~ " + $a) }
+}
+
 if ($problems.Count -eq 0) {
     Write-Host "doctor: $checked invariants checked, no drift found"
+    Write-Advisories
     exit 0
 }
 Write-Host "doctor: $checked invariants checked, $($problems.Count) problem(s)"
@@ -245,5 +330,6 @@ foreach ($group in ($problems | Group-Object Invariant | Sort-Object Name)) {
     Write-Host ("  " + $group.Name)
     foreach ($p in $group.Group) { Write-Host ("    - " + $p.Detail) }
 }
+Write-Advisories
 Write-Host ""
 exit 1

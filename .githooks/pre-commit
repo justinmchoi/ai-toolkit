@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Pre-commit gate for ai-toolkit.
+#
+# This repo is the source of truth for every baseline, skill and flow that loads into a live
+# session, so an accidental edit here is not a local mistake -- it changes how the assistant
+# behaves everywhere, silently, until someone notices. The gate exists to make that impossible
+# to do by accident.
+#
+# Scoped to what actually changed, so the common case stays fast:
+#   always              baseline doctor            ~5s
+#   scripts/ touched    CLI + install test suites  ~7s more
+#
+# Install:  git config core.hooksPath .githooks
+# Bypass:   git commit --no-verify   (deliberate, visible, and rare)
+
+set -uo pipefail
+
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+cd "$ROOT_DIR" || exit 1
+
+staged="$(git diff --cached --name-only --diff-filter=ACMR)"
+[ -n "$staged" ] || exit 0
+
+failed=0
+run() {
+  local label="$1"; shift
+  printf '  %-22s' "$label"
+  if out="$("$@" 2>&1)"; then
+    printf 'ok\n'
+  else
+    printf 'FAILED\n'
+    printf '%s\n' "$out" | sed 's/^/      /'
+    failed=1
+  fi
+}
+
+printf 'pre-commit gate\n'
+
+# Always: the drift invariants. Cheap, and it is what catches an edit that silently
+# desynchronises a pack from its adapters or leaks a client name into this repo.
+if command -v pwsh >/dev/null 2>&1; then
+  run "drift (doctor)" pwsh -NoProfile -File scripts/baselines/doctor.ps1 -Quiet
+elif command -v powershell.exe >/dev/null 2>&1; then
+  run "drift (doctor)" powershell.exe -NoProfile -File scripts/baselines/doctor.ps1 -Quiet
+else
+  printf '  %-22s SKIPPED (no pwsh on PATH)\n' "drift (doctor)"
+fi
+
+# Only when the tooling itself changed: the behavioural suites.
+if printf '%s\n' "$staged" | grep -q '^scripts/'; then
+  if command -v pwsh >/dev/null 2>&1; then
+    run "cli tests" pwsh -NoProfile -File scripts/tests/baseline-tests.ps1
+  elif command -v powershell.exe >/dev/null 2>&1; then
+    run "cli tests" powershell.exe -NoProfile -File scripts/tests/baseline-tests.ps1
+  fi
+  run "install tests" bash scripts/tests/install-tests.sh
+fi
+
+if [ "$failed" -ne 0 ]; then
+  cat >&2 <<'MSG'
+
+Commit blocked: a gate failed above.
+
+Fix it, or bypass deliberately with:  git commit --no-verify
+MSG
+  exit 1
+fi
+
+printf 'pre-commit gate passed\n'
+exit 0

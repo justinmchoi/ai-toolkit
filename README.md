@@ -70,11 +70,26 @@ by construction instead of by deleting rules.
 installs with `-Tools claude-rule`, writing `.claude/rules/<pack>.md` with `paths:` frontmatter so it
 loads only when a matching file is read. `-Tools all` does not include it — it is opt-in by name.
 
+**Commit gate.** `.githooks/pre-commit` runs the drift check on every commit, and the test suites
+whenever `scripts/` is touched. It is **not** active in a fresh clone — `core.hooksPath` is local
+config, so run this once:
+
+```sh
+git config core.hooksPath .githooks
+```
+
+Bypass deliberately with `git commit --no-verify` when you mean to.
+
 **Drift checking.** `baseline doctor` verifies every invariant this repo has actually broken before:
 version coherence across `pack.json` / `baseline.md` / adapter markers, the three full adapters being
 identical, core tagging, apply/remove target parity, skill frontmatter, installed skills being links
-rather than copies, and every on-disk domain appearing above. Run it before committing.
-`scripts/tests/baseline-tests.ps1` covers the CLI itself — run it after touching `scripts/`.
+rather than copies, and every on-disk domain appearing above. `-Repos` also sweeps installed state
+in other repos (a path, a glob ending in `*`, or `.`/`cwd`); `-Here` is shorthand for `-Repos .`.
+It also prints **advisories** — judgment calls that do not fail the build, such as a skill that
+loops and names other skills but belongs to no flow.
+
+`scripts/tests/baseline-tests.ps1` (13 cases) covers the CLI; `scripts/tests/install-tests.sh`
+(4 cases) covers skill installation. Both are mutation-tested.
 
 
 ## Source Trees
