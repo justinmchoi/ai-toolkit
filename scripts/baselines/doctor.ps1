@@ -132,6 +132,107 @@ foreach ($domain in @("baselines","skills","hooks","flows","Glossary","presets")
     }
 }
 
+# --- 7. a skill must not reference files that do not exist -------------------------------------
+Note "checking skill file references..."
+foreach ($skill in (Get-ChildItem -LiteralPath (Join-Path $repoRoot "skills") -Recurse -Filter "SKILL.md" -File)) {
+    $text = Get-Content -LiteralPath $skill.FullName -Raw
+    # backticked relative paths that look like real files this skill ships or calls
+    foreach ($m in [regex]::Matches($text, "``(?<p>(?:scripts|references|assets)/[A-Za-z0-9._/-]+\.(?:md|ps1|sh|py|json))``")) {
+        $checked++
+        $rel = $m.Groups["p"].Value
+        if (-not (Test-Path -LiteralPath (Join-Path $skill.Directory.FullName $rel))) {
+            Add-Problem "skill references a missing file" "$($skill.Directory.Name): $rel"
+        }
+    }
+}
+
+# --- 8. a flow's graph must be well formed and agree with its pack.json -------------------------
+Note "checking flow graphs..."
+$flowsRoot = Join-Path $repoRoot "flows"
+if (Test-Path -LiteralPath $flowsRoot) {
+    foreach ($flowDir in (Get-ChildItem -LiteralPath $flowsRoot -Directory)) {
+        $flowMd = Join-Path $flowDir.FullName "flow.md"
+        $flowJson = Join-Path $flowDir.FullName "pack.json"
+        if (-not (Test-Path -LiteralPath $flowMd)) { Add-Problem "flow structure" "$($flowDir.Name): no flow.md"; continue }
+        if (-not (Test-Path -LiteralPath $flowJson)) { Add-Problem "flow structure" "$($flowDir.Name): no pack.json"; continue }
+        $checked++
+        $meta = Get-Content -LiteralPath $flowJson -Raw | ConvertFrom-Json
+        $md = Get-Content -LiteralPath $flowMd -Raw
+        $mm = [regex]::Match($md, '(?s)```mermaid\s*(?<g>.*?)```')
+        if (-not $mm.Success) { Add-Problem "flow graph" "$($flowDir.Name): flow.md has no mermaid block, so the graph is not the source of truth"; continue }
+        $graph = $mm.Groups["g"].Value
+        $edges = [regex]::Matches($graph, '(?m)^\s*(?<from>[A-Za-z_][A-Za-z0-9_]*|\[\*\])\s*-->\s*(?<to>[A-Za-z_][A-Za-z0-9_]*|\[\*\])')
+        if ($edges.Count -eq 0) { Add-Problem "flow graph" "$($flowDir.Name): mermaid block declares no transitions"; continue }
+        $nodes = @{}
+        $targets = @{}
+        foreach ($e in $edges) { $nodes[$e.Groups["from"].Value] = $true; $nodes[$e.Groups["to"].Value] = $true; $targets[$e.Groups["to"].Value] = $true }
+        if ($meta.entry -and -not $nodes.ContainsKey($meta.entry)) {
+            Add-Problem "flow graph" "$($flowDir.Name): pack.json entry '$($meta.entry)' is not a node in the diagram"
+        }
+        foreach ($term in @($meta.terminals)) {
+            if (-not $targets.ContainsKey($term)) {
+                Add-Problem "flow graph" "$($flowDir.Name): terminal '$term' is declared but unreachable -- no transition leads to it"
+            }
+        }
+    }
+}
+
+# --- 9. this repo is personal: it must carry no company-identifying content ---------------------
+if ((Split-Path -Leaf $repoRoot) -eq "ai-toolkit") {
+    Note "checking personal-repo boundary..."
+    $forbidden = @("iQmetrix","Rogers","Fido","Likewize","Cricket","Verizon","EpinServer","CarrierIntegrationServer","TradeInServer")
+    $pattern = "(?i)\b(" + ($forbidden -join "|") + ")\b"
+    foreach ($f in (Get-ChildItem -LiteralPath $repoRoot -Recurse -File -Include *.md,*.json,*.txt,*.ps1,*.sh -ErrorAction SilentlyContinue)) {
+        $segments = $f.FullName.Split([char]92)
+        if ($segments | Where-Object { @("_Improvements",".git","node_modules","bookshelf","archives","__pycache__") -contains $_ }) { continue }
+        # the checker necessarily names the terms it looks for
+        if ($f.FullName -eq $PSCommandPath) { continue }
+        $checked++
+        $hit = [regex]::Match((Get-Content -LiteralPath $f.FullName -Raw), $pattern)
+        if ($hit.Success) {
+            $relPath = $f.FullName.Substring($repoRoot.Length + 1)
+            Add-Problem "company content in the personal repo" "${relPath}: '$($hit.Value)'"
+        }
+    }
+}
+
+# --- 10. installed state: stale versions, duplicate tiers, orphaned rule files ------------------
+Note "checking installed state..."
+$userClaude = Join-Path $HOME ".claude/CLAUDE.md"
+if (Test-Path -LiteralPath $userClaude) {
+    $userText = Get-Content -LiteralPath $userClaude -Raw
+    foreach ($m in [regex]::Matches($userText, "<!-- BEGIN baseline:(?<p>[A-Za-z0-9._-]+) v(?<v>[^ >]+)(?: \((?<variant>[a-z]+)\))? -->")) {
+        $checked++
+        $pk = $m.Groups["p"].Value
+        $srcJson = Join-Path $repoRoot "baselines/$pk/pack.json"
+        if (-not (Test-Path -LiteralPath $srcJson)) { continue }   # owned by the other toolkit
+        $srcVer = (Get-Content -LiteralPath $srcJson -Raw | ConvertFrom-Json).version
+        if ($m.Groups["v"].Value -ne $srcVer) {
+            Add-Problem "stale install" "user tier has $pk v$($m.Groups['v'].Value) but source is v$srcVer -- re-apply"
+        }
+    }
+}
+$userRules = Join-Path $HOME ".claude/rules"
+if (Test-Path -LiteralPath $userRules) {
+    foreach ($rf in (Get-ChildItem -LiteralPath $userRules -Filter "*.md" -File)) {
+        $checked++
+        $pk = [System.IO.Path]::GetFileNameWithoutExtension($rf.Name)
+        $srcJson = Join-Path $repoRoot "baselines/$pk/pack.json"
+        if (-not (Test-Path -LiteralPath $srcJson)) { continue }
+        $meta = Get-Content -LiteralPath $srcJson -Raw | ConvertFrom-Json
+        if (-not ($meta.PSObject.Properties.Name -contains "paths")) {
+            Add-Problem "orphaned rule" "$($rf.Name): installed as a path-scoped rule but the pack no longer declares paths, so it now loads eagerly"
+        }
+        if ((Get-Content -LiteralPath $rf.FullName -Raw) -notmatch "(?s)^---\s*\r?\npaths:") {
+            Add-Problem "orphaned rule" "$($rf.Name): missing paths: frontmatter -- it loads on every turn"
+        }
+        # a pack installed BOTH always-on and as a rule is in context twice
+        if ((Test-Path -LiteralPath $userClaude) -and ((Get-Content -LiteralPath $userClaude -Raw) -match "BEGIN baseline:$([regex]::Escape($pk)) ")) {
+            Add-Problem "duplicate tier" "$pk is installed both in ~/.claude/CLAUDE.md and as a path-scoped rule -- both are in context"
+        }
+    }
+}
+
 # --- report -------------------------------------------------------------------------------------
 Write-Host ""
 if ($problems.Count -eq 0) {

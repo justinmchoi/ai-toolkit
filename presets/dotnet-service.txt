@@ -1,6 +1,6 @@
 # Portable .NET/C# service repo shape - not tied to any employer. Mirrors
 # es-ai-toolkit's dotnet-service preset using this toolkit's own general-purpose
-# packs in place of the iQmetrix-specific ones (no OTel/ADO-ticket packs here).
+# packs in place of any employer-specific ones (no OTel/tracker-hygiene packs here).
 # Excludes sql-server-safety on purpose - not every service repo does direct
 # SQL Server data-fix work; add it ad hoc (baseline apply sql-server-safety)
 # when a session actually needs it.
