@@ -1,7 +1,7 @@
 # Repo Context Grounding
 
 Status: active
-Version: 0.6.0
+Version: 0.7.0
 
 Before meaningful work in an existing repository:
 
@@ -24,6 +24,7 @@ Before meaningful work in an existing repository:
 - On Windows, even under Git Bash, don't assume `/tmp` exists — don't target it for ad hoc scratch files (content staged for a CLI's `@file`/piped argument). Write directly to the session's existing scratchpad directory instead of attempting `/tmp` first and falling back after a failure.
 - To browse or read source files in a third-party (non-local) GitHub repo, skip `WebFetch` (it reliably 404s on `raw.githubusercontent.com` and `github.com/.../tree/...` URLs) and go straight to `gh api repos/{owner}/{repo}/contents/{path}` (list a directory) plus `--jq '.content' | base64 -d` (read a file) — only when `gh` is installed/authenticated and the target is GitHub-hosted; for arbitrary non-GitHub pages `WebFetch` remains the right tool.
 - A newly-configured MCP server won't appear mid-session no matter how many times a tool search retries — the running client process needs a full restart, not just a reconnect, to pick it up.
+- Before answering any "does X exist / is X implemented / what does the current code do" question from a git-tracked repo, check `git status --short --branch` first; if the question is about the default branch and the checkout is on something else, read via `git show origin/<default-branch>:<path>` rather than the working tree. On a monorepo, resolve "where does component X live" with `git ls-tree -r --name-only origin/<default-branch>` *before* any working-tree search — a missing whole module directory reads far more convincingly as "doesn't exist" than a missing file does, and a repo's own root instructions can be stale about layout, so trust `git ls-files` over prose when they disagree. _(added 2026-09-09, from `reopened-verify-against-origin-default-branch-not-local-checkout`)_
 
 ## Priority
 

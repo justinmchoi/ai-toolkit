@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:repo-context-grounding v0.6.0 -->
+<!-- BEGIN baseline:repo-context-grounding v0.7.0 -->
 ## Portable Agent Baseline: Repo Context Grounding
 
 - Start from local instructions: read repo-level agent instructions, README, and linked docs that define setup, boundaries, ownership, or workflow.
@@ -20,6 +20,7 @@
 - On Windows, even under Git Bash, don't assume `/tmp` exists for ad hoc scratch files — write to the session's existing scratchpad directory instead.
 - To browse or read source in a third-party GitHub repo, skip `WebFetch` (it 404s on raw/tree URLs) and use `gh api repos/{owner}/{repo}/contents/{path}` plus `--jq '.content' | base64 -d` instead, when `gh` is installed and authenticated.
 - A newly-configured MCP server won't appear mid-session no matter how many retries — the client process needs a full restart, not just a reconnect, to pick it up.
+- Before answering any "does X exist / is X implemented / what does the current code do" question from a git-tracked repo, check `git status --short --branch` first; if the question is about the default branch and the checkout is on something else, read via `git show origin/<default-branch>:<path>` rather than the working tree. On a monorepo, resolve "where does component X live" with `git ls-tree -r --name-only origin/<default-branch>` *before* any working-tree search — a missing whole module directory reads far more convincingly as "doesn't exist" than a missing file does, and a repo's own root instructions can be stale about layout, so trust `git ls-files` over prose when they disagree. _(added 2026-09-09, from `reopened-verify-against-origin-default-branch-not-local-checkout`)_
 
 Apply this baseline as a startup habit for existing repositories, but never use
 it to override explicit user instructions, safety rules, privacy boundaries, or
