@@ -20,6 +20,10 @@ param(
     # For 'status': filter the pack table down to one preset's packs instead of every pack.
     [string] $Preset = "",
 
+    # Which rendering of a pack to install. auto keeps whatever is already there.
+    [ValidateSet("auto", "core", "full")]
+    [string] $Variant = "auto",
+
     [switch] $CreateMissing,
 
     [switch] $SkipMissing,
@@ -61,6 +65,10 @@ Usage:
 
 Compatibility:
   -Pack and -Tools are still supported.
+  -Variant auto|core|full selects a pack's rendering; auto (default) preserves
+  whatever is already installed, so apply never silently swaps core for full.
+  -Tools claude-rule writes the full rendering to .claude/rules/<pack>.md with
+  paths: frontmatter from pack.json, so it loads only when a matching file is read.
   -Pack accepts a comma-separated list of pack names, or 'all'.
   When -Tools is omitted, commands use all supported tools: codex, claude, copilot.
   Missing target instruction files are created unless -SkipMissing is passed.
@@ -188,7 +196,10 @@ function Resolve-PackNames($Name) {
 }
 
 function Normalize-Tools($ToolValues) {
+    # "all" deliberately excludes claude-rule: a path-scoped rule is only correct for packs that
+    # declare globs, so it has to be asked for by name rather than swept in.
     $allTools = @("codex", "claude", "copilot")
+    $namedOnlyTools = @("claude-rule")
     $normalized = @()
     foreach ($toolValue in $ToolValues) {
         foreach ($tool in ($toolValue -split ",")) {
@@ -206,8 +217,8 @@ function Normalize-Tools($ToolValues) {
                 continue
             }
 
-            if ($allTools -notcontains $trimmed) {
-                throw "Unsupported tool '$trimmed'. Supported tools: $($allTools -join ', '), all"
+            if (($allTools -notcontains $trimmed) -and ($namedOnlyTools -notcontains $trimmed)) {
+                throw "Unsupported tool '$trimmed'. Supported tools: $(($allTools + $namedOnlyTools) -join ', '), all"
             }
 
             if ($normalized -notcontains $trimmed) {
@@ -266,8 +277,14 @@ function Get-BlockVersionInFile($FilePath, $PackName) {
     $text = Read-Utf8Text $FilePath
     $escapedPack = [regex]::Escape($PackName)
     foreach ($marker in @("baseline", "portable-agent-baseline")) {
-        $m = [regex]::Match($text, "<!-- BEGIN ${marker}:${escapedPack} v(?<v>[^ >]+) -->")
-        if ($m.Success) { return $m.Groups["v"].Value }
+        # Variant suffix is optional: "v1.2.3 -->" is the historical (full) form,
+        # "v1.2.3 (core) -->" marks a slim always-on rendering. Report it alongside the
+        # version so `status` can distinguish a core install from a full one.
+        $m = [regex]::Match($text, "<!-- BEGIN ${marker}:${escapedPack} v(?<v>[^ >]+)(?: \((?<variant>[a-z]+)\))? -->")
+        if ($m.Success) {
+            if ($m.Groups["variant"].Success) { return "$($m.Groups['v'].Value) ($($m.Groups['variant'].Value))" }
+            return $m.Groups["v"].Value
+        }
     }
     return $null
 }
@@ -573,7 +590,7 @@ switch ($Command) {
     "apply" {
         $applyScript = Join-Path $scriptDir "baselines/apply.ps1"
         foreach ($packName in $Packs) {
-            & $applyScript -TargetRepo $TargetRepo -Pack $packName -Tools $Tools -CreateMissing:$CreateMissing -SkipMissing:$SkipMissing -DryRun:$DryRun
+            & $applyScript -TargetRepo $TargetRepo -Pack $packName -Tools $Tools -Variant $Variant -CreateMissing:$CreateMissing -SkipMissing:$SkipMissing -DryRun:$DryRun
         }
     }
     "remove" {

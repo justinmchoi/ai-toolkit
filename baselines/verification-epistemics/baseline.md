@@ -1,7 +1,7 @@
 # Verification Epistemics Baseline
 
 Status: active
-Version: 0.7.0
+Version: 0.8.0
 
 Always-on discipline for a recurring failure mode: treating an inherited,
 paraphrased, or confidently-stated claim as verified fact without checking it
@@ -729,6 +729,21 @@ producing a wrong conclusion that direct verification would have caught.
     as a per-run step rather than an assumption carried forward from an earlier
     turn.
     _(added 2026-09-09, from `skill-availability-can-change-mid-conversation`)_
+
+83. Treat an error message as naming a cause, not the cause; and encode a
+    batch's preconditions as per-item assertions.
+    Before accepting a permission or capability error at face value, check
+    whether the documented non-privileged path is already enabled — one
+    occurrence read "Administrator privilege required" and concluded admin was
+    needed, when Developer Mode was already on and the operation failed anyway,
+    making "grant admin" both wrong and useless. If the documented path is in
+    place and it still fails, look for the working alternative rather than
+    escalating privilege. Separately, when applying one transform across
+    several artifacts, assert its structural precondition per item inside the
+    script rather than holding it as a belief — a transform validated on one
+    artifact is only a hypothesis about the rest, and an assertion fails loudly
+    on the one that differs instead of silently corrupting it.
+    _(added 2026-09-09, from `encode-preconditions-as-assertions-not-beliefs`)_
 
 ## Priority
 

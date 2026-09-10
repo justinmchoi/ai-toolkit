@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:verification-epistemics v0.7.0 -->
+<!-- BEGIN baseline:verification-epistemics v0.8.0 -->
 ## Portable Agent Baseline: Verification Epistemics
 
 - A "confirmed" claim inherited from a prior session, a stale docs branch, or a teammate's description is a starting hypothesis, not a fact — re-check it against current code/data before acting on it, especially crossing a service/repo boundary or a fast-changing system.
@@ -83,6 +83,7 @@
 - When asserting a shared/generic code path is reusable, read the full method body end-to-end — a verified guard clause is not the same as a verified method body. And when citing sources in a doc for a specific audience, the citation must be accessible to that audience, not just technically present (e.g. a link only the author can open doesn't count as grounding for the reader).
 - Verify a cross-boundary data-flow claim at the consumer, never from the comment asserting it — a comment about what another component does with a value cannot be checked from where it is written, and nothing breaks when the consumer changes. Where a repo's prose and its code disagree, the code wins.
 - Re-check tool and skill availability at the point of use rather than trusting conversation memory — availability can change mid-conversation, so any workflow sequencing sub-skills must check per run.
+- Treat an error message as naming a cause, not necessarily the cause — check whether the documented non-privileged path is already enabled before concluding you need privilege. And when applying one transform across several artifacts, assert its structural precondition per item inside the script; a transform validated on one artifact is only a hypothesis about the rest.
 
 Apply this baseline before presenting a conclusion or summary of "what's true here," but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:verification-epistemics -->

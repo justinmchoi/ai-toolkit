@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:verification-epistemics v0.7.0 -->
+<!-- BEGIN baseline:verification-epistemics v0.8.0 (core) -->
 ## Portable Agent Baseline: Verification Epistemics (core)
 
 - **Absence and universal claims need a falsifying command, run, before you assert them.** "X doesn't exist", "the only", "nothing reads this", "always/never" — you assert a positive because you saw the thing, but an absence because you *didn't*, which is a far weaker warrant.
@@ -10,6 +10,7 @@
 - **Separate observed fact from inference, and say what would overturn your judgment.** A coherent-sounding analysis is not evidence.
 - **State the verification boundary unprompted, in the same message that reports success** — "confirmed X by running Y; not confirmed: Z, because…". A bare success reads as full verification when it covered one case.
 - **Re-fetch externally-editable state before answering about it** (a ticket, a wiki page, a shared branch) — including snapshots you wrote yourself earlier.
+- **An error message names *a* cause, not necessarily *the* cause.** Before accepting a permission or capability error, check whether the documented non-privileged path is already enabled; if it is and the operation still fails, find the working alternative instead of escalating privilege.
 
 Full list (~90 principles, incl. domain-specific cases): `ai-toolkit/baselines/verification-epistemics/adapters/CLAUDE.md.block`. Read it when a verification question is unusual or high-stakes; this core is the always-on subset.
 
