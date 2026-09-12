@@ -61,8 +61,22 @@ makes it a loop, and it is the one nothing in the toolkit represented before.
 | `Backlog` | — | Self-loops until a review pass runs. Not a failure; the cadence is manual and may be weeks. |
 | `Classify` | `baseline-gap-review` | Every note in exactly one bucket, recurrences routed to `ActivationTest`, never treated as new rules. |
 | `ActivationTest` | `baseline-gap-review` | Both questions answered in writing: what dated failure would this have prevented, and would it have fired given where the pack is *actually* installed. |
-| `Promote` | `baseline-gap-review` | Provenance stamped (`_(added YYYY-MM-DD, from note-slug)_`); `pack.json` version and all three adapter blocks updated together. |
+| `Promote` | `baseline-gap-review` | Provenance stamped (`_(added YYYY-MM-DD, from note-slug)_`); `pack.json` version and all three adapter blocks updated together; **and the rule installed where it can fire** — `baseline status` showing the new version at a tier the failing work inherits. A merged commit is not this guard: the rule is in the repo, not in a session. |
 | `Evict` | `baseline-gap-review` | Something removed, or an explicit "nothing evicted this round" with a reason. Silence is not an exit. |
+
+### Filing by topic instead of by trigger
+
+`ActivationTest` has a second failure mode, quieter than the first. A rule can pass "is the
+pack installed?" and still never load, because the pack is **path-scoped to a file type the
+failing work never opened**, or because the bullet went into a `full` block while only `core`
+is installed. On 2026-09-11 three separate recurrences had exactly this shape — an `az` CLI
+rule filed under Python conventions, a `MAX_PATH` rule filed under .NET conventions, and a
+precedent rule sitting in a 84-principle full block of which 11 load. All three read as
+promoted. None had ever been in context at the moment of failure.
+
+The guard is mechanical, not a judgment: read the target pack's `paths`, check whether it has
+a `core` adapter and whether this bullet would be in it, and run `baseline status` where the
+failure happened. File by **when it loads**, not by **what it mentions**.
 
 ### The trap this graph exists to prevent
 
