@@ -1,0 +1,18 @@
+{
+  "name": "code-review-reporting",
+  "version": "0.1.0",
+  "status": "active",
+  "review_by": "2026-12-01",
+  "description": "Always-on discipline for conducting and reporting a code review: diff a candidate finding against sibling implementations before calling it a finding, verify prior resolved threads against current source before scoping them out, convert a fix blocked on an unmade product decision into a confirmed defect with branched fixes when current behaviour satisfies no candidate answer, and read a new package's scripts block as its CI coverage declaration before reading the diff.",
+  "source": {
+    "title": "Code Review Reporting",
+    "repository": "local",
+    "license": "repo-local",
+    "relationship": "Authored 2026-09-11 from four improvement notes captured during 2026-09-10/11 reviews. No existing pack covered review conduct - design-review critiques proposals and pr-description authors them - so these four had no home."
+  },
+  "adapters": {
+    "codex": "adapters/AGENTS.md.block",
+    "claude": "adapters/CLAUDE.md.block",
+    "copilot": "adapters/copilot-instructions.md.block"
+  }
+}

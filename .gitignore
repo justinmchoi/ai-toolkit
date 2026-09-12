@@ -21,6 +21,11 @@ CLAUDE.local.md
 *.key
 *.p12
 
+# Tooling crash noise. Git Bash drops bash.exe.stackdump wherever a worker fork
+# dies (vitest on Windows does this reliably); Chromium-based tools drop debug.log.
+bash.exe.stackdump
+debug.log
+
 # OS/editor noise
 .DS_Store
 .idea/

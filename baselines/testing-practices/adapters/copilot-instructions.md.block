@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:testing-practices v0.2.0 -->
+<!-- BEGIN baseline:testing-practices v0.3.0 -->
 ## Portable Agent Baseline: Testing Practices
 
 - A test whose expected result depends on an external mutable config it cannot itself set is not self-contained — two test cases needing opposite settings on the same shared target can never both pass in one run. Either own the setting (set it, then restore it, including on failure) within the test, or run against a fixture with the value already baked in.
@@ -9,6 +9,8 @@
 - After a refactor moves *where* logic runs (not just renames it), re-check that a test targeting that logic still actually reaches it — grep the call site the test's setup depends on; a green suite doesn't prove the test still exercises the branch it was written to lock in.
 - Before combining two independently-authored test builders/seeding steps that share a foreign key, check their defaults actually agree — don't assume they match just because both reference the same "TestData" constants; grep and compare each builder's own default.
 - After adding a member to a widely-mocked interface, don't trust a green build — a loose/lenient test double silently defaults a new value-type member (bool/int/enum) with no exception, unlike an async member that typically throws unconfigured. Explicitly audit and configure every test double for the new member.
+- For a feature that writes to shared or reused state, write one test per safety property rather than per "returns success", and make **sibling isolation** the centrepiece: seed a second unrelated record sharing the same reused resource, perform the operation on the first, assert the second is byte-for-byte unchanged. Name the failure classes that apply to this feature (shared-state mutation, partial-write corruption, concurrency, bad upstream data) in a plain-language checklist before writing any test, and read the project's real seeding/provisioning conventions rather than guessing a helper's signature.
+- Treat a surprising test result as a finding, not a flake — root-cause it, fix the application code using the codebase's own pattern for that class of fix, and skip-with-full-explanation only what a genuine harness limitation blocks. A run reporting **zero tests executed** is a different diagnosis from *N tests failed*: it is almost always harness, environment or config. When reporting, confirm any remaining failures are pre-existing by stashing and re-running, never by assuming.
 
 Apply this baseline before ordinary test-writing and test-triage habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:testing-practices -->

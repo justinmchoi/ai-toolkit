@@ -1,6 +1,6 @@
 {
   "name": "testing-practices",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "status": "active",
   "description": "General testing-practice discipline: keep tests self-contained instead of depending on external mutable config, pick the coverage layer that already verifies a behavior before adding a more expensive one, treat shared remote/E2E environments as reflecting their currently deployed build rather than local code, localize uniform batch test failures to the shared harness before assuming the product has many independent bugs, run real-infrastructure suites before declaring a real-dependency change verified, re-check that a refactor didn't silently detach a test from its target code path, verify combined test-builder defaults agree, and audit test doubles explicitly after widening a shared interface.",
   "origin": {

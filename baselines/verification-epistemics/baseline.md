@@ -1,7 +1,7 @@
 # Verification Epistemics Baseline
 
 Status: active
-Version: 0.9.0
+Version: 0.10.0
 
 Always-on discipline for a recurring failure mode: treating an inherited,
 paraphrased, or confidently-stated claim as verified fact without checking it
@@ -655,13 +655,25 @@ producing a wrong conclusion that direct verification would have caught.
     summary, even one you wrote yourself, since other people can modify it
     between reads.
 
-75. A shared proper noun between two documents is not evidence of
-    architectural equivalence — verify structural compatibility.
-    A shared proper noun (client, carrier, feature name) between two
-    documents or initiatives is not evidence of architectural equivalence.
-    Verify structural compatibility (shared preconditions, keying/
-    identifier, triggering mechanism) before treating one as a reusable
-    precedent for the other.
+75. When reusing a precedent, separate what it produced from how it got
+    there — the shape transfers, the procedure only if preconditions match.
+    A shared proper noun (client, carrier, feature name) between two documents
+    or initiatives is not evidence of architectural equivalence. But that
+    narrower trigger — "is this really the same thing?" — misses the commoner
+    failure, where the precedent genuinely is a sibling and the reuse still
+    goes wrong. The shape it produced (files, layout, resulting configuration)
+    transfers on domain similarity. The procedure (sequence, risk,
+    coordination, who must be involved) transfers only if the starting
+    conditions match, and starting conditions are usually invisible in the
+    finished artifact. Read the precedent's own history, not its current state.
+    For anything version-controlled the check takes seconds: find the commit
+    that first added the path (`git log --format=%H --diff-filter=A <ref> --
+    <path> | tail -1`) and read it with `git show --stat -M`. On 2026-09-11
+    that one command showed a "precedent" migration had changed namespace and
+    renamed its release — a recreate, not the in-place move whose procedure had
+    already been copied into four documents. Sharpen which half you are
+    copying; do not stop copying.
+    _(added 2026-09-08; widened 2026-09-11, from `reopened-same-name-different-initiative-verify-structural-match`)_
 
 76. Re-grep a shared ID registry immediately before allocating the next
     slot, not from an earlier grep in the same turn.
@@ -745,7 +757,8 @@ producing a wrong conclusion that direct verification would have caught.
     on the one that differs instead of silently corrupting it.
     _(added 2026-09-09, from `encode-preconditions-as-assertions-not-beliefs`)_
 
-84. Verify a checker before believing either of its verdicts.
+84. Verify a checker with two controls before believing either of its
+    verdicts, and expect the known-good one to catch errors in your analysis.
     A checker's false negative looks exactly like a clean result, and its false
     positive looks exactly like a real defect, so a surprising verdict is
     evidence about the checker at least as much as about the thing checked.
@@ -754,10 +767,72 @@ producing a wrong conclusion that direct verification would have caught.
     characters); a mutation test passed because a fallback repaired the
     mutation, making a working suite look worthless; and a preset parser
     reported every entry missing because CRLF put a trailing carriage return
-    inside each path, while separately mis-reading section markers. When a
-    check says everything is broken, or nothing is, run it against a case whose
-    answer you already know before acting on it.
-    _(added 2026-09-10, from three self-inflicted instances in the 2026-09-09 toolkit session)_
+    inside each path, while separately mis-reading section markers.
+    One control is not enough, and the two do different jobs. The known-bad
+    control proves the checker can go red — cheap, reassuring, and it almost
+    always confirms what you already believed. The known-good control is the
+    one that interrogates your own model of what "correct" means: a FAIL there
+    has three causes, and the third is why the exercise is worth doing — the
+    checker is buggy, the check is over-strict for a legitimate variant, or
+    your belief that this case is good is wrong. Read a green known-good run
+    sceptically too: ask which specific check would have caught the defect you
+    are worried about, and whether it actually ran. Report SKIP distinctly from
+    PASS and never let a skip count toward a green total. If no known-good
+    instance exists yet, say so — "the checker has only been shown to go red" —
+    rather than implying it was validated both ways.
+    _(added 2026-09-10, from three self-inflicted instances in the 2026-09-09 toolkit session; extended 2026-09-11, from `run-both-controls-the-known-good-one-catches-your-errors`)_
+
+85. Write the completion criteria before the plan, not after the work.
+    "Done" defaults to whatever produces visible output — the PR merged, the
+    build green, the document shipped — and every one of those can be true
+    while the deliverable does nothing. For any multi-step task someone will
+    act on, write the gates first, in dependency order, numbered so they are
+    citable from the plan and from a failure report. Split automated from
+    manual per criterion: automated ones get a script, manual ones get the
+    exact command written out so they are runnable rather than aspirational.
+    SKIP is not PASS — a check that could not run must report distinctly, with
+    a reason, and must not count toward a green total. Name the two or three
+    criteria most likely to be skipped and say why each alone voids the work;
+    that section is the one people read. Writing the gates first changes the
+    plan, and it is cheap, because the gates are just the questions you would
+    ask when reviewing someone else's claim of completion. Proportion it to
+    consequence: a one-file fix does not need seven gates, and the loop must
+    not become the deliverable.
+    _(added 2026-09-11, from `define-done-as-a-gated-checklist-before-starting`)_
+
+86. Ship a prose deliverable someone will act on with a runnable suite that
+    re-asserts every load-bearing claim.
+    Research, migration plans, state-of-play documents and teaching packs rest
+    on perishable facts — work-item states, which files exist on a default
+    branch, tool versions, whether a namespace has been migrated — and a reader
+    six weeks later cannot tell which sentences are still true. Write one check
+    per claim, each owning the falsifying command rather than the conclusion
+    (a tree listing piped to a count returning 0, not "the docs say it isn't
+    migrated"). Include the negative claims, which are the weakest thing in any
+    research document and the easiest to re-check. Include self-consistency
+    checks — every link resolves, every path the index names exists — which
+    cost nothing and catch rot introduced by later editing. When you correct an
+    error, add a check shaped to fail if the correction was itself wrong.
+    Record the runs: what failed and what was done about it tells the next
+    reader which claims are load-bearing enough to have broken once. Distinct
+    from encoding a precondition inside the script that does the work — here
+    there is no script, so the assertions ship as their own artifact or they do
+    not exist at all.
+    _(added 2026-09-11, from `ship-a-research-deliverable-with-an-executable-claim-suite`)_
+
+87. Match a unique substring and assert the hit count before deleting or
+    replacing lines in a structured file.
+    Selecting lines by a prefix that encodes a shared attribute — a date, a
+    status, a category — matches every other line carrying that attribute,
+    including ones in a different table or section of the same file. Match on a
+    substring unique to the target, assert the hit count is exactly one before
+    writing, and bound any range scan with a hard anchor (the literal line that
+    must survive) rather than a structural guess like "until the next blank
+    line". Then read the diff and check the arithmetic: "removed 2, added 1"
+    has an expected net change, and if the numbers do not reconcile, something
+    else was caught. A silent multi-match is the failure mode; the assertion
+    converts it into a stop.
+    _(added 2026-09-11, from `match-unique-substring-and-assert-count-before-deleting-lines`)_
 
 ## Priority
 

@@ -1,7 +1,7 @@
 # OOP Extension Safety Baseline
 
 Status: active
-Version: 0.4.0
+Version: 0.5.0
 
 Always-on guards for inheritance extension points in object-oriented codebases.
 Applies to any language that supports abstract/virtual methods and dependency
@@ -55,6 +55,27 @@ to compile, pass tests, and reach production.
    visible at the constructor/DI level instead of buried in logic that reads
    as caller-agnostic — a reviewer scanning the shared class sees a normal
    extension point, not a hidden branch that only fires for one caller.
+
+6. When an upstream dependency renames a versioned integration point and
+    consumers straddle both versions, add a parallel key — don't widen the
+    matcher.
+    A registry keyed by an external string (a captured hook name, an event
+    type, a DI key, a webhook type, a feature flag) breaks silently when the
+    producer renames one: the entry still resolves, still looks wired, and
+    captures nothing, so every consumer sees `undefined` with no error surface.
+    The tempting fix is a version-tolerant match (`fooV\d+`). Add a second,
+    distinctly-named key instead — `legacyFoo` -> the old symbol, `foo` -> the
+    new one. Two keys beat one loose matcher on three counts: a consumer can
+    assert **which** version it bound to (a regex makes "it registered"
+    observable but "it registered the one I meant" invisible — exactly the
+    property whose absence caused the original silent failure); the old name
+    stays truthful, so eventual removal is a search for one identifier rather
+    than archaeology; and a loose matcher silently absorbs a `V3` with
+    different semantics, while two explicit keys force a decision. Not for an
+    internal rename with identical semantics and a single consumer — the rule
+    earns its keep when consumers straddle versions or the versions differ in
+    behaviour, not just in name.
+    _(added 2026-09-11, from `add-a-parallel-key-rather-than-widening-a-matcher-when-upstream-renames`)_
 
 ## Priority
 

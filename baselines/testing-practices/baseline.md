@@ -1,7 +1,7 @@
 # Testing Practices Baseline
 
 Status: active
-Version: 0.2.0
+Version: 0.3.0
 
 General testing-practice discipline that applies regardless of language,
 framework, or test runner: keeping individual tests self-contained, choosing
@@ -111,6 +111,40 @@ see the relevant conventions baseline for that repo's stack instead.
    desired value. Doesn't apply to strict-mode mocks or members that already
    fail loudly on first unconfigured access in the framework's own
    conventions.
+
+9. For a feature that writes to shared or reused state, write one test per
+    safety property — and make the sibling-isolation test the centrepiece.
+    Ordinary coverage asks "does the happy path return success". That is the
+    wrong question for a feature that mutates a resource other, unrelated
+    records also point at, performs a multi-step write, or has a concurrency
+    window: there the quiet bug corrupts everyone, not just the record being
+    worked on. Name the failure classes that actually apply to *this* feature
+    first — shared-state mutation, partial-write corruption, concurrency, bad
+    upstream data — and write a plain-language checklist organised by them
+    before writing any test. The highest-value shape is **sibling isolation**:
+    seed a second, unrelated record sharing the same reused resource, perform
+    the operation on the first, and assert the second is byte-for-byte
+    unchanged. Read the target project's real conventions first — seeding
+    helpers, how a fresh database is provisioned per test, mocks vs. real
+    dependencies — rather than guessing a helper's signature. This is expensive
+    relative to routine test-writing and is not a substitute for ordinary unit
+    tests; run it only where a quiet bug would actually hurt someone.
+    _(added 2026-09-11, from `safety-proof-test-suite-skill-candidate`)_
+
+10. Treat a surprising test result as a finding, not a flake — and distinguish
+    "no tests ran" from "N tests failed".
+    A concurrency test where both racing requests succeed when only one should
+    have is a bug report, not a retry candidate: root-cause it, fix the
+    application code using the codebase's own existing pattern for that class
+    of fix, and skip-with-full-explanation only what a genuine harness
+    limitation blocks — never hide it. Separately, a run reporting **zero tests
+    executed** is almost always harness, environment or configuration, not
+    code; investigating the code first is wasted effort. And when reporting the
+    suite, say what was actually verified: build clean, targeted tests pass,
+    the full feature-area suite still passes — or every remaining failure
+    confirmed pre-existing by stashing the change and re-running, never
+    assumed.
+    _(added 2026-09-11, from `safety-proof-test-suite-skill-candidate` and `run-node-test-runner-from-powershell-not-git-bash-on-windows`)_
 
 ## Priority
 

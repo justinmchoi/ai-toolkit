@@ -1,6 +1,6 @@
 {
   "name": "dotnet-conventions",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "status": "active",
   "description": "Always-on .NET/C# conventions covering DI registration traps, codegen/scaffold drift discipline, EF Core persist-refetch value handling, loose-mock test-double gaps, NuGet/dependency pin discipline, marker-interface avoidance, XML-doc selectivity, Windows/.NET tooling gotchas (locked build output, MAX_PATH, DefaultAzureCredential cold-start), and HTTP-client resilience-policy scoping.",
   "source": {

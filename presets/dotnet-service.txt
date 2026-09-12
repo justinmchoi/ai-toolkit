@@ -12,6 +12,7 @@ commit-attribution
 branch-naming
 pr-description
 code-doc-sync
+code-review-reporting
 oop-extension-safety
 startup-config-validation
 dotnet-conventions

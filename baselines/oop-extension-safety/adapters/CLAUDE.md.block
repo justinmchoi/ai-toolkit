@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:oop-extension-safety v0.4.0 -->
+<!-- BEGIN baseline:oop-extension-safety v0.5.0 -->
 ## Portable Agent Baseline: OOP Extension Safety
 
 - Complete the template method: when a base class introduces a `protected abstract` or `virtual` hook, every code path in the base class that involves that decision must route through the hook — a direct field call bypasses virtual dispatch silently.
@@ -6,6 +6,7 @@
 - Mock the most-specific injected type: test doubles should mock the exact concrete class or interface registered in DI, not a base class — mocking a base class can satisfy the injection site while hiding that the production code injects the wrong subtype.
 - Declare concrete delegate types at the class level: when a class varies only in which concrete types it delegates to (not in algorithms), express that variation through type parameters or equivalent declaration-level constructs rather than constructor parameters alone — a constructor parameter silently accepts any assignable subtype, while a type parameter is visible in every diff and review.
 - Prefer a DI-wired subclass hook over an inline caller-type check: when a shared class needs different behavior for a specific caller, prefer a `protected virtual` hook overridden by a DI-wired subclass over checking the caller's concrete type inline — the caller-specific coupling becomes visible at the constructor/DI level instead of buried in logic that reads as caller-agnostic.
+- When an upstream dependency renames a versioned integration point and consumers straddle both versions, add a parallel key (`legacyFoo` -> old symbol, `foo` -> new symbol) rather than widening one matcher to accept both (`fooV\d+`). A registry keyed by an external string fails silently on a rename — the entry still resolves and captures nothing — and two explicit keys let a consumer assert *which* version it bound to, keep the old name truthful for eventual removal, and force a decision when a `V3` arrives instead of silently absorbing it.
 
 This baseline takes precedence over ordinary implementation and test-writing habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:oop-extension-safety -->

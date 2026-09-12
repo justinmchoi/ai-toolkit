@@ -1,6 +1,6 @@
 {
   "name": "repo-context-grounding",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "status": "active",
   "description": "Always-on startup posture for AI coding agents entering an existing repository: read local instructions, inspect context, discover workflows, respect boundaries, verify with repo-native checks, five Windows/tooling-discovery bullets (ask before a broad filesystem search, check for an existing runbook, PowerShell-vs-git-bash shim discovery, /tmp on Windows, gh api over WebFetch), and one AI-tooling friction bullet (MCP server reconnect).",
   "source": {

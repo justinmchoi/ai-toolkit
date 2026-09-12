@@ -1,10 +1,11 @@
-<!-- BEGIN baseline:layered-ownership v0.2.0 -->
+<!-- BEGIN baseline:layered-ownership v0.3.0 -->
 ## Portable Agent Baseline: Layered Ownership
 
 - Each repo or layer records its own decisions, status, and roadmap; do not write another layer's decisions into this repo's documents.
 - Cross-layer references are pointers, not ownership: link to the owning repo's artifact instead of duplicating or governing it.
 - Before recording a status or decision entry, identify which layer owns the affected asset and record it in that layer's own documents.
 - Do not create or grow a central governance hub; if a document starts mirroring another repo's changes, stop and move the content to its owner.
+- When asked to turn a session pattern into a skill or baseline "for future reuse", check whether the environment already has a structured capture -> review -> promote pipeline (a capture skill plus an improvements inbox; an instruction file naming a toolkit repo as source of truth) before reaching for a skill generator — the generator writes a finished, immediately-live artifact into an ungoverned folder with no review step and no check on whether the content belongs to a different layer. A genuinely one-off local convenience command is still fine to generate directly.
 
 This baseline takes precedence over ordinary documentation habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:layered-ownership -->

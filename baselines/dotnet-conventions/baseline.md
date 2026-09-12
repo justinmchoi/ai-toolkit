@@ -1,7 +1,7 @@
 # .NET Conventions Baseline
 
 Status: active
-Version: 0.6.0
+Version: 0.7.0
 
 Always-on .NET/C# conventions for dependency-injection registration and
 codegen/scaffold output. Distilled from 2026-07 work on a .NET payments service where DI
@@ -290,6 +290,35 @@ scaffolded EF Core migration surfaced changes the agent hadn't caused.
     independent layers, and one can silently override or exclude the other.
     Neither an agent's sweep nor a stated belief about retry behavior is a
     substitute for reading the actual policy registration code.
+
+37. XML doc comments apply to public test classes and methods too, for a
+    different reader.
+    The selective-XML-doc rule scopes itself to "genuine public API surface
+    intended for IntelliSense or generated-doc consumption", and on a literal
+    reading a test class falls outside it — it is `public` only so the runner
+    can discover it, and nothing consumes its IntelliSense. That reading is why
+    the rule missed twice on new test files. A test class still earns a
+    class-level `<summary>` stating **what it proves and why it is separate
+    from the baseline suite**, and `<summary>`/`<remarks>` on any method whose
+    reasoning is non-trivial: the reader is a future maintainer skimming the
+    suite to learn which safety properties are covered, which is the same job
+    XML doc does for an API consumer. Trivial arrange-act-assert methods whose
+    name already says everything still take a plain `//` comment or none.
+    _(added 2026-09-11, from `reopened-xml-doc-for-public-api-plain-comments-for-private-impl`)_
+
+38. Verify a NuGet version copied from template or skill reference code before
+    adding it — the pin is documentation, not a build artifact.
+    Version strings inside a template's example `.csproj` are never compiled or
+    CI-checked, so they go stale silently. Query
+    `https://api.nuget.org/v3-flatcontainer/{package-id-lowercase}/index.json`,
+    or run the `dotnet add package` and actually read the diagnostics. A
+    typo'd or non-existent version fails fast and loudly (`NU1103` — a
+    template pin of `5.4.483` resolved to nothing when the real latest stable
+    was `5.4.0`), but a **stale-and-vulnerable** one succeeds silently and
+    surfaces only as an `NU1902`/`NU1903` build warning nobody reads. This is
+    about reference documentation, not about second-guessing every pin in an
+    actively-maintained repo's own `.csproj`, which reflects real intent.
+    _(added 2026-09-11, from `verify-nuget-version-from-skill-template-before-adding`)_
 
 ## Priority
 

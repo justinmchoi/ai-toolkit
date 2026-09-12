@@ -1,7 +1,7 @@
 # Git Collaboration Hygiene Baseline
 
 Status: active
-Version: 0.11.0
+Version: 0.12.0
 
 This is a tool-neutral always-on baseline for AI coding agents working in Git
 repositories. It captures collaboration safety that should apply before
@@ -332,6 +332,65 @@ workflow-specific PR, release, deploy, or multi-agent procedures.
 45. After renaming a cross-referenced tracked file, grep the whole
     repo/project for the old filename before declaring the rename
     complete, rather than relying on memory of which files reference it.
+
+46. `git log --follow` is a similarity heuristic, not rename tracking — never
+    use it as evidence a file was moved.
+    `--follow` re-runs rename detection per commit against whatever else
+    changed in that commit, so on boilerplate-heavy trees it walks off into an
+    unrelated file's history. On 2026-09-11 it returned 135 commits about a
+    completely different service for a Helm manifest, and the failure is
+    reassuring rather than alarming: a long history reads as "history was
+    preserved", so a check built on it reports PASS on exactly the case it was
+    meant to catch. `--diff-filter=R` does not rescue it. To find out what a
+    path's introduction actually was, inspect the commit:
+    `SHA=$(git log --format=%H --diff-filter=A <ref> -- <path> | tail -1)`
+    (tail, for the first add), then `git show --stat -M "$SHA"` — a genuine
+    rename shows as `a => b` — and `git show "$SHA^:<old/path>"` for the
+    pre-move content. And when "was it a clean move?" is really a proxy for
+    "is the resulting object the same object?", answer that instead: identity
+    comparison is decidable, rename detection is a guess. `--follow` remains
+    fine for a human reading one file's probable history; the rule is against
+    it as evidence, in a check, a report, or a sentence someone will act on.
+    _(added 2026-09-11, from `git-log-follow-cannot-prove-a-file-move`)_
+
+47. Never write a whole externally-editable remote field from a local draft —
+    re-fetch, merge, write, then verify the round trip.
+    A PR/MR description, work-item field, wiki page or shared doc that a human
+    or an automation can also edit is server-authoritative; a local draft is a
+    proposal, never the current state. Re-fetch immediately before writing, not
+    at the start of the task. Diff the live value against what you last wrote
+    and merge anything foreign verbatim — machine-generated marker blocks and
+    human additions alike; when automation owns a delimited region, write
+    around the delimiters, never through them. Re-fetch after writing and
+    assert the persisted value equals what was sent, because a write can
+    succeed and still lose content to encoding, length caps or escaping. Where
+    the platform keeps no version history, snapshot before the first
+    destructive write so recovery does not depend on luck. On 2026-09-11 three
+    wholesale description overwrites destroyed a webhook-injected block and
+    four screenshots a reviewer had added; the field was recoverable only
+    because an unrelated diagnostic had happened to dump it minutes earlier.
+    Not for fields you exclusively own within one operation, or a git-tracked
+    file where `git show` is already the snapshot.
+    _(added 2026-09-11, from `read-merge-write-never-overwrite-a-remote-field-from-a-local-draft`)_
+
+48. Decompose a campaign named after one of its parts before scoping anything
+    against it.
+    When work arrives as a named campaign — "the X migration", "the Y upgrade",
+    "moving to Z" — the name is usually one component that became the label for
+    a bundle, typically the most visible or most recently added one. Find the
+    owning team's own brief rather than the ticket, since campaign tickets are
+    templated copies and the brief is what states the decomposition. List the
+    independent pieces explicitly and, for each, name the command that decides
+    whether this instance already has it. Then state in the plan which pieces
+    are in scope and which are already satisfied, with evidence — that one
+    table is what stops the next person re-planning finished work. On
+    2026-09-11 a five-part campaign named after one part turned out to be
+    three-fifths already done for the service in question, and the real
+    remaining work was the two pieces the title never mentions. The signal is a
+    campaign spanning multiple repos, teams or systems with different instances
+    at different stages; a single-repo refactor named after itself is just
+    named after itself.
+    _(added 2026-09-11, from `decompose-a-campaign-named-after-one-of-its-parts`)_
 
 ## Priority
 

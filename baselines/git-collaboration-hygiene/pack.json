@@ -1,6 +1,6 @@
 {
   "name": "git-collaboration-hygiene",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "status": "active",
   "description": "Always-on Git collaboration posture for AI coding agents: inspect status, protect user changes, stage explicit paths, review diffs, and avoid unsafe pushes or conflict handling.",
   "source": {

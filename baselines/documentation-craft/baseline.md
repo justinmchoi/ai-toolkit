@@ -1,7 +1,7 @@
 # Documentation Craft Baseline
 
 Status: active
-Version: 0.5.0
+Version: 0.6.0
 
 Always-on discipline for documentation structure, mechanics, and prose-style
 decisions — how a document is organized, linked, scoped, and worded. This is
@@ -262,6 +262,52 @@ independent of whether that documentation happens to describe code.
     script implementing the real GFM slug algorithm rather than
     hand-typing them, and cross-check against any existing TOC in the same
     project.
+
+27. When a batch mechanism fails all-or-nothing and the per-item mechanism
+    fails per-item, prefer per-item as soon as the batch is more than a couple
+    of items.
+    Authoring 18 prose files as chained shell heredocs in one call produced a
+    single parse error and **zero** files — not seventeen, because the parse
+    failure precedes any execution, so one stray character in ~600 lines
+    discarded all of it, and locating it would have cost more than starting
+    over. Use the dedicated file-writing tool, one call per file: a defect
+    fails that file only, each result confirms its own write, and no quoting
+    rules apply to the content at all. Markdown is close to worst-case input
+    for shell quoting — backticks, apostrophes in ordinary English, `$`, `{}`,
+    `!`, and fenced blocks that may themselves contain heredocs — and a quoted
+    delimiter protects the body from expansion while doing nothing about the
+    surrounding command-line parse. Heredocs stay right for one file, a
+    multi-line commit message, or generating from known-safe content. The
+    token cost of extra calls is far below one silent total failure plus the
+    hunt for the offending character.
+    _(added 2026-09-11, from `batch-heredoc-file-authoring-fails-all-or-nothing`)_
+
+28. For teaching material with a real audience, four structural choices do
+    most of the work — none of them about the content.
+    (1) **Number the files and put the reading order in file `00`.** A teaching
+    set has a load-bearing sequence; `00` carries a table of what each file
+    gives you, a 60-second summary, and the two or three mental models that
+    make the rest click, so a reader who stops there is still net ahead.
+    (2) **End each file with "you should now be able to answer…"** — four or
+    five questions phrased the way a colleague would actually ask them. It
+    turns a passive read into a self-test, and writing them exposes sections
+    that explained a mechanism without conveying when it matters.
+    (3) **Give every factual row an evidence column** naming the command that
+    produced it: the reader can re-verify without asking, a row with no
+    runnable command is visibly an inference, and those commands become the
+    verification suite almost for free.
+    (4) **Separate terms from mechanisms from narrative, and cross-link.** A
+    glossary answers "what is X" in one screen, a flows directory answers "what
+    happens, in order, when Y" one file per flow, and the teaching narrative
+    threads them — three questions at three grains, and one document serving
+    all three serves none.
+    On tone: write failure modes as observations ("every new joiner reports
+    this") rather than warnings; it is more memorable, because it tells the
+    reader they are about to have a specific experience. This is for material
+    with an audience and a sequence — a reference doc for your own later use
+    needs neither the questions nor the reading order, though the evidence
+    column is worth it well below that bar.
+    _(added 2026-09-11, from `teaching-doc-structure-that-survives-handoff`)_
 
 ## Priority
 
