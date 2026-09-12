@@ -158,6 +158,32 @@ if (Test-Path -LiteralPath $installRoot) {
     }
 }
 
+# --- 5b. every canonical skill must have a project adapter under .claude/skills ------------------
+# The repo is itself a Claude Code project, so .claude/skills/<name> is how a skill added here
+# becomes invokable for anyone working in this clone. Nothing in the commit gate used to check it:
+# six skills went adapter-less for up to seven weeks (eli5, improvement-extraction,
+# project-structure, session-closeout, verification-coverage, verify-concurrent-session-changes)
+# while `verify.sh` -- the one checker that did cover it -- was never wired into the gate.
+Note "checking project skill adapters..."
+$adapterRoot = Join-Path $repoRoot ".claude/skills"
+foreach ($categoryDir in (Get-ChildItem -LiteralPath (Join-Path $repoRoot "skills") -Directory)) {
+    foreach ($skillDir in (Get-ChildItem -LiteralPath $categoryDir.FullName -Directory)) {
+        $checked++
+        $adapter = Join-Path $adapterRoot $skillDir.Name
+        $expected = "../../skills/$($categoryDir.Name)/$($skillDir.Name)"
+        if (-not (Test-Path -LiteralPath $adapter)) {
+            Add-Problem "missing project skill adapter" "$($skillDir.Name): no .claude/skills/$($skillDir.Name) -- the skill is not invokable from this repo"
+            continue
+        }
+        if (Test-Path -LiteralPath $adapter -PathType Leaf) {
+            $pointer = (Get-Content -LiteralPath $adapter -Raw).Trim()
+            if ($pointer -ne $expected) {
+                Add-Problem "wrong project skill adapter" "$($skillDir.Name): points at '$pointer', expected '$expected'"
+            }
+        }
+    }
+}
+
 # --- 6. a domain that exists on disk must be listed in the docs that enumerate domains ----------
 Note "checking domain documentation..."
 $domainDocs = @("README.md","CLAUDE.md","AGENTS.md","CONTEXT.md") |

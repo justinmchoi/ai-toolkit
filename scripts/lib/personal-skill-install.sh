@@ -314,7 +314,13 @@ install_personal_skills() {
       desired="$current_link/skills/$category_name/$skill_name"
 
       if [ "$verify_only" -eq 1 ]; then
-        [ -L "$target" ] || fail "$tool_label skill is not a symlink: $target"
+        # Distinguish absent from wrong-type. Both used to report "is not a symlink",
+        # which sends the reader looking for a bad link that does not exist -- the skill
+        # was simply never installed for this tool.
+        if [ ! -e "$target" ] && [ ! -L "$target" ]; then
+          fail "$tool_label skill is not installed: $target (run the installer without --verify-only)"
+        fi
+        [ -L "$target" ] || fail "$tool_label skill exists but is a copy, not a symlink: $target"
         link_target="$(readlink "$target")"
         [ "$link_target" = "$desired" ] || fail "$tool_label skill points at $link_target, expected $desired"
         [ -f "$target/SKILL.md" ] || fail "$tool_label skill link does not resolve to SKILL.md: $target"

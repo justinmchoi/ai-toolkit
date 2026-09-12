@@ -76,7 +76,8 @@ Do not recreate thin local variants of imported skills.
 ## Verification
 
 **A pre-commit gate runs automatically** (`.githooks/pre-commit`): the drift check on every commit,
-plus both test suites whenever `scripts/` is touched. Enable it in a fresh clone with
+the skill-layout verifier whenever `skills/` or `.claude/skills/` is touched, and both test suites
+whenever `scripts/` is touched. Enable it in a fresh clone with
 `git config core.hooksPath .githooks` — it is local config, so a clone has no gate until you do.
 Bypass deliberately with `git commit --no-verify`.
 

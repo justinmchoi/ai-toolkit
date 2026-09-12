@@ -8,6 +8,7 @@
 #
 # Scoped to what actually changed, so the common case stays fast:
 #   always              baseline doctor            ~5s
+#   skills/ touched     skill-layout verifier      ~1s more
 #   scripts/ touched    CLI + install test suites  ~7s more
 #
 # Install:  git config core.hooksPath .githooks
@@ -44,6 +45,13 @@ elif command -v powershell.exe >/dev/null 2>&1; then
   run "drift (doctor)" powershell.exe -NoProfile -File scripts/baselines/doctor.ps1 -Quiet
 else
   printf '  %-22s SKIPPED (no pwsh on PATH)\n' "drift (doctor)"
+fi
+
+# Only when a skill or its adapter changed: the skill-layout verifier. Cheap, and it is the
+# only checker that reads the adapter pointers and frontmatter as a set. It was documented but
+# never wired in, so it sat red for seven weeks while the commit gate stayed green.
+if printf '%s\n' "$staged" | grep -qE '^(skills/|\.claude/skills/)'; then
+  run "skill layout" bash scripts/skills-setup/verify.sh
 fi
 
 # Only when the tooling itself changed: the behavioural suites.

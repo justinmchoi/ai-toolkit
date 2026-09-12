@@ -92,8 +92,9 @@ of a Claude-side cleanup — deleting them removes the only guidance those tools
 
 **Drift checking.** `baseline doctor` verifies every invariant this repo has actually broken before:
 version coherence across `pack.json` / `baseline.md` / adapter markers, the three full adapters being
-identical, core tagging, apply/remove target parity, skill frontmatter, installed skills being links
-rather than copies, and every on-disk domain appearing above. `-Repos` also sweeps installed state
+identical, core tagging, apply/remove target parity, skill frontmatter, every canonical skill having
+a `.claude/skills/` project adapter that points at it, installed skills being links rather than
+copies, and every on-disk domain appearing above. `-Repos` also sweeps installed state
 in other repos (a path, a glob ending in `*`, or `.`/`cwd`); `-Here` is shorthand for `-Repos .`.
 It also prints **advisories** — judgment calls that do not fail the build, such as a skill that
 loops and names other skills but belongs to no flow.
