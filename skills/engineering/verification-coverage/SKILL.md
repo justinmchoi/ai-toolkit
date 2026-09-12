@@ -1,6 +1,6 @@
 ---
 name: verification-coverage
-description: Audit a drafted conclusion, report, review, or plan for load-bearing claims that were never actually checked — classify each as verified/inferred/assumed, run the cheap falsifying command for the unverified ones, correct what turns out wrong, and report a coverage figure. Use before delivering an output someone will act on, or when asked "how do we know this is right?", "how confident are you?", "check your claims", or "did you verify that?".
+description: Audit a drafted conclusion, report, review, or plan for load-bearing claims that were never actually checked — classify each as verified/inferred/assumed, run the cheap falsifying command for the unverified ones, correct what turns out wrong, report a coverage figure, and for a durable artifact emit the checks as a runnable claim suite beside it. Use before delivering an output someone will act on, or when asked "how do we know this is right?", "how confident are you?", "check your claims", or "did you verify that?".
 status: trial
 problem: Wrong conclusions in practice are almost never reasoning errors — they are existence and absence claims asserted from partial evidence when one cheap command would have settled them. Nothing makes the difference between a checked and an unchecked claim visible in a finished output, so both read identically to the reader.
 when-not-to-use: Not for ordinary conversation, exploratory thinking-out-loud, or outputs nobody will act on. Not a substitute for the `verification-epistemics` baseline, which is the always-on discipline this audit only backstops — if that pack is not installed, install it first; auditing after the fact is the weaker lever.
@@ -99,8 +99,45 @@ mechanically checkable by the reader, and it makes the *absence* of verification
 countable rather than invisible. That is the whole value — a low coverage figure
 honestly reported is a useful output; a high confidence score is not.
 
+### 7. Optionally, emit the suite instead of only the figure
+
+A coverage figure is a claim about a moment. When the audited output is a **durable
+artifact someone will act on later** — a migration plan, a state-of-play document,
+a research deliverable, a teaching pack — write the checks out as a runnable script
+next to it rather than only reporting the number in chat. You have already composed
+one falsifying command per claim in step 4; saving them costs almost nothing and
+converts a one-time audit into something the next reader can re-run.
+
+Three things distinguish a suite from a transcript of step 4:
+
+- **Each check owns the falsifying command, not the conclusion.** Compare the
+  observed value against the documented one; never assert "the docs say X".
+- **Add the self-consistency checks** step 4 skipped because they are not claims —
+  every internal link resolves, every path the index names exists, every file the
+  reading order lists is present. They cost nothing and catch rot introduced by
+  later editing rather than by the original research.
+- **When a check finds an error, add a check shaped to fail if the correction was
+  itself wrong**, so the correction is defended rather than merely applied.
+
+Then validate the suite itself the way `verification-epistemics` requires — **two
+controls, not one**. A known-bad case proves it can go red, which is cheap and
+almost always confirms what you already believed. A **known-good** case is the one
+that interrogates your own model of "correct": a FAIL there means the checker is
+buggy, the check is over-strict for a legitimate variant, or your belief that this
+case is good is wrong. Report `SKIP` distinctly from `PASS`, never counting a skip
+as green, and keep a `run-log.md` of what failed and what was done about it — that
+log is worth more to the next reader than a clean sheet, because it names which
+claims were load-bearing enough to have broken once.
+
+Don't let the suite become the deliverable. It should be a fraction of the effort
+the artifact took; if it isn't, the artifact probably had fewer load-bearing claims
+than the audit assumed.
+
 ## Boundary
 
+- **The suite in step 7 is for durable artifacts only.** Not for a one-off answer in
+  chat, and not for claims cheap to re-derive by reading one file. The bar is that
+  someone will act on this later and the cost of acting on a stale claim is real.
 - **This is the backstop, not the discipline.** The always-on habit lives in the
   `verification-epistemics` baseline. An audit at the end catches less, later, than
   the habit catches continuously. If that pack is not installed at a tier the work
