@@ -180,9 +180,12 @@ a second dated occurrence:
   into a baseline bullet, a reference/technique note, or a checklist line in
   an existing skill instead, per whatever the content actually needs.
 
-This is the same test this skill itself was just put through — apply it as
-rigorously to every candidate as it was applied to this skill's own
-candidacy.
+This is the same test this skill itself was put through before it was built —
+apply it as rigorously to every candidate. Two of this pipeline's most useful
+outputs were *downgrades*: a working, already-written skill that had only one
+dated occurrence got its portable principles folded into a baseline and the
+artifact left ungoverned, which is the correct outcome and does not feel like
+one.
 
 ### 4. Apply the placement heuristic
 
@@ -212,9 +215,15 @@ The two axes are independent: *who inherits it* (which repo, which tier) and
 both, explicitly. A pack destined for always-on also needs the core/full split
 (see step 7) so it does not silently grow the always-on budget.
 
-If a note doesn't cleanly fit one of these three, ask Justin rather than
-guessing — occurrence #1 resolved the ambiguous middle by asking, not by
-mechanically filing by "which employer's session produced this."
+**Do not treat this step as settling placement.** Both answers here can be right
+and the rule still never load, because a pack that is the correct *domain* can
+have the wrong *trigger*. Step 5 is where that gets checked, and it is a check,
+not a formality — it moved three rules this round. Nothing gets written until it
+passes.
+
+If a note doesn't cleanly fit any row above, ask Justin rather than guessing —
+the first pass resolved the ambiguous middle by asking, not by mechanically
+filing by "which employer's session produced this."
 
 ### 5. Activation test — would this rule actually have fired?
 
@@ -456,22 +465,27 @@ verified. For this pass that is normally: the shared repo's rules do not take
 effect in consuming repos until the PR merges and `baseline apply` runs there;
 and no promoted rule has yet been observed firing in a real session.
 
-## If this recurs a third time
+## Before automating anything on top of this
 
-Per the candidate note's own "Future work" section: before building
-anything further, ask *why the review cadence keeps breaking down* — was
-`_Improvements/` simply unreviewed for N weeks, did the backlog cross some
-size threshold that made a live review impractical, or did a missed note
-cause a repeat mistake? That diagnostic answer — not just the raw fact of a
-third recurrence — should decide whether this skill needs an earlier or
-automatic trigger (e.g. a nudge after every N `session-closeout` runs)
-instead of staying purely manually-invoked.
+The original candidate note asked that any automation wait until someone could
+answer *why the review cadence keeps breaking down*. **As of 2026-09-11 that
+question has an answer, and it is: the cadence is not the problem.** That pass
+processed 35 notes captured over two and a half days, two days after the
+previous pass. The folder was never neglected; capture simply runs at roughly 14
+notes/day when the underlying work is dense. An automatic nudge after every N
+`session-closeout` runs would have fired constantly and fixed nothing.
 
-Do not build that trigger now. This is only this skill's first real use;
-automation on top of it needs its own justification, earned the same way
-this skill earned its own existence — a real, dated recurrence of the
-specific pain that automation would fix, not an assumption that it would
-help.
+So do not build a scheduling trigger. The thing that repeatedly goes wrong is
+one step further in: **a rule ships, reads as promoted, and never loads.** Three
+of that pass's six recurrences had exactly that cause, one of them across four
+occurrences and three months.
+
+If that keeps happening *after* step 5's mechanical checks and gate 9.3 are
+being followed, the justified automation is a **mechanical activation check** —
+given a rule and a situation, answer "would this have been in context?" — not a
+reminder to run this skill more often. Wait for a dated recurrence that survives
+the checks before building it; one pass with the checks in place is not evidence
+they are insufficient.
 
 ## Part of a flow
 
