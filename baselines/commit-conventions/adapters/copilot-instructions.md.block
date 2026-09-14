@@ -1,10 +1,10 @@
-<!-- BEGIN baseline:commit-conventions v0.1.1 -->
+<!-- BEGIN baseline:commit-conventions v0.2.0 -->
 ## Portable Agent Baseline: Commit Conventions
 
 - Write every commit message in the [Conventional Commits](https://www.conventionalcommits.org/) format: `<type>(<optional scope>): <description>`, optionally followed by a blank line, a body, and footer(s).
 - Use one of these types: `feat` (new feature), `fix` (bug fix), `docs` (documentation only), `style` (formatting, no logic change), `refactor` (neither a fix nor a feature), `test` (adding or correcting tests), `chore` (build, tooling, or dependency updates), `ci` (CI/CD configuration).
 - Keep the subject in present-tense imperative mood and 72 characters or fewer ("add logging", not "added logging"), with no trailing period. Scope is optional but encouraged in larger codebases.
-- Put the "why" in the body when the change is not self-evident, wrapping prose at roughly 72 columns. Reference tracking items in the footer: `Closes #123` (GitHub) or `AB#12345` (Azure DevOps work item).
+- Put the "why" in the body when the change is not self-evident, wrapping prose at roughly 72 columns. Reference tracking items in the footer: `Closes #123` (GitHub) or `AB#12345` (Azure DevOps work item) — **but only when the commit delivers that item.** Where the tracker has a commit/PR integration the syntax is an action, not a reference: it writes a link and changes what the work item appears to have delivered. To cite an item as provenance or background instead, drop the sigil (`AB 378454`, "work item 378454") — backticks do not suppress it. Commit message, PR title, PR description and branch name each link independently, so clearing one leaves the rest attached, and a pushed commit message can only be fixed by a history rewrite or by unlinking in the tracker UI.
 - Flag breaking changes with `!` after the type/scope (`feat(api)!: ...`) or a `BREAKING CHANGE:` footer.
 - This governs message format only. It composes with `git-collaboration-hygiene` (stage explicit paths, review the staged diff before committing) and `commit-attribution` (no AI co-author trailers or "generated with" footers).
 

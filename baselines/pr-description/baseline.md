@@ -1,7 +1,7 @@
 # PR Description Baseline
 
 Status: active
-Version: 0.3.1
+Version: 0.4.0
 
 This is a tool-neutral always-on baseline for AI coding agents that open pull
 requests in a repository. It sets the *content* of the PR: a title a reviewer

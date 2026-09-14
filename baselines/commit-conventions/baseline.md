@@ -1,7 +1,7 @@
 # Commit Conventions Baseline
 
 Status: active
-Version: 0.1.1
+Version: 0.2.0
 
 This is a tool-neutral always-on baseline for AI coding agents that write
 commits in a repository. It sets the *format* of the commit message: every
@@ -46,8 +46,23 @@ DevOps work items.
    wrap prose at roughly 72 columns. Describe intent and consequences, not a
    restatement of the diff.
 
-4. Reference tracking items in the footer.
+4. Reference tracking items in the footer — when the commit delivers them.
    `Closes #123` for a GitHub issue, `AB#12345` for an Azure DevOps work item.
+   That syntax is **an action, not a reference**: where the tracker has a
+   commit/PR integration, it writes a link and changes what the work item
+   appears to have delivered. Use it only when this change delivers that item's
+   scope. When naming a work item as *provenance, evidence or background* —
+   "this rule came from what we learned on X", "the precedent is Y" — drop the
+   sigil (`AB 378454`, or "work item 378454") so the integration does not match
+   it. Do not rely on backticks or code fences to suppress it; these
+   integrations scan raw message text.
+   Every linking surface links independently — commit message, PR/MR title, PR
+   description, branch name — so removing the ID from one leaves the others
+   attached. Once a commit message is pushed the only fixes are a history
+   rewrite or unlinking in the tracker's UI, which makes *before the first push*
+   the cheap moment. File content is safe and is the better home for provenance:
+   an id inside a committed source or doc file does not auto-link.
+   _(added 2026-09-14, from `tracker-autolink-syntax-is-a-write-not-a-citation`)_
 
 5. Flag breaking changes explicitly.
    Append `!` after the type/scope (`feat(api)!: ...`) or add a
