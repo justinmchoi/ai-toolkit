@@ -321,9 +321,51 @@ if ($repoTargets.Count -gt 0) {
             # a pack resolving from more than one layer is literally in context twice
             if ($line -match "^(?<pack>[A-Za-z0-9._-]+)\s+YES\s+(?<sources>.+)$") {
                 $checked++
+                $pack = $Matches["pack"]
                 $srcField = $Matches["sources"]
                 if (($srcField -split ";").Count -gt 1) {
-                    Add-Problem "duplicate tier" "$(Split-Path -Leaf $repo): $($Matches['pack']) resolves from more than one layer -- both blocks are in context"
+                    # Two blocks in context is the finding, but not the whole finding: WHY they
+                    # differ decides what to do about it. Version equality is not content
+                    # equality -- two toolkits version the same pack name independently, so a
+                    # name can resolve at v0.4.0 from both sources with different text in each.
+                    # That case is invisible to every marker-based check, so compare content.
+                    $blocks = @()
+                    foreach ($src in ($srcField -split ";")) {
+                        $s = $src.Trim()
+                        if ($s -notmatch "^(?<tier>[a-z-]+):(?<loc>.+?)\s+v(?<ver>[0-9][0-9A-Za-z.\-]*)") { continue }
+                        $loc = $Matches["loc"].Trim()
+                        $ver = $Matches["ver"]
+                        $tierName = $Matches["tier"]
+                        # if/elseif, not switch -Wildcard: PowerShell's switch runs EVERY
+                        # matching branch, so "~/.claude/CLAUDE.md" matched both "~/*" and
+                        # "*.md" and the last one won, resolving it under the repo.
+                        $path = $null
+                        if ($loc.StartsWith("~/"))          { $path = Join-Path $HOME ($loc -replace "^~/", "") }
+                        elseif ($loc -match "^[A-Za-z]:[\/]") { $path = $loc }
+                        elseif ($tierName -eq "user-rule")  { $path = Join-Path $HOME ".claude/rules/$loc" }
+                        elseif ($loc -match "\.md$")        { $path = Join-Path $repo $loc }
+                        $text = $null
+                        if ($path -and (Test-Path -LiteralPath $path)) {
+                            $all = Get-Content -LiteralPath $path -Raw
+                            $m = [regex]::Match($all, "<!-- BEGIN baseline:$([regex]::Escape($pack)) v.*?<!-- END baseline:$([regex]::Escape($pack)) -->", "Singleline")
+                            if ($m.Success) {
+                                # normalise the marker itself out, so only the principle text compares
+                                $text = ($m.Value -replace "<!-- BEGIN baseline:[^>]*-->", "") -replace "\s+", " "
+                            }
+                        }
+                        $blocks += [pscustomobject]@{ Tier = $loc; Version = $ver; Text = $text }
+                    }
+                    $versions = @($blocks.Version | Select-Object -Unique)
+                    $texts    = @($blocks | Where-Object { $_.Text } | ForEach-Object { $_.Text } | Select-Object -Unique)
+                    $detail = if ($versions.Count -gt 1) {
+                        $pairs = ($blocks | ForEach-Object { "$($_.Tier) v$($_.Version)" }) -join " vs "
+                        "stale copy -- $pairs; the older text is in context alongside the newer"
+                    } elseif ($texts.Count -gt 1) {
+                        "CONFLICT -- both say v$($versions[0]) and their content DIFFERS, so no version check can see this; diff them"
+                    } else {
+                        "redundant -- same version and identical text, so this costs context only"
+                    }
+                    Add-Problem "duplicate tier" "$(Split-Path -Leaf $repo): $pack resolves from more than one layer -- $detail"
                 }
             }
         }

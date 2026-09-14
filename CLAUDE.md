@@ -132,13 +132,14 @@ This baseline takes precedence over ordinary implementation habits, but never us
 <!-- END baseline:karpathy-principles -->
 
 
-<!-- BEGIN baseline:layered-ownership v0.2.0 -->
+<!-- BEGIN baseline:layered-ownership v0.3.0 -->
 ## Portable Agent Baseline: Layered Ownership
 
 - Each repo or layer records its own decisions, status, and roadmap; do not write another layer's decisions into this repo's documents.
 - Cross-layer references are pointers, not ownership: link to the owning repo's artifact instead of duplicating or governing it.
 - Before recording a status or decision entry, identify which layer owns the affected asset and record it in that layer's own documents.
 - Do not create or grow a central governance hub; if a document starts mirroring another repo's changes, stop and move the content to its owner.
+- When asked to turn a session pattern into a skill or baseline "for future reuse", check whether the environment already has a structured capture -> review -> promote pipeline (a capture skill plus an improvements inbox; an instruction file naming a toolkit repo as source of truth) before reaching for a skill generator — the generator writes a finished, immediately-live artifact into an ungoverned folder with no review step and no check on whether the content belongs to a different layer. A genuinely one-off local convenience command is still fine to generate directly.
 
 This baseline takes precedence over ordinary documentation habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:layered-ownership -->
@@ -161,7 +162,7 @@ This baseline takes precedence over ordinary documentation habits, but never use
 This baseline takes precedence over ordinary planning habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:process-vs-work-doctrine -->
 
-<!-- BEGIN baseline:code-doc-sync v0.5.0 -->
+<!-- BEGIN baseline:code-doc-sync v0.7.0 -->
 ## Portable Agent Baseline: Code-Doc Sync
 
 - Check docs before closing: when a repo has architecture docs and a task changes externally observable behavior or a contract other code depends on (a public API, a documented flow, a class relationship that appears in diagrams), check the docs that describe the changed behavior and decide explicitly whether each needs updating; skipping the check is not acceptable even for bug fixes. Purely internal changes with no observable-behavior or contract impact do not require it.
@@ -173,13 +174,14 @@ This baseline takes precedence over ordinary planning habits, but never use it t
 - When resolving an ambiguity produces a manually-enforced cross-system invariant (two independently-created values that must be kept identical, with nothing automated checking it), add a call-out to the operational onboarding template/script that actually creates the value, in the same pass as writing the decision record — not as a follow-up, even when the triggering event was a zero-code-diff decision.
 - Before committing a change to an embedded Mermaid diagram, render it with mermaid-cli to catch parse-breaking syntax errors — visual inspection of the diagram source misses syntax that only fails at render time.
 - For a rename/reshape of a field or method used across multiple projects and referenced in a linked doc (ADR/test plan), run it as one deterministic checklist instead of reconstructing it by hand each time: grep all usage sites first, fix production code, fix tests, build each touched project incrementally, full-solution build, update linked docs to match, a final stale-reference grep, then `git status`.
+- Propagate a scope change to every terser router/index file that restates the same fact, not just the detail file that owns it — thin restatements go stale silently. Grep the old wording repo-wide, and refresh any "last built" date the change invalidates.
 
 These principles are folder-name-agnostic. If the repo specifies where documentation lives (in CLAUDE.md, README, or a project-specific section), read that first. If no documentation is found, these principles fire on nothing — that is acceptable.
 
 This baseline takes precedence over ordinary implementation habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:code-doc-sync -->
 
-<!-- BEGIN baseline:git-collaboration-hygiene v0.11.0 -->
+<!-- BEGIN baseline:git-collaboration-hygiene v0.12.0 -->
 ## Portable Agent Baseline: Git Collaboration Hygiene
 
 - Inspect repository state before changing or committing: check the active branch and working tree when Git is available, especially before edits, staging, commits, pulls, merges, rebases, or pushes.
@@ -199,7 +201,7 @@ This baseline takes precedence over ordinary implementation habits, but never us
 - Reconstruct cross-host PR history from local clones via `git log --all --grep` on merge commits instead of paginating each host's API: when a repo is already cloned locally and the hosting platform's PR-listing API only supports listing/pagination rather than full-text search, filter merge commits by keyword instead — this works identically across GitHub, Azure DevOps, and other hosts that embed the PR title in the merge commit message, though it breaks down for squash-merge or rebase-only workflows with no distinct merge commit.
 - Verify via `git log` and `git merge-base --is-ancestor` against the actual remote, not memory, whether a prior round's related work has merged before branching for follow-up work: if that related work is still unmerged (an open PR, an unreviewed branch), branch from that unmerged branch instead of the default base branch.
 - Consider a long-lived, never-merged notes/diagrams branch when the team already has that convention, mirroring its existing structure rather than inventing a new one.
-- Before scoping a work item that is one of several siblings under a shared parent, check every sibling's assignee and state: in any hierarchical issue tracker (Jira, Linear, GitHub Projects, Azure DevOps, etc.), query the parent's other child items before committing to a scope, and narrow your own scope rather than duplicating overlapping work a sibling is already actively covering.
+- Before scoping a work item that is one of several siblings under a shared parent, check every sibling's assignee and state: in any hierarchical issue tracker (Jira, Linear, GitHub Projects, Azure DevOps, etc.), query the parent's other child items before committing to a scope, and narrow your own scope rather than duplicating overlapping work a sibling is already actively covering. Read the result as three outcomes, not two — siblings cover the gap (the staging was deliberate); siblings cover part of it (name the remainder); or there are no siblings at all, which makes the gap fully real and *more* urgent, because nothing else will pick it up and a parent whose only child is about to close looks complete in every dashboard. Report the uncovered criteria explicitly, with the query as evidence.
 - Reference a work item's own ID in commit messages and branch names, not its parent's: in a hierarchical tracker, referencing the wrong level causes the tracker's auto-link to attach the change to the parent instead of the child, making the real item look untouched in status reports and dashboards.
 - Before pushing additional commits to an already-open PR branch, verify the PR is still open: a reviewer can merge it while you're still working, and pushing to a since-merged branch just strands the commits outside `main` rather than failing loudly — if it's merged, branch fresh from an updated `main`, cherry-pick the stranded commits, and open a new PR instead of force-pushing into a closed one.
 - After `git checkout <ref> -- <path>` (or a similarly-scoped restore) to pull one file, immediately run `git diff` to confirm no uncommitted edit to that file was silently clobbered — the command overwrites, it does not merge.
@@ -227,11 +229,14 @@ This baseline takes precedence over ordinary implementation habits, but never us
 - Before scoping a change to a shared/multi-referenced structure (an in-use fallback list, a priority sequence), search git log/history for whether this exact class of change was done before anywhere in the codebase, even a one-off throwaway migration, before re-deriving constraints from current-state code alone.
 - When a file referenced by a ticket/doc can't be found via normal search, search all git history (`git log --all --oneline -- <path>`) before concluding it doesn't exist — if found on a non-ancestor commit, read it directly with `git show <ref>:<path>` rather than checking out that branch.
 - After renaming a cross-referenced tracked file, grep the whole repo/project for the old filename before declaring the rename complete, rather than relying on memory of which files reference it.
+- `git log --follow` is a similarity heuristic, not rename tracking — never cite it as evidence a file was moved (it silently walks into an unrelated file's history on boilerplate-heavy trees, and a long history reads reassuringly as "history preserved"). Inspect the introducing commit instead: `git log --format=%H --diff-filter=A <ref> -- <path> | tail -1`, then `git show --stat -M`. Better still, when the real question is "is this the same object?", compare identity — that is decidable, rename detection is a guess.
+- Never write a whole externally-editable remote field (PR/MR description, work-item field, wiki page) from a local draft — it is server-authoritative and your draft is a proposal. Re-fetch immediately before writing, merge foreign content verbatim (automation marker blocks, other people's additions), write around delimited regions rather than through them, then re-fetch and assert the persisted value matches what you sent. Snapshot first where the platform keeps no version history.
+- Decompose a campaign named after one of its parts before scoping against it — "the X migration" is usually one visible component that became the label for a bundle. Read the owning team's brief rather than the templated ticket, list the independent pieces, name the command that decides whether this instance already has each one, and put in-scope vs. already-satisfied in the plan with evidence.
 
 This baseline takes precedence over ordinary Git habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:git-collaboration-hygiene -->
 
-<!-- BEGIN baseline:oop-extension-safety v0.4.0 -->
+<!-- BEGIN baseline:oop-extension-safety v0.5.0 -->
 ## Portable Agent Baseline: OOP Extension Safety
 
 - Complete the template method: when a base class introduces a `protected abstract` or `virtual` hook, every code path in the base class that involves that decision must route through the hook — a direct field call bypasses virtual dispatch silently.
@@ -239,11 +244,12 @@ This baseline takes precedence over ordinary Git habits, but never use it to ove
 - Mock the most-specific injected type: test doubles should mock the exact concrete class or interface registered in DI, not a base class — mocking a base class can satisfy the injection site while hiding that the production code injects the wrong subtype.
 - Declare concrete delegate types at the class level: when a class varies only in which concrete types it delegates to (not in algorithms), express that variation through type parameters or equivalent declaration-level constructs rather than constructor parameters alone — a constructor parameter silently accepts any assignable subtype, while a type parameter is visible in every diff and review.
 - Prefer a DI-wired subclass hook over an inline caller-type check: when a shared class needs different behavior for a specific caller, prefer a `protected virtual` hook overridden by a DI-wired subclass over checking the caller's concrete type inline — the caller-specific coupling becomes visible at the constructor/DI level instead of buried in logic that reads as caller-agnostic.
+- When an upstream dependency renames a versioned integration point and consumers straddle both versions, add a parallel key (`legacyFoo` -> old symbol, `foo` -> new symbol) rather than widening one matcher to accept both (`fooV\d+`). A registry keyed by an external string fails silently on a rename — the entry still resolves and captures nothing — and two explicit keys let a consumer assert *which* version it bound to, keep the old name truthful for eventual removal, and force a decision when a `V3` arrives instead of silently absorbing it.
 
 This baseline takes precedence over ordinary implementation and test-writing habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions.
 <!-- END baseline:oop-extension-safety -->
 
-<!-- BEGIN baseline:repo-context-grounding v0.6.0 -->
+<!-- BEGIN baseline:repo-context-grounding v0.8.0 -->
 ## Portable Agent Baseline: Repo Context Grounding
 
 - Start from local instructions: read repo-level agent instructions, README, and linked docs that define setup, boundaries, ownership, or workflow.
@@ -254,7 +260,7 @@ This baseline takes precedence over ordinary implementation and test-writing hab
 - Ask after checking available context: do not ask the user to restate repo background until local instructions and visible project context have been inspected.
 - Verify at the right level: run the smallest meaningful repo-native check first, then broaden verification when changes touch shared behavior or public interfaces.
 - Before proposing new process, tooling, or a new skill/repo/governance layer, check whether the repo already documents a build-gate or promotion doctrine (e.g. a "pain twice, dated" rule) and evaluate against it, rather than relying on vague recollection.
-- Check for a local copy before asking to re-supply: when a chat or integration tool can only describe an attachment (filename, size, metadata) but cannot fetch or render its content, check whether the same file already exists on local disk before asking the user to re-supply it.
+- When an integration can describe an artifact but not fetch its content, don't stop and don't ask the user to re-supply it — the artifact usually has a canonical home and chat holds a *copy*. Check, in order: (1) the organisation's code host, searched by filename **plus a distinctive phrase from the message** (filename alone matches hundreds of files); (2) the wiki or documentation platform; (3) local disk (downloads, evidence folders, an existing clone); (4) ask the user. Order matters — the canonical home is usually more complete and more current than the pasted copy, so say plainly which copy you read and that it may differ from the one shared. Every branch is a targeted lookup from a distinctive identifier, never a speculative sweep. _(widened 2026-09-11, from `reopened-check-local-disk-when-chat-tool-cant-render-attachment`)_
 - Prefer an installed shim/wrapper command over a repo's raw tooling script path: check `Get-Command <name>` / `where <name>` for an installed CLI before falling back to a raw script path. A repo may deliberately name its shim differently from its own script path (e.g. a prefix distinguishing it from a sibling repo's identically-structured tool) so invocations don't cross-target the wrong repo — and any command text written into commit messages or PR descriptions inherits the same wrong name if you skip this check.
 - When a decision hinges on which of two similar-looking folder/naming conventions is "the real one," don't infer intent from current contents (that's circular) — check the newer/less-established one's origin commit (`git log --follow --diff-filter=A`) and read its diff/message before treating the split as deliberate.
 - On a large or binary-heavy unfamiliar codebase, don't assume shell `grep`/`find --exclude-dir` is fast enough — exclude flags filter what's reported, not what's scanned. Default to a purpose-built, traversal-aware search tool instead when one is available.
@@ -265,19 +271,23 @@ This baseline takes precedence over ordinary implementation and test-writing hab
 - On Windows, even under Git Bash, don't assume `/tmp` exists for ad hoc scratch files — write to the session's existing scratchpad directory instead.
 - To browse or read source in a third-party GitHub repo, skip `WebFetch` (it 404s on raw/tree URLs) and use `gh api repos/{owner}/{repo}/contents/{path}` plus `--jq '.content' | base64 -d` instead, when `gh` is installed and authenticated.
 - A newly-configured MCP server won't appear mid-session no matter how many retries — the client process needs a full restart, not just a reconnect, to pick it up.
+- Don't rely on a `cd` from an earlier Bash call carrying forward, whatever the tool description says about the working directory persisting — in this Windows/Git Bash harness every call resets to the original directory, and a bare relative path in the next call fails with a misleading "file does not exist". Chain `cd X && command` within one call, or use absolute paths. PowerShell's working directory does hold across calls in the same session, so this is Bash-specific here rather than universal. _(added 2026-09-11, from `bash-tool-cwd-resets-between-calls-despite-docs`)_
+- On Windows, run Node test runners and npm lifecycle scripts (`test`, `build`, `typecheck`, `lint`) from PowerShell, not a Git Bash tool — the worker forks die (paths come back percent-encoded) and the run reports zero tests executed, which reads as a broken suite and invites a debugging detour into code that is fine. Bash stays right for git, grep, file inspection and single-process CLIs. The general triage rule: *"no tests ran"* is almost always harness, environment or config, and is a different diagnosis from *"N tests failed"*. _(added 2026-09-11, from `run-node-test-runner-from-powershell-not-git-bash-on-windows`)_
+- When a ticket, a screenshot or a spec names a UI by prose name and the work depends on finding the right code, treat the name as a hint and the **rendered strings as the evidence**: grep the exact visible labels against the codebase's string resources (i18n message files, `.resx`, `.arb`, locale JSON, constants) and require several independent hits before committing. A component's user-facing label, its module id, and the phrase a ticket uses are three namespaces that drift apart freely — on 2026-09-09 the module whose own constant literally matched the ticket's phrase was the wrong one, and nine of nine label hits pointed at a module sharing no substring with it. Once located, still read that component's own docs; label-matching says which component renders a screen, not whether it is the right thing to change. _(added 2026-09-11, from `identify-copy-source-by-matching-ui-strings-to-resource-files`)_
+- Before answering any "does X exist / is X implemented / what does the current code do" question from a git-tracked repo, check `git status --short --branch` first; if the question is about the default branch and the checkout is on something else, read via `git show origin/<default-branch>:<path>` rather than the working tree. On a monorepo, resolve "where does component X live" with `git ls-tree -r --name-only origin/<default-branch>` *before* any working-tree search — a missing whole module directory reads far more convincingly as "doesn't exist" than a missing file does, and a repo's own root instructions can be stale about layout, so trust `git ls-files` over prose when they disagree. _(added 2026-09-09, from `reopened-verify-against-origin-default-branch-not-local-checkout`)_
 
 Apply this baseline as a startup habit for existing repositories, but never use
 it to override explicit user instructions, safety rules, privacy boundaries, or
 stricter repo-local instructions.
 <!-- END baseline:repo-context-grounding -->
 
-<!-- BEGIN baseline:commit-conventions v0.1.1 -->
+<!-- BEGIN baseline:commit-conventions v0.2.0 -->
 ## Portable Agent Baseline: Commit Conventions
 
 - Write every commit message in the [Conventional Commits](https://www.conventionalcommits.org/) format: `<type>(<optional scope>): <description>`, optionally followed by a blank line, a body, and footer(s).
 - Use one of these types: `feat` (new feature), `fix` (bug fix), `docs` (documentation only), `style` (formatting, no logic change), `refactor` (neither a fix nor a feature), `test` (adding or correcting tests), `chore` (build, tooling, or dependency updates), `ci` (CI/CD configuration).
 - Keep the subject in present-tense imperative mood and 72 characters or fewer ("add logging", not "added logging"), with no trailing period. Scope is optional but encouraged in larger codebases.
-- Put the "why" in the body when the change is not self-evident, wrapping prose at roughly 72 columns. Reference tracking items in the footer: `Closes #123` (GitHub) or `AB#12345` (Azure DevOps work item).
+- Put the "why" in the body when the change is not self-evident, wrapping prose at roughly 72 columns. Reference tracking items in the footer: `Closes #123` (GitHub) or `AB#12345` (Azure DevOps work item) — **but only when the commit delivers that item.** Where the tracker has a commit/PR integration the syntax is an action, not a reference: it writes a link and changes what the work item appears to have delivered. To cite an item as provenance or background instead, drop the sigil (`AB 378454`, "work item 378454") — backticks do not suppress it. Commit message, PR title, PR description and branch name each link independently, so clearing one leaves the rest attached, and a pushed commit message can only be fixed by a history rewrite or by unlinking in the tracker UI.
 - Flag breaking changes with `!` after the type/scope (`feat(api)!: ...`) or a `BREAKING CHANGE:` footer.
 - This governs message format only. It composes with `git-collaboration-hygiene` (stage explicit paths, review the staged diff before committing) and `commit-attribution` (no AI co-author trailers or "generated with" footers).
 
@@ -299,7 +309,7 @@ This baseline takes precedence over ordinary commit habits, but never use it to 
 Apply this baseline before dispatching, coordinating, or reporting on sub-agent/background-agent work, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions. This does not cover which agent/model to pick, or prompt-engineering content quality — only dispatch/coordination/scope mechanics.
 <!-- END baseline:agent-orchestration -->
 
-<!-- BEGIN baseline:documentation-craft v0.5.0 -->
+<!-- BEGIN baseline:documentation-craft v0.6.0 -->
 ## Portable Agent Baseline: Documentation Craft
 
 - **[Top-priority principle — outranks the rest below.]** Use one word if it conveys what two would; two words if they convey what more than two would; one sentence if it conveys what more than one would — apply this recursively at every level (word, phrase, clause, sentence, paragraph, section), not just once. Length is not neutral; it's the default this principle pushes back against. Does not apply to durable audit/decision records (ADRs, incident writeups, handoff docs) where completeness outweighs brevity.
@@ -328,6 +338,8 @@ Apply this baseline before dispatching, coordinating, or reporting on sub-agent/
 - Never manually hard-wrap prose in a markdown file — write each paragraph/bullet as one continuous line and let the renderer soft-wrap; manual line breaks render as garbled mid-sentence breaks in plain-text viewers, narrow terminals, and some diff tools.
 - Renumbering a markdown doc's sections after an insertion should be one scripted old→new mapping pass over headers, the TOC, and every cross-reference — not manual header-by-header edits discovered piecemeal across multiple ad hoc greps.
 - When adding a markdown TOC to a doc with non-trivial headers (punctuation, dashes, backticks), generate the anchor slugs via a script implementing the real GFM slug algorithm rather than hand-typing them, and cross-check against any existing TOC in the same project.
+- When a batch mechanism fails all-or-nothing and the per-item mechanism fails per-item, prefer per-item as soon as the batch exceeds a couple of items — 18 prose files as chained shell heredocs produced one parse error and zero files, because the parse failure precedes any execution. Markdown is near worst-case input for shell quoting, and a quoted delimiter protects the body while doing nothing about the surrounding command-line parse; use the dedicated write tool, one call per file.
+- For teaching material with a real audience: number the files and put the reading order plus a 60-second summary in file `00`; end each file with four or five "you should now be able to answer…" questions (writing them exposes sections that explain a mechanism without conveying when it matters); give every factual row an evidence column naming the command that produced it (a row with no runnable command is visibly an inference, and the column becomes a verification suite for free); and separate terms from mechanisms from narrative into three cross-linked grains rather than one document serving none of them. Write failure modes as observations, not warnings.
 
 Apply this baseline whenever writing, restructuring, relocating, or reviewing documentation, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions. This does not cover code/doc sync (see `code-doc-sync`) or living-handoff-document lifecycle (see `handoff-doc-discipline`).
 <!-- END baseline:documentation-craft -->

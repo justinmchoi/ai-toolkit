@@ -1,7 +1,7 @@
 # Verification Epistemics Baseline
 
 Status: active
-Version: 0.10.0
+Version: 0.11.0
 
 Always-on discipline for a recurring failure mode: treating an inherited,
 paraphrased, or confidently-stated claim as verified fact without checking it
@@ -833,6 +833,46 @@ producing a wrong conclusion that direct verification would have caught.
     else was caught. A silent multi-match is the failure mode; the assertion
     converts it into a stop.
     _(added 2026-09-11, from `match-unique-substring-and-assert-count-before-deleting-lines`)_
+
+88. Verify effective state where the work happens, not where the source lives —
+    including the agent's own configuration.
+    "The source is current" and "it is installed at the tier I apply from" are
+    two questions, and a green answer to both says nothing about the third:
+    *is anything I actually work in also carrying its own older copy?* On
+    2026-09-14 the top-tier evidence was clean — no drift, every pack current at
+    the user tier — while a per-repo sweep found 72 duplicate-tier findings
+    across 8 repos, every one a stale local copy, the worst ten minor versions
+    behind. The cost was concrete: a rule published that morning to fix a real
+    mistake was live at the user tier, and the superseded wording that caused
+    the mistake was still in context beside it in 7 of the 8 repos where the
+    work happens. Sweep per consumer after any change that matters; the failure
+    is silent by construction, because both copies parse and neither tool nor
+    reader flags the contradiction.
+    Before removing a duplicate, separate three cases, and note that "is the
+    file tracked" is not the test — check whether the *blocks* are committed:
+    an untracked file is personal and safe to clean; a tracked file whose blocks
+    are uncommitted is also personal but is someone's in-progress intent, so
+    treat it as user-owned and ask; committed blocks are the team's only copy
+    and removing them is a decision plus a review, never a local tidy.
+    _(added 2026-09-14, from `applied-at-the-top-tier-is-not-applied-everywhere`)_
+
+89. When two systems mint identifiers independently, equality of identifier
+    stops being evidence of equality of thing.
+    Version numbers, sequence numbers, migration ids and pack markers are all
+    assumed to be comparable across sources, and they are not when each source
+    increments its own counter. Two toolkits versioning the same pack name
+    independently — which is the correct design, since they have different
+    audiences and cadences — produced the same name at the same version number
+    from two sources with **different content**, and every drift check in the
+    pipeline compared version markers, so all of them reported clean. Ordinary
+    staleness degrades gracefully, because the older text is usually a subset of
+    the newer; equal numbers with different content is a genuine conflict and is
+    the one shape a marker comparison cannot see. Compare content — hash or diff
+    the two — whenever the same identifier can be minted by more than one source,
+    and report a two-source disagreement as a conflict rather than as
+    redundancy. The fix is content-based comparison, never coordinating the
+    counters, which would couple systems that were separated deliberately.
+    _(added 2026-09-14, from `independent-versioning-of-a-shared-pack-name-defeats-version-based-drift-detection`)_
 
 ## Priority
 

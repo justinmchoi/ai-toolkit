@@ -104,7 +104,19 @@ the installed variant) and an **orphaned rule** (deleted — its pack no longer 
 it had started loading eagerly, which is worse than absent). It deliberately does **not** fix a
 **duplicate tier**: which tier should own a pack is a real decision, and a tool that silently deletes
 instruction blocks will eventually delete one someone meant. Use `baseline remove <pack>` in the
-repo that should give it up.
+repo that should give it up — scoped with `-Tools claude`, since the `AGENTS.md` and
+`copilot-instructions.md` blocks are a deliberate hold and are the only copy those tools get.
+
+A duplicate-tier finding is classified rather than merely counted, because what to do about it
+differs by case:
+
+- **redundant** — same version, identical text. Costs context and nothing else.
+- **stale copy** — the versions differ, and the report names which tier holds the older one. The
+  superseded text is in context alongside the current one.
+- **CONFLICT** — the versions are *equal* and the content differs. This happens when two toolkits
+  version the same pack name independently, so both reach v0.4.0 on their own track with different
+  text. No marker-based check can see it; only a content comparison can, which is why the check
+  does one.
 
 `scripts/tests/baseline-tests.ps1` (13 cases) covers the CLI; `scripts/tests/install-tests.sh`
 (4 cases) covers skill installation. Both are mutation-tested.

@@ -1,10 +1,10 @@
-<!-- BEGIN baseline:verification-epistemics v0.10.0 (core) -->
+<!-- BEGIN baseline:verification-epistemics v0.11.0 (core) -->
 ## Portable Agent Baseline: Verification Epistemics (core)
 
 - **Absence and universal claims need a falsifying command, run, before you assert them.** "X doesn't exist", "the only", "nothing reads this", "always/never" — you assert a positive because you saw the thing, but an absence because you *didn't*, which is a far weaker warrant.
 - **A negative result is a hypothesis, not proof.** "No mechanism found", "not implemented", "no such file" means your search didn't find it. Search where it would be if you were wrong: the remote ref as well as the worktree, the sibling repo as well as the open one.
 - **Identify which repo and which ref owns the question before answering** — not whichever is already open in the session. If the question is about the default branch and the checkout isn't on it, read via `git show origin/<branch>:<path>`.
-- **Verify a cross-boundary claim at the consumer.** "A hands this to B" cannot be evidenced from A. A comment about a downstream component's behaviour outlives it silently, because nothing at A breaks when B changes.
+- **Verify a cross-boundary claim at the consumer.** "A hands this to B" cannot be evidenced from A. A comment about a downstream component's behaviour outlives it silently, because nothing at A breaks when B changes. This includes your own configuration: a rule current at the tier you install from can still be contradicted by an older copy in the repo you are actually working in, and both are in context at once.
 - **An inherited claim is a starting hypothesis** — a prior session, a code comment, a doc, a ticket, a teammate's description. Re-check against current source before acting on it.
 - **One grep is not proof of completeness.** Sweeping a whole surface needs a re-runnable check driven to zero new hits, not incremental ad hoc passes.
 - **Separate observed fact from inference, and say what would overturn your judgment.** A coherent-sounding analysis is not evidence.
