@@ -118,6 +118,13 @@ differs by case:
   text. No marker-based check can see it; only a content comparison can, which is why the check
   does one.
 
+**This repo's own 10 duplicates are accepted, not outstanding** (decided 2026-09-14). `doctor -Here`
+reports every pack in this repo's `CLAUDE.md` as a duplicate tier, because the user tier supplies
+all ten as well. They are kept so a clone without the user-tier install still reads them, and all
+ten currently report **redundant** — same version, identical text — so nothing in context disagrees
+with anything else. Re-raise only if one turns up as `stale copy` or `CONFLICT`; the bare duplicate
+count is a known state, not a finding.
+
 **Personal installs across two toolkits.** `~/.claude/skills/` is one flat namespace fed by
 several repos, so a name can be deliberately owned by a toolkit other than the one that
 publishes it. `install-claude-code.sh` / `install-codex.sh` treat a link that **resolves to a
