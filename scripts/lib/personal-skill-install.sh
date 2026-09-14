@@ -140,6 +140,19 @@ replace_symlink() {
   fi
 }
 
+# A link is "foreign" when it resolves to a real skill living outside this toolkit.
+# Two toolkits share one flat install namespace, so without this check whoever installed
+# last wins and a deliberate per-name ownership decision is silently undone. A link that
+# does NOT resolve is still damage and is still repaired; only a working one is left alone.
+is_foreign_install() {
+  local link_target="$1" target="$2" current_link="$3" root_dir="$4"
+  [ -f "$target/SKILL.md" ] || return 1
+  case "$link_target" in
+    "$current_link"/*|"$root_dir"/*) return 1 ;;
+  esac
+  return 0
+}
+
 install_personal_skills() {
   tool_label="$1"
   root_dir="$2"
@@ -322,7 +335,13 @@ install_personal_skills() {
         fi
         [ -L "$target" ] || fail "$tool_label skill exists but is a copy, not a symlink: $target"
         link_target="$(readlink "$target")"
-        [ "$link_target" = "$desired" ] || fail "$tool_label skill points at $link_target, expected $desired"
+        if [ "$link_target" != "$desired" ]; then
+          if is_foreign_install "$link_target" "$target" "$current_link" "$root_dir"; then
+            printf 'OK, owned by another toolkit: %s -> %s\n' "$target" "$link_target"
+            continue
+          fi
+          fail "$tool_label skill points at $link_target, expected $desired"
+        fi
         [ -f "$target/SKILL.md" ] || fail "$tool_label skill link does not resolve to SKILL.md: $target"
         continue
       fi
@@ -331,6 +350,14 @@ install_personal_skills() {
         link_target="$(readlink "$target")"
         if [ "$link_target" = "$desired" ] && [ -f "$target/SKILL.md" ]; then
           printf 'Verified %s skill link: %s\n' "$tool_label" "$target"
+        elif is_foreign_install "$link_target" "$target" "$current_link" "$root_dir"; then
+          # A working link into a DIFFERENT toolkit is an ownership decision, not damage.
+          # Repairing it silently reverted one on 2026-09-14 -- a 227-line company-specific
+          # skill replaced by this repo's generic 90-line one, and reported as "Repaired".
+          # A repair tool that cannot tell a broken link from an intentional one is unsafe
+          # to run, which is a reason to fix it rather than to stop shipping it.
+          kept=$((kept + 1))
+          printf 'Kept %s skill owned by another toolkit: %s -> %s\n' "$tool_label" "$target" "$link_target"
         else
           replace_symlink "$desired" "$target"
           repaired=$((repaired + 1))

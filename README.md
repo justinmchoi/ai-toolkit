@@ -118,6 +118,15 @@ differs by case:
   text. No marker-based check can see it; only a content comparison can, which is why the check
   does one.
 
+**Personal installs across two toolkits.** `~/.claude/skills/` is one flat namespace fed by
+several repos, so a name can be deliberately owned by a toolkit other than the one that
+publishes it. `install-claude-code.sh` / `install-codex.sh` treat a link that **resolves to a
+real skill outside this repo** as an ownership decision: it is kept and reported
+(`Kept ... owned by another toolkit`), and `--verify-only` reports it as `OK` rather than an
+error. A link that does **not** resolve is still damage and is still repaired. Without that
+distinction `repair-personal-links.sh` silently reverted a deliberate override and called it
+a repair.
+
 `scripts/tests/baseline-tests.ps1` (13 cases) covers the CLI; `scripts/tests/install-tests.sh`
 (4 cases) covers skill installation. Both are mutation-tested.
 
