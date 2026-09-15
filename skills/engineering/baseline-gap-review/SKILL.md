@@ -425,6 +425,13 @@ re-grounded by whoever next opens it, and sweeping hundreds of stale clones cost
 more than it returns. For each candidate run the repo's own `baseline status` for its
 *effective* state — never infer it from the repo list — and re-apply only what is stale.
 
+**Derive the target list; never retype it.** Feed the enumeration straight into the sweep.
+On 2026-09-15 the enumeration ran correctly and the list was then narrowed by hand into the
+work repos, which silently excluded **both toolkits' own instruction files** — and both were
+stale, one of them by 8 packs. The sweep reported success and was incomplete. Always include
+the two toolkit repos explicitly, since they are the ones doing the sweeping and are
+therefore the easiest to forget.
+
 Four rules for the sweep:
 
 - **Never duplicate across toolkits.** A pack or skill name present in both sources must
