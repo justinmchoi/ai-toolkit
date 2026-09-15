@@ -1,7 +1,7 @@
 # Design Review Baseline
 
 Status: active
-Version: 0.2.0
+Version: 0.3.0
 
 Always-on discipline for critiquing a *design proposal* before or during
 implementation — tracing whether a claimed guarantee actually holds, whether
@@ -191,6 +191,25 @@ several independent findings.
     general principle. Don't present the reorder as simply "safer" without
     doing this trace; a reorder that isn't checked this way often just moves
     the failure mode somewhere less visible rather than removing it.
+
+14. Don't inherit a risk label from resemblance — trace the new operation's
+    own code path.
+    When a new operation resembles a previously-flagged risky one on the
+    surface (same subsystem, similar shared-state shape), that is a reason to
+    look closer, not a substitute for looking. Read its own write path,
+    transaction boundaries and database constraints before accepting or
+    reusing an existing risk classification, rather than inheriting the label
+    from a stale note or doc. On 2026-09-14 a new write ("link an existing
+    product to an additional price list") was bucketed under an already
+    documented danger belonging to a *different* feature, purely because both
+    touched shared pricing and fallback structures; an independent trace of
+    the real transaction code and constraints showed it materially lower-risk
+    and safe to build as originally scoped. This is about risk
+    *classification*, not about skipping investigation: a genuinely identical
+    code path reusing the same risky mechanism should still inherit the same
+    caution, and the rule applies when the resemblance is topical or
+    structural rather than a shared code path.
+    _(added 2026-09-15, from `dont-inherit-risk-label-verify-new-operations-own-code-path`)_
 
 ## Priority
 

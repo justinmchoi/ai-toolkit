@@ -1,7 +1,7 @@
 # Handoff Document Discipline Baseline
 
 Status: active
-Version: 0.2.0
+Version: 0.3.0
 
 Always-on lifecycle discipline for a **living snapshot document** — a plan,
 implementation status doc, or "paste this to resume" prompt that gets
@@ -60,6 +60,18 @@ gets edited in place across a session or across sessions.
    behavior changed (not a narrow or synthetic test), state what must NOT
    happen alongside what must, and list genuinely undecided design questions
    as open rather than resolving them on the implementer's behalf.
+
+6. Never silently substitute "defer" for a just-approved "do it now".
+   When an explicit approval says now, either do it now or state in the same
+   turn that the plan is to defer it and why. Handing the work to a future
+   session, a continuation prompt or a batch without surfacing that
+   substitution reads as compliance while actually changing the outcome — an
+   unstated downgrade from "now" to "later" is invisible to the person who
+   approved it. Deferring is reasonable when new information genuinely
+   changes the situation after the approval (the session is about to end, a
+   dependency turns out to be missing); the rule is about surfacing the
+   change, not about never deferring.
+   _(added 2026-09-15, from `reconfirm-before-silently-deferring-an-approved-now-action`)_
 
 ## Priority
 

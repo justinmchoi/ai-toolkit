@@ -1,6 +1,6 @@
 {
   "name": "handoff-doc-discipline",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "status": "active",
   "description": "Always-on lifecycle discipline for a living handoff/resume document: preserve the prior version before overwriting it in place, and re-read it linearly for self-contradiction before dispatching it.",
   "source": {

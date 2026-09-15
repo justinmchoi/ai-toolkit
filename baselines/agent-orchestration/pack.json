@@ -1,6 +1,6 @@
 {
   "name": "agent-orchestration",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "status": "active",
   "description": "Always-on dispatch/coordination discipline for AI sub-agents and background agents: verify worktree-isolation scope before trusting it in another repo, hand continuation dispatches concrete already-discovered specifics, post labeled partial syntheses from parallel agents, stop (don't route around) IAM/secret-adjacent classifier blocks, grep a shared log for ordinal collisions immediately before writing, confirm no other executor is already on the same target before dispatching, check for a prior explicit revert before reapplying a shared/base-code fix, and treat mid-run narration of a later step as a plan (not a result) until the run finishes.",
   "source": {

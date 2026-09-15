@@ -1,7 +1,7 @@
 # PowerShell Conventions Baseline
 
 Status: active
-Version: 0.3.0
+Version: 0.4.0
 
 Always-on PowerShell correctness rules for scripts that must behave the same
 way across PowerShell versions (Windows PowerShell 5.1 and `pwsh` 7+) and, for
@@ -57,15 +57,22 @@ runtime or OS than the one used during development.
    success with `Get-Item <path> | Select LinkType` rather than trusting the
    no-error exit code.
 
-5. Set `MSYS_NO_PATHCONV=1` when invoking `wsl.exe` from git-bash with
-   POSIX-style path arguments.
-   git-bash's MSYS path-conversion layer silently rewrites path-like
-   arguments before they reach the invoked command. `wsl.exe` expects its
-   path arguments already in POSIX form, so MSYS's conversion mangles them
-   into a malformed argument with no error — the WSL command then fails
-   silently or acts on the wrong path. Any git-bash-invoked WSL command
-   that takes path-like arguments needs `MSYS_NO_PATHCONV=1` set for that
-   invocation to avoid this.
+5. `switch` falls through: every matching branch runs, not the first.
+   PowerShell's `switch` is not C#. With `-Wildcard` and overlapping
+   patterns, a single input runs every branch it matches and the last
+   assignment wins — `~/.claude/CLAUDE.md` matches both `"~/*"` and
+   `"*.md"`, so a user-tier path resolved under the repo instead and every
+   lookup afterwards failed with a "cannot find path" naming a directory
+   that never existed. For overlapping patterns where exactly one should
+   win, use `if`/`elseif`, or end every branch with `break`; order the
+   patterns most-specific-first either way. Fall-through is occasionally
+   what you want (one input, several side effects) — the trap is using
+   `switch` as a first-match-wins *expression*, which is how it reads to
+   anyone arriving from another language.
+   _(added 2026-09-15, from `powershell-switch-wildcard-runs-every-matching-branch`;
+   replaced the git-bash `MSYS_NO_PATHCONV` principle, which moved to
+   `repo-context-grounding` because this pack's `**/*.ps1` scoping meant it
+   could never load at the moment it was needed)_
 
 6. Route a command name that other tools or scripts will also invoke
    through a PATH-based shim (a real executable on `PATH`), not a shell

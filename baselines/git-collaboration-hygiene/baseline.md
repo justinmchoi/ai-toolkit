@@ -1,7 +1,7 @@
 # Git Collaboration Hygiene Baseline
 
 Status: active
-Version: 0.12.0
+Version: 0.13.0
 
 This is a tool-neutral always-on baseline for AI coding agents working in Git
 repositories. It captures collaboration safety that should apply before
@@ -391,6 +391,60 @@ workflow-specific PR, release, deploy, or multi-agent procedures.
     at different stages; a single-repo refactor named after itself is just
     named after itself.
     _(added 2026-09-11, from `decompose-a-campaign-named-after-one-of-its-parts`)_
+
+49. Confirm the effective Git identity before the first commit in a repo this
+    session.
+    Print it — `git config user.name && git config user.email` — before
+    committing in any repo you have not committed to this session. A repo-local
+    `.git/config` silently overrides a perfectly correct global one, and the
+    whole class looks identical from the outside: a leftover throwaway identity
+    from a scratch clone, an unset global, a worktree inheriting either. The
+    failure is invisible at the moment it happens — the commit succeeds, the
+    diff is right, the message is right, CI passes — and surfaces only when a
+    human reads the PR's commit list, which may be after merge. On 2026-09-14
+    four commits across two open PR branches had been authored as
+    `test <test@local>`; a sibling repo on the same machine committed correctly
+    the whole time, which is exactly why nobody looked. The cost profile is what
+    makes this a pre-flight check rather than something to notice later:
+    checking is one command, fixing is a force-push to a shared branch. When it
+    is wrong, prefer `git config --unset user.name && git config --unset
+    user.email` to restore the global fallback over *setting* the right value
+    locally — an override that happens to be correct today is the same trap for
+    the next person. Once per repo per session is enough, and only for
+    committing; reading, branching and diffing are unaffected.
+    _(added 2026-09-15, from `verify-git-identity-before-committing-in-an-unfamiliar-repo`)_
+
+50. Re-check the current branch immediately before every commit, not once at
+    task start.
+    `git status --short && git branch --show-current`, every time. A branch
+    check done once at the start of a task goes stale the moment any other
+    branch operation happens in between — switching away to review something,
+    popping a stash, following a sibling repo's workflow — and the recovery
+    (stash, checkout, fast-forward, new branch, stash-pop) costs far more each
+    time than the check would have. Work meant for `main` repeatedly ended up
+    staged on top of an unrelated in-progress design-doc branch this way. Not
+    needed for a single short-lived task with no branch switches between start
+    and commit; the cost/benefit turns once a task involves more than one
+    branch operation.
+    _(added 2026-09-15, from `verify-branch-before-every-commit-not-just-task-start`)_
+
+51. Ancestry is not merge state where the repo squash- or rebase-merges.
+    `git merge-base --is-ancestor` reports "not merged" for every squash-merged
+    branch, because the squash commit is not a descendant of the branch tip, and
+    `git diff main...branch` still shows the branch's original changes because
+    the merge base predates the squash. Classify stale branches in order:
+    (1) an ancestry hit means merged and safe to delete; (2) otherwise ask the
+    host for the PR state on that head branch (`gh pr list --head <branch>
+    --state all`), which is authoritative for squash merges; (3) treat a
+    **closed-but-not-merged** branch as abandoned rather than stale — diff it
+    against the base and check for content that exists nowhere else before
+    deleting it, because abandoned work is exactly where a unique fact ends up.
+    Of 24 stale local branches on 2026-09-15, six failed the ancestor test: five
+    were squash-merged and the sixth held the only copy of a convention that
+    exists nowhere on `main`. Where a repo genuinely uses merge commits,
+    ancestry alone is sufficient and step 2 is wasted API calls — check the
+    repo's merge strategy first.
+    _(added 2026-09-15, from `verify-branch-merge-state-by-pr-not-ancestry`)_
 
 ## Priority
 

@@ -286,7 +286,7 @@ dozens of bullets, or worded for a situation that didn't look like this one.
 progress and changes nothing. Only touch the wording if the third cause is the
 real one, and say so explicitly.
 
-Record each answer in the disposition manifest (step 8). They are what makes the
+Record each answer in the disposition manifest (step 9). They are what makes the
 next eviction pass possible.
 
 ### 6. Eviction pass — what leaves?
@@ -392,7 +392,61 @@ sync if left untouched, and occurrence #2 shipped both mistakes at first:
   up the fix immediately rather than staying stale until someone happens to
   re-apply it later.
 
-### 8. Archive every processed source file
+### 8. Propagate — install what was promoted where it has to fire
+
+A rule is not shipped because both repos merged. It is shipped when the repos that
+would have hit the failure are carrying it. Everything above decides *what* is true;
+this step is what makes it true anywhere the work actually happens, and skipping it is
+how a correct rule spends three months never loading.
+
+This step used to be the pass's standing verification boundary — step 10.8 concedes
+that "the shared repo's rules do not take effect in consuming repos until the PR merges
+and `baseline apply` runs there." That concession was renewed every pass and closed
+never, and a 2026-09-14 sweep found the cost: 72 duplicate-tier findings across 8 repos.
+It is a step now.
+
+**Order matters — shared tiers first.** A rule installed at the user tier, or at a
+directory-parent `CLAUDE.md` that every repo underneath inherits, covers all of them at
+once. Do those before any per-repo work, or the per-repo pass re-installs content the
+shared tier is about to supersede:
+
+1. **User tier** — `baseline apply` (or `doctor -Fix`) for every pack bumped this
+   round, in the correct variant. A pack with a core adapter installs `core` by default
+   and preserves whatever is already installed, so pass `-Variant` deliberately.
+   Path-scoped packs need `-Tools claude-rule`, and `doctor`'s stale-install check does
+   not always cover the rule tier — re-apply those explicitly rather than assuming.
+2. **Any directory-parent tier** a family of repos inherits from.
+3. **Skill links** — `ls -l ~/.claude/skills/` and confirm each name resolves to exactly
+   one source. Seven names exist in both toolkits; the flat namespace cannot hold two.
+
+**Then sweep the repos, scoped by recency.** Enumerate candidates by mtime within the
+last 14 days rather than every checkout on disk: a repo untouched for six months gets
+re-grounded by whoever next opens it, and sweeping hundreds of stale clones costs far
+more than it returns. For each candidate run the repo's own `baseline status` for its
+*effective* state — never infer it from the repo list — and re-apply only what is stale.
+
+Four rules for the sweep:
+
+- **Never duplicate across toolkits.** A pack or skill name present in both sources must
+  resolve to exactly one installed copy. Two blocks with the same name and different
+  content land in context simultaneously and silently; this is the failure
+  `es-ai-toolkit` shed 15 packs to fix, and a careless sweep is the fastest way to
+  recreate it.
+- **A deliberate local choice is not drift.** A repo that pinned an older variant, opted
+  out of a pack, or carries a deliberate cross-toolkit name override keeps that choice.
+  Record it as "left alone, deliberate" rather than silently normalising it.
+- **A dirty working tree is a reason to report, not to force.** Update a repo's
+  instruction files only if it can be done without touching in-flight work; otherwise
+  report it skipped.
+- **Report the sweep as a table** — repo, packs re-applied, skills relinked, what was
+  left alone and why — so the next pass diffs against it instead of re-deriving it.
+
+**The ungoverned library is a finding, not a target.** `~/.claude/commands/` holds
+skills written directly by generators with no review step and no provenance. Do not
+"upgrade" them; list what is there, name any duplicate of a governed skill, and route it
+into the next pass as a candidate.
+
+### 9. Archive every processed source file
 
 Move every file this pass touched — including `not-actionable` ones — into
 `_Improvements/Done/`. Write a new dated disposition manifest alongside them
@@ -416,7 +470,7 @@ The point of this manifest is that a future occurrence can recognize
 itself and compare against this one — write it with that reader in mind,
 not just as a changelog entry.
 
-### 9. The completion gate
+### 10. The completion gate
 
 A pass is done when every gate below passes, not when the notes are archived.
 Archiving is the *visible* output, which is exactly why it becomes the definition
@@ -424,46 +478,59 @@ of done by default — and every one of these gates can be false while the folde
 looks clean. Report the result gate by gate, and report a `SKIP` as a skip with
 its reason, never folded into a pass.
 
-**9.1 — Structure.** `doctor` green in both repos. It checks the four version
+**10.1 — Structure.** `doctor` green in both repos. It checks the four version
 places, the three byte-identical adapters, core tagging, and the personal-repo
 boundary. A pack edited without bumping all four fails here.
 
-**9.2 — Nothing regressed.** Both test suites green in `ai-toolkit`
+**10.2 — Nothing regressed.** Both test suites green in `ai-toolkit`
 (`baseline-tests.ps1`, `install-tests.sh`) plus `verify.sh`, whenever `scripts/`
 or `skills/` was touched. The commit gate runs these; do not take a passing gate
 on trust if you used `--no-verify`.
 
-**9.3 — Every promoted rule is installed where it can fire.** This is the gate
-this pipeline has failed most often, and it is not implied by 9.1. For each rule
+**10.3 — Every promoted rule is installed where it can fire.** This is the gate
+this pipeline has failed most often, and it is not implied by 10.1. For each rule
 promoted this round, name the file on disk that now contains it and the tier that
 file loads at. A new pack needs `baseline apply`; a bumped pack needs re-applying
 (`doctor -Fix` does the stale ones); a path-scoped pack needs `-Tools claude-rule`;
 a rule promoted to core needs the *core* variant re-applied. `baseline status`
 showing the new version is the evidence — not the commit landing.
 
-**9.4 — Every recurrence note has a diagnosed cause, not a reword.** For each
+**10.4 — Every recurrence note has a diagnosed cause, not a reword.** For each
 `reopened-*.md`, the manifest names which of the three causes applied
 (unreachable tier, buried mid-pack, wording that didn't match the situation) and
 what changed as a result. "Reworded it" against an activation failure is a
 failed gate, not a fix.
 
-**9.5 — The eviction step produced a verdict.** Either something left, or the
+**10.5 — The eviction step produced a verdict.** Either something left, or the
 manifest says explicitly that nothing did and why. Silence is a failure.
 
-**9.6 — Nothing company-identifying entered the personal repo.** `doctor`'s
+**10.6 — Nothing company-identifying entered the personal repo.** `doctor`'s
 personal-repo boundary check covers the names it knows; also re-read each
 principle you wrote into `ai-toolkit` for an internal service, client, repo,
 ticket ID, or path that the check would not recognise.
 
-**9.7 — Landing status is stated, not assumed.** `git rev-list --count
+**10.7 — Landing status is stated, not assumed.** `git rev-list --count
 origin/<branch>..HEAD` for each repo, and the PR URL for the shared one. "I
 pushed it" from recollection is not evidence, and an unmerged PR is an open
 item, not a completed one.
 
-**9.8 — The verification boundary is in the report.** Say what was *not*
+**10.8 — The verification boundary is in the report.** Say what was *not*
 verified. For this pass that is normally: the shared repo's rules do not take
 effect in consuming repos until the PR merges and `baseline apply` runs there;
 and no promoted rule has yet been observed firing in a real session.
+
+**10.9 — The propagation sweep ran and is tabulated.** Step 8's table is in the
+manifest: the shared tiers re-applied with their variants, the recency-scoped repo
+list with each one's effective state before and after, and the repos deliberately
+left alone with the reason. A pack bumped in the source and nowhere re-applied is a
+failed gate, not a pending one.
+
+**10.10 — Unattended runs report their gates as output, not recollection.** When the
+pass ran without the owner available, every gate above was re-run as a command at the
+end and its real output reported, the residual questions lead the final report with the
+assumption taken for each, and any irreversible action taken under a conditional
+authorisation ("merge it after verifying your own changes") names the verification that
+satisfied the condition.
 
 ## Before automating anything on top of this
 
@@ -480,7 +547,7 @@ one step further in: **a rule ships, reads as promoted, and never loads.** Three
 of that pass's six recurrences had exactly that cause, one of them across four
 occurrences and three months.
 
-If that keeps happening *after* step 5's mechanical checks and gate 9.3 are
+If that keeps happening *after* step 5's mechanical checks and gate 10.3 are
 being followed, the justified automation is a **mechanical activation check** —
 given a rule and a situation, answer "would this have been in context?" — not a
 reminder to run this skill more often. Wait for a dated recurrence that survives

@@ -1,7 +1,7 @@
 # Documentation Craft Baseline
 
 Status: active
-Version: 0.6.0
+Version: 0.7.0
 
 Always-on discipline for documentation structure, mechanics, and prose-style
 decisions — how a document is organized, linked, scoped, and worded. This is
@@ -96,12 +96,32 @@ independent of whether that documentation happens to describe code.
    and write each layer to file as soon as it's agreed, rather than
    discussing everything first and writing once at the end.
 
-9. **Resolve every reference in a durable file to inlined content or another
-   durable file's path.**
-   When writing any durable file, a reference must resolve to either
-   inlined content or another durable file's path — never to ephemeral
-   session/conversation context ("see earlier discussion"), which becomes a
-   dead pointer the moment the session ends.
+9. **Resolve every reference in a shared artifact for its *audience*, not
+   just for you.**
+   Before a reference ships in anything shared — repo docs, code comments,
+   ADRs, PR descriptions, ticket comments — ask who reads this and whether
+   they can open it. Rank targets by reachability: (1) **inline the
+   substance** — if it fits in two sentences it is not a reference, it is a
+   sentence you have not written yet; (2) same repo, stable path; (3) a
+   shared system the audience already uses (the wiki, the ticket, the
+   runbook); (4) another repo, only if the audience certainly has access;
+   (5) never a personal folder, a local path, a chat message, or "see the
+   earlier discussion", which becomes a dead pointer the moment the session
+   ends. Two sharpeners: **never cite by position** ("#1", "the third
+   bullet", "the section above") — lists get reordered and items get
+   deleted, so cite by stable name or inline; and **match the genre** —
+   domain knowledge belongs in documentation a human would look for, not in
+   an agent-instruction file that happens to contain it. Provenance framing
+   without a path is fine and often useful ("this traces back to notes kept
+   outside this repo"); the failure is the bare path that reads as
+   actionable and is not. Four unfollowable references across two
+   repositories surfaced in one day on 2026-09-14, in all four flavours, one
+   of them written while correcting another. Cheap to sweep for:
+   `grep -rniE "in .*'s own notes|see (the )?(earlier|above) discussion"`
+   over `*.md` and source files before pushing, paired with a relative-link
+   checker — the checker proves a path *exists*, this proves the reader can
+   *reach* it.
+   _(widened 2026-09-15, from `every-reference-must-resolve-for-the-reader`)_
 
 10. **Write two separate documents when one change must inform two
     audiences with genuinely different needs.**
@@ -308,6 +328,124 @@ independent of whether that documentation happens to describe code.
     needs neither the questions nor the reading order, though the evidence
     column is worth it well below that bar.
     _(added 2026-09-11, from `teaching-doc-structure-that-survives-handoff`)_
+
+29. **Executive Summary is a document type with a hard 1000-word gate.**
+    Distinct from a from-zero explainer: it is the artifact you hand someone to
+    explain a domain, and it has a fixed shape — vocabulary in one table (one
+    line per term, no prose); the two or three relationships everything else
+    hangs off; old flow vs new flow side by side where a system has been
+    rewritten; one real, named, ideally production scenario; every operation
+    tabulated; watch-outs numbered and ranked by how expensive getting each
+    wrong is; the one-sentence version. The cap is the point — a one-pager
+    nobody finishes explains nothing — so write to fit it *first*, before asking
+    whether it can be raised. When it genuinely will not fit, escalate by
+    **100 words at a time** and state what the extra 100 bought; never
+    open-ended, and three escalations in a row is the signal the document is
+    really two documents. Record the current `wc -w` count in the folder's
+    README so drift is visible. The number is what made this work: a "default
+    to concise, not exhaustive" preference had already been captured once and
+    failed again, while the cap produced a 974-word draft that covered more
+    usefully than the longer ones. Not for durable audit or decision records
+    (ADRs, incident writeups, handoff docs) where completeness outranks
+    brevity — those have the opposite failure mode — nor for reference material
+    meant to be searched rather than read end to end.
+    _(added 2026-09-15, from `executive-summary-word-gate`)_
+
+30. **Lock a verified executive summary; report and propose, never silently
+    fix.**
+    Once the claims on a page that gets handed to *other people* have been
+    re-verified against source or live data in one pass — not trusting earlier
+    passes in the same session — add a banner naming the lock date, the owner
+    whose explicit approval is required for any edit including "small" fixes and
+    wording tidy-ups, and the word budget with its current count. While locked,
+    wrong or stale content is reported and proposed, never silently corrected.
+    That restraint is the whole point: the instinct on spotting an error is to
+    fix it, and on 2026-09-14 that instinct introduced two errors *into* a
+    document that had been correct — a capability claimed for a bulk-import
+    feature that cannot do it, and a claim about which component walks a
+    fallback order that was never verified — across eight revisions, both of
+    which still read fluently, still fit the budget, and looked exactly like the
+    correct rows. Verification is what earns the lock, not the banner: a
+    locked-but-unverified page is worse than an open one because it carries
+    authority it has not earned, and the locking pass is a re-check rather than
+    a formality. Unlocking is a decision the owner makes, never an inference
+    from the change looking small; the banner's date independently records when
+    the content was last known true. For documents that are distributed and
+    acted on — summaries, onboarding pages, anything handed to someone who will
+    not re-derive its claims — not for working notes or a reference someone
+    maintains as they go.
+    _(added 2026-09-15, from `lock-verified-executive-summaries`)_
+
+31. **Write "what can I do, and how" as job-grouped tables, not a flat endpoint
+    list.**
+    Four axes together: (1) group by the **job**, in the order work actually
+    happens — the unit is the task someone is assigned ("onboard this carrier's
+    products", "give one customer a different price"), never the API call, and
+    "create a Carrier" is not a task on its own; (2) one small table per job, so
+    each stays scannable and the grouping survives; (3) a column per route —
+    internal tool, raw API, and implicitly neither — naming the **screen or
+    command** rather than a checkmark; (4) a Note column for that row's trap.
+    The `—`/`—` rows carry the most information, because they are the things
+    *no* route can do, which is exactly what someone planning work needs before
+    they start. Naming the screen is a verification step, not formatting: you
+    cannot fill the cell without opening the tool or grepping its client, and
+    that is where wrong assumptions surface — treat an unfillable cell as a
+    finding. Reshaping a flat table this way on 2026-09-14 surfaced two real
+    findings that had been invisible: the most dangerous endpoint was
+    deliberately unreachable from the internal tool (a safety property nobody
+    had written down), and a row confidently marked tool-supported was simply
+    wrong. Where two flows or versions exist, call the difference out inline in
+    the affected row rather than splitting into parallel tables — most rows are
+    identical and duplicating them forces the reader to diff. Not for API
+    reference material, where per-endpoint is the right grain, and not worth it
+    for a surface small enough to hold in one table.
+    _(added 2026-09-15, from `job-grouped-capability-matrix`)_
+
+32. **Keep internal design-doc phase labels out of public-facing text.**
+    Internal planning labels ("Tier A/B/C", "Phase 2", a project codename) stay
+    scoped to the doc that defines them. Code comments, doc comments, UI copy,
+    agent-instruction files and PR titles or descriptions are read by people
+    without that doc's context — other developers, support staff, external
+    reviewers — so describe the behaviour in plain language: what the feature
+    does. Fine to keep the label in the design doc itself, in a commit message
+    that only ever references that doc, or in planning conversation. Cleaning up
+    afterwards is expensive out of proportion to the mistake: one leak on
+    2026-09-14 required a multi-file pass across two repositories plus amending
+    and force-pushing two already-pushed branches.
+    _(added 2026-09-15, from `keep-internal-design-doc-labels-out-of-public-facing-text`)_
+
+33. **Heading detection in markdown must skip fenced regions first.**
+    Any tool treating `^#` as a heading has to track ` ``` ` and `~~~`
+    open/close and ignore everything between. Dockerfiles, shell, YAML, Python
+    and INI all put `#` at column 0, so this fires on most real documents
+    containing code: a script lifting sections with `(?m)^#{1,3} ` ended a
+    Dockerfile section at its own `# Build stage` comment and moved **8 lines
+    instead of 63**. It was completely silent — the insert succeeded, the file
+    parsed, headings stayed unique, fences stayed balanced — and was caught only
+    because the section's line count had been measured before the move and the
+    arithmetic did not reconcile. So measure the extracted size against the
+    source before writing, and reconcile; truncation is invisible in the output
+    and only the count shows it. Applies to heading detection specifically —
+    a simple grep for content inside fenced blocks is fine. Same family as
+    rendering Mermaid before committing and generating GFM anchors by script:
+    markdown looks trivially parseable and is not.
+    _(added 2026-09-15, from `markdown-section-extraction-must-be-fence-aware`)_
+
+34. **A multi-file transform validates every edit before writing any of them.**
+    When one logical change spans several coupled files, run it in two phases:
+    resolve and validate everything in memory first — asserting each replacement
+    matched exactly the expected number of times — and write only after all of
+    it succeeds. A helper that updated a pack's four coupled files as it went
+    threw on the fourth because a replacement did not match, leaving a bumped
+    version in two files and the old version in the other two: a state the
+    repo's own coherence check exists to forbid, created by the tool meant to
+    maintain it. A partially-applied edit is worse than a failed one, because it
+    leaves a state nobody designed and the error message points at the file that
+    failed rather than at the ones that changed. This is the inverse of
+    preferring per-item writes for *independent* files, where failures isolating
+    is exactly the point; the deciding question is whether a consistency
+    invariant spans the files or not.
+    _(added 2026-09-15, from `validate-every-edit-before-writing-any-of-them`)_
 
 ## Priority
 

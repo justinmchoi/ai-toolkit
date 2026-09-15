@@ -135,12 +135,53 @@ foreach ($tool in @("codex","claude","copilot","claude-rule")) {
 
 # --- 4. every skill carries the frontmatter the team CI requires --------------------------------
 Note "checking skill frontmatter..."
+# A presence regex proves those characters appear; it cannot tell "valid" from "so malformed
+# nothing can read it", and both come back green. One unquoted `key: value` inside a value
+# invalidates the WHOLE block -- name, description, scope and maintainer all unreadable, the
+# skill matching on its filename alone -- and a regex-only check passes it. So: parse first,
+# then check the keys against the parsed result. Added 2026-09-15 after exactly that shape had
+# been live in a sibling repo for an unknown period behind two regex-only checks.
 foreach ($skill in (Get-ChildItem -LiteralPath (Join-Path $repoRoot "skills") -Recurse -Filter "SKILL.md" -File)) {
     $checked++
     $text = Get-Content -LiteralPath $skill.FullName -Raw
+    $name = $skill.Directory.Name
+
+    $m = [regex]::Match($text, "(?s)\A---\r?\n(.*?)\r?\n---\r?\n")
+    if (-not $m.Success) {
+        Add-Problem "skill frontmatter" "${name}: no YAML frontmatter block delimited by --- ... ---"
+        continue
+    }
+
+    # Parse the block properly. Each line must be `key: value`, a continuation of the previous
+    # value, or a list item -- and a bare `: ` inside an unquoted scalar is what breaks real
+    # parsers, so reject it here rather than matching on the key alone.
+    $fields = @{}
+    $lastKey = $null
+    $bad = $null
+    foreach ($line in ($m.Groups[1].Value -split "\r?\n")) {
+        if ($line -match '^\s*$' -or $line -match '^\s*#') { continue }
+        if ($line -match '^\s+' -or $line -match '^\s*-\s') {
+            if ($null -eq $lastKey) { $bad = "indented line before any key: '$line'" ; break }
+            continue
+        }
+        $kv = [regex]::Match($line, '^([A-Za-z0-9_-]+):(?:\s(.*))?$')
+        if (-not $kv.Success) { $bad = "line is not `key: value`: '$line'" ; break }
+        $lastKey = $kv.Groups[1].Value
+        $value = $kv.Groups[2].Value
+        if ($value -and $value -notmatch '^\s*["'']' -and $value -match ':\s') {
+            $bad = "unquoted value for '$lastKey' contains ': ' -- this invalidates the entire frontmatter block, not just this key"
+            break
+        }
+        $fields[$lastKey] = $value
+    }
+    if ($bad) {
+        Add-Problem "skill frontmatter unparseable" "${name}: $bad"
+        continue
+    }
+
     foreach ($field in @("name","description","maintainer","status")) {
-        if ($text -notmatch "(?m)^${field}:") {
-            Add-Problem "skill frontmatter" "$($skill.Directory.Name): missing '$field'"
+        if (-not $fields.ContainsKey($field)) {
+            Add-Problem "skill frontmatter" "${name}: missing '$field'"
         }
     }
 }

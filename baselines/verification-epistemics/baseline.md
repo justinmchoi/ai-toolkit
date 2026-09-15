@@ -1,7 +1,7 @@
 # Verification Epistemics Baseline
 
 Status: active
-Version: 0.11.0
+Version: 0.12.0
 
 Always-on discipline for a recurring failure mode: treating an inherited,
 paraphrased, or confidently-stated claim as verified fact without checking it
@@ -874,6 +874,154 @@ producing a wrong conclusion that direct verification would have caught.
     counters, which would couple systems that were separated deliberately.
     _(added 2026-09-14, from `independent-versioning-of-a-shared-pack-name-defeats-version-based-drift-detection`)_
 
+90. Names are hypotheses; trace the runtime path to answer "which value is
+    actually used".
+    For any "which value, path or config is actually used at runtime" question,
+    trace the execution path end to end and cite each hop — the query or stored
+    procedure, then the data mapping, then the service that consumes it. Names,
+    types, doc comments and table structure are hypotheses, not evidence, and
+    the mapping hop is where the lie lives: `X = GetValue("Y")` silently renames
+    a column, and every downstream reader then believes `X`. On 2026-09-14 a
+    property named `VendorPrice` was fed from a different table's
+    `DefaultVendorPrice` column while a real `VendorPrice` column sat unread
+    nearby — every name pointed away from the truth, because the system had been
+    rewritten and not renamed, so the old names described the old behaviour and
+    still compiled. Reserve the full trace for values that decide money,
+    routing, permissions or anything irreversible, and specifically when a claim
+    is about to be written down: the wrong answer here had already propagated
+    into four artifacts across two repos, including the repo's own agent
+    instruction file, where being written down had made it harder to question
+    rather than easier. Once an inversion is found, grep every doc, comment and
+    diagram for the old claim rather than fixing the one instance, and mark the
+    correction with a dated "previously said X, which described the legacy path"
+    block instead of editing silently.
+    _(added 2026-09-15, from `trace-the-runtime-path-not-the-entity-names`)_
+
+91. A probe that agrees with itself is not evidence.
+    Three shapes of one fault. A comparison returning the **same verdict on both
+    sides of a pair you know to differ** — or "absent everywhere" for something
+    you know exists — is almost always a broken matcher rather than a shared
+    absence: `grep -ciE "a\|b"` matches a literal pipe, reports zero hits in
+    both files, and reads as a finding. A generated artifact **round-tripped
+    through the library that wrote it** proves only that the library agrees with
+    itself; its reader is tolerant of exactly the malformed shape its writer
+    produced, so a `.xlsx` that passed its own writer's reader was still
+    rejected by the target application, and the cause was only found with an
+    independent reader and raw-XML inspection. And a checker built from the same
+    assumption as the thing it checks cannot see that assumption. Cheap guard
+    for a one-off query: include one row whose answer you already know and
+    confirm the probe reproduces it before reading any other row. Escalate to
+    genuinely independent verification whenever the consumer is a third-party
+    application with its own, possibly stricter, parser.
+    _(added 2026-09-15, from `a-probe-matching-both-sides-is-evidence-about-the-probe`
+    and `independent-verification-for-generated-files-not-same-library-roundtrip`)_
+
+92. Validate a structured block with the format's real parser, never a presence
+    regex.
+    A regex confirming a required key appears proves those characters are
+    present; it cannot distinguish "valid" from "so malformed nothing can read
+    it", and both come back green. One unquoted `key: value` inside a YAML
+    frontmatter value invalidates the **whole block** — name, description, scope
+    and maintainer all unreadable, the file matching on its filename alone — and
+    two independent checks (a CI workflow and a local drift checker) both passed
+    it because both confirmed the key by regex. A presence regex is fine as a
+    cheap *first* gate before an expensive parse; the defect is regex *instead
+    of* parse. When one bad file surfaces this way, the check that could not see
+    it is the larger finding.
+    _(added 2026-09-15, from `validator-that-checks-a-key-exists-instead-of-parsing`)_
+
+93. Isolate pre-existing failures before calling anything a regression.
+    `git stash` the change and re-run the same failing suite against the
+    unmodified base branch, and confirm whether the failure already existed
+    there, rather than debugging it or explaining it away. Only after that is it
+    honest to report "green except for N known pre-existing failures" — on
+    2026-09-14 the same twelve failures reproduced on clean `main` and were an
+    unrelated test-database provisioning issue. This is the known-good control
+    applied to a test run. Skip it when the stack trace obviously implicates
+    code you just added; it earns its cost when the failure's connection to the
+    change is genuinely unclear.
+    _(added 2026-09-15, from `isolate-pre-existing-failures-via-git-stash-before-regression`)_
+
+94. Prove the survivor is a superset before deleting a duplicate copy — and
+    compare symbols, not headings.
+    Run the proof at the **finest** granularity from the start: diff the set of
+    distinctive symbols (backticked identifiers, paths, URLs) between the
+    copies, not their section headings. Heading equivalence is not block
+    equivalence is not content equivalence, and each coarser method returns a
+    confident, wrong "already covered" for exactly the items the finer one
+    catches. Consolidating four copies of one scaffolding template took three
+    passes: heading comparison missed a whole service, because its heading sat
+    under a numbered phase and the target already had a same-named section;
+    normalised-code-block comparison then missed a set of deploy targets,
+    because those were prose bullets rather than fenced blocks. Neither copy was
+    a superset of the other, so deleting in either direction would have lost
+    real content. Classify each gap before acting: a **new concept** must be
+    ported, an **older variant of something already present** can be dropped,
+    and conflating the two either loses content or bloats the survivor with
+    superseded duplicates. Not needed where one copy is mechanically generated
+    from the other — there, regenerate and compare output.
+    _(added 2026-09-15, from `prove-superset-before-deleting-a-duplicate-copy`)_
+
+95. A checker that cannot express a legitimate exception will be ignored rather
+    than fixed.
+    That is a property of the checker, not of the person ignoring it. When a
+    known-good state is reported as an error — a deliberate cross-source
+    override, an intentionally foreign-owned entry, a documented deviation — the
+    noise trains its reader to skip the whole channel, and the next real
+    breakage goes unnoticed with it. Three dead symlinks into a deleted
+    repository survived an unknown period behind exactly this kind of noise.
+    Give the checker a way to record the intent (an override list it consults,
+    or provenance written beside the artifact), or teach it to infer the
+    exception from something observable — a link that resolves to a real target
+    outside this repo is an ownership decision, while a link that resolves to
+    nothing is still damage. The same applies to any repair tool: one that
+    cannot tell damage from a deliberate choice silently reverts the choice, and
+    nothing warns you.
+    _(added 2026-09-15, from `shared-install-tier-cannot-express-a-deliberate-cross-toolkit-override`)_
+
+96. In a layered permission system, check every scope and the data-plane auth
+    mode before concluding access is missing.
+    A negative at one scope is not a negative overall: check role assignments at
+    the resource, the resource group and the subscription, and through
+    transitive or nested group membership, before concluding an external request
+    is required. A first-pass check that looked only at the exact resource-group
+    scope for a direct assignment reported "you don't have this access either",
+    when subscription-level assignments reached via nested group membership
+    already covered most of what was needed. Separately, check **which
+    authorization mode governs the resource's data plane** before proposing an
+    alternate grant: several resource types carry mutually exclusive legacy and
+    modern auth modes — access policies vs. role-based access, account keys vs.
+    directory identity — where the wrong one is accepted at write time and
+    silently inert at read time. The grant looks applied, the identity still
+    cannot read, and the failure surfaces later as a crash loop rather than as
+    an error on the grant itself.
+    _(added 2026-09-15, from `check-access-at-every-scope-including-nested-groups`
+    and `azure-dual-authorization-mode-check-before-alternate-grant-path`)_
+
+97. When work runs unattended, write the gates before the work and re-run them
+    as commands at the end.
+    The distinguishing feature is not length — it is that the normal
+    error-correction channel is closed, so a wrong assumption at hour one
+    silently shapes everything through hour four and is first reviewed after all
+    of it is on disk. Convert every question you would have asked into a gate
+    written down before starting. Record each decision as an assumption *with
+    the command that would falsify it*, never the assumption alone: an
+    assumption with a check attached fails loudly at the gate, an assumption
+    alone fails silently and reads as a completed step. Order the work
+    reversible-first, so anything that cannot be undone (a push, a merge, a
+    delete) happens after everything that can, and stop at an irreversible step
+    whose precondition will not verify rather than guessing through it. Re-run
+    every gate as a command at the end and report its real output — a gate
+    checked at hour one and reported at hour four is a memory, not a
+    verification. Report a `SKIP` as a skip with its reason; folding one into a
+    pass is the dominant unattended failure. Lead the final report with the
+    residual questions and the assumption taken for each, so the owner's first
+    read is a diff against intent rather than a reconstruction. None of this
+    licenses proceeding through a genuinely unsafe ambiguity, and where
+    authorisation was given conditionally ("merge it after verifying your own
+    changes"), the gate *is* the condition — run it and report it.
+    _(added 2026-09-15, from `verification-gate-for-unattended-autonomous-runs`)_
+
 ## Priority
 
 Apply this baseline before presenting a conclusion, a fix, or a summary of
@@ -890,9 +1038,16 @@ safety rules, privacy boundaries, or stricter repo-local instructions.
 
 ## Editorial note
 
-This baseline has grown very large (80 principles as of 2026-09-08, up from
-67 on 2026-09-01, up from 57 before that) across three consolidation passes.
-It likely needs a structural/
-consolidation pass — grouping principles into sub-categories and merging
-near-duplicates — before further additions. Flagging this for a future
-maintainer; not acted on here.
+This baseline has grown very large (97 principles as of 2026-09-15, up from
+89 on 2026-09-14, 80 on 2026-09-08, 67 on 2026-09-01) across several
+consolidation passes. It likely needs a structural consolidation pass —
+grouping principles into sub-categories and merging near-duplicates — before
+further additions. Flagging this for a future maintainer; not acted on here.
+
+The always-on cost is bounded separately: only `adapters/CLAUDE.md.core.block`
+is installed, and it is held at 13 principles. Growth in this file is growth in
+a reference nobody loads mid-task, which is the trade the core/full split makes
+deliberately — so a genuinely load-bearing new principle belongs in core, and
+something else has to come out. On 2026-09-15 core stayed at 13 by merging the
+absence-claims and negative-result principles into one and extending two others
+in place.

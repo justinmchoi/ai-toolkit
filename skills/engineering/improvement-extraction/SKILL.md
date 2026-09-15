@@ -48,6 +48,8 @@ Three categories qualify:
 2. **Candidate skill** — a repeatable, at least partly mechanizable procedure that came up this session and would be cheaper to run as a scripted/semi-scripted skill next time than to redo by hand.
 3. **Candidate improvement to an existing skill/baseline/template** — a friction point hit while actually *using* one this session: a verbose template, an ambiguous step, two sections that always say the same thing, a rule that no longer fits how it gets applied. Don't limit the scan to brand-new ideas; using an existing tool is itself a chance to spot what it should stop doing.
 
+**Before finishing the scan, ask separately: did this session build or finalize an artifact that is itself the primary candidate?** A skill file, a test suite, a generator, a design doc, a scaffold — its own methodology is a candidate in its own right, distinct from "what went wrong along the way". The two are easy to conflate, and the friction lessons about *how the artifact got built* are the salient ones during a scan, so the artifact itself gets missed: on 2026-09-14 a run captured two meta lessons correctly and skipped the working skill file that had been written minutes earlier in the same session, and the user had to redirect twice before it was captured.
+
 Exclude: routine bug fixes, one-off decisions, anything already covered by an existing baseline or skill, and anything too narrow to generalize past this one task.
 
 ## Step 3 — Dedup against existing notes **and against the promoted archive**

@@ -1,6 +1,6 @@
 ---
 name: project-structure
-description: Scaffold a new personal project folder under a-projects/ with a standardized skeleton (master index, business/domain glossary, external-documentation folder, a stable home for design-decision sessions), or audit an existing organically-evolved project folder against that same convention and propose a migration plan for approval. Use this whenever the user wants to start a new project folder for ongoing multi-session work (a new client, initiative, or investigation), says things like "set up a project structure," "scaffold a project," "apply the project structure to X," or is about to create a new top-level folder/file in an existing a-projects/ folder without first checking whether an established convention already covers it. Also trigger proactively when a project folder has clearly grown ad hoc — multiple sessions each inventing new top-level folders with inconsistent naming (numbered vs. not, PascalCase vs. spaces vs. underscores) — even if the user hasn't explicitly asked to fix it.
+description: Scaffold a new personal project folder under a-projects/ with a standardized skeleton (master index, a Domain/ knowledge folder with terms, scenarios and a defect register, external-documentation folder, a stable home for design-decision sessions), or audit an existing organically-evolved project folder against that same convention and propose a migration plan for approval. Use this whenever the user wants to start a new project folder for ongoing multi-session work (a new client, initiative, or investigation), says things like "set up a project structure," "scaffold a project," "apply the project structure to X," or is about to create a new top-level folder/file in an existing a-projects/ folder without first checking whether an established convention already covers it. Also trigger proactively when a project folder has clearly grown ad hoc — multiple sessions each inventing new top-level folders with inconsistent naming (numbered vs. not, PascalCase vs. spaces vs. underscores) — even if the user hasn't explicitly asked to fix it.
 maintainer: justin.choi
 status: stable
 ---
@@ -11,7 +11,7 @@ Scaffold a new personal project folder under `a-projects/` with a standardized s
 
 ## Why this convention exists
 
-This isn't an arbitrary standard invented up front. It's extracted from a real, long-running project folder that organically evolved a structure across many work sessions — a master index, a business/domain glossary, a specs folder, numbered story folders — and that structure proved itself: sessions found things faster because of it, and its author explicitly said they liked the index + glossary pattern once it existed. The rule going forward: **check this convention before inventing new top-level structure in any project folder**, the same "mirror a sibling convention before inventing your own" habit that already applies to code and docs — just now with an actual template to mirror, instead of every project rediscovering its own structure from scratch.
+This isn't an arbitrary standard invented up front. It's extracted from a real, long-running project folder that organically evolved a structure across many work sessions — a master index, a business/domain glossary, a specs folder, numbered story folders — and that structure proved itself: sessions found things faster because of it, and its author explicitly said they liked the index + glossary pattern once it existed. The glossary has since grown into the `Domain/` folder described below, for reasons that are themselves part of the convention. The rule going forward: **check this convention before inventing new top-level structure in any project folder**, the same "mirror a sibling convention before inventing your own" habit that already applies to code and docs — just now with an actual template to mirror, instead of every project rediscovering its own structure from scratch.
 
 Read this whole file before scaffolding or auditing anything — the convention only helps if it's applied consistently, and a half-remembered version of it is worse than checking the real thing each time.
 
@@ -26,12 +26,66 @@ Read this whole file before scaffolding or auditing anything — the convention 
     and the read-only git guardrails for those clones. Copy `references/claude-md-template.md`.
     Without it a scaffolded project silently loses the most useful file it could have had — the
     project this convention was extracted from had one, and the convention did not.
-  - `Glossary/` — business/domain term reference, one file per term, kept separate from any code-repo `CONTEXT.md` (that's precise code-domain vocabulary; this is "what does this business/telecom/industry term mean and why does the project care," for readers without that background). **A concept earns its own file once it's a distinct named entity/mechanism (not just a flag/field on another term) referenced from two or more other glossary entries** — this bar exists because it's easy to explain a related concept inline while writing a different term's file and never circle back to give it its own entry (this happened once already: a central connecting table got referenced from two files while writing them, met the bar, and had no file of its own until a direct re-check caught it). If a term meets the bar but doesn't get written yet, disclose that explicitly in `Glossary/README.md` rather than leaving the gap silent.
+  - `Domain/` — everything about how the project's subject matter works, grouped by
+    **subject first, grain second**. This replaced a flat `Glossary/` on 2026-09-15: a
+    glossary is terms by definition, so making it the container for composite write-ups
+    fights the word, and a question no single term could answer ("how do A, B, C and D
+    actually relate, and which one do I change?") ended up in a sibling `DomainScenarios/`
+    folder with no shared entry point. The convention already repeats across six projects,
+    so getting the shape right is worth more than one project's tidiness.
+
+    ```
+    Domain/
+      README.md                 <- reading order, plus the exec summary's word count
+      00-executive-summary.md   <- one page, for explaining to others  (LOCKED once verified)
+      01-big-picture.md         <- from zero, for learning it
+      02-defect-register.md     <- every known defect, grouped by root cause
+      Terms/                    <- "what does this word mean"     (one file per term)
+      Scenarios/                <- "what happens when I do X"     (how terms interact)
+    ```
+
+    Three parts. **Number the top-level entry files** (`00-`, `01-`, `02-`) so reading
+    order is visible in the folder listing rather than assumed; subfolders carry their own
+    sequence. **Split the two grains only when the second one exists** — most projects stay
+    terms-only for months, so don't scaffold `Scenarios/` empty, and a project with four
+    term files doesn't need `Terms/` yet either; keep them flat in `Domain/` until they do.
+    Prefer **`Terms/`** over `Atomic/`: "atomic" names the grain, "terms" names the content,
+    and a newcomer guesses the second correctly.
+
+    The three numbered files each earn their place:
+
+    - **`00-executive-summary.md`** is the page handed to other people, and it is a named
+      document type with a **hard 1000-word cap** — see `references/executive-summary-template.md`
+      for the shape and the escalation protocol. Once its claims have been re-verified in one
+      pass, **lock it**: report and propose wrong content rather than silently fixing it. The
+      instinct to fix is what put two errors into a document that had been correct.
+    - **`01-big-picture.md`** is the from-zero explainer. Different document, different
+      failure mode: it may be long, and it starts from the business, never from database tables.
+    - **`02-defect-register.md`** is the standing entry point to known bugs — copy
+      `references/defect-register-template.md`. Write it at roughly the point a second defect
+      shares a cause with a first; before that the `Bugs/` folder listing is already the index.
+      It exists because grepping the notes for prior art requires already suspecting there is
+      something to find, and the symbol worth grepping is the one you only learn at the *end*
+      of a trace. A month-old five-bug ticket sat in `Bugs/` with nothing in `Domain/` pointing
+      at it, and BUG #1 was re-traced from scratch and written into three artifacts before a
+      dedup grep surfaced the original — missing two siblings that shared its root cause.
+
+    **A concept earns its own term file once it's a distinct named entity/mechanism (not just
+    a flag/field on another term) referenced from two or more other entries** — this bar
+    exists because it's easy to explain a related concept inline while writing a different
+    term's file and never circle back (this happened once: a central connecting table got
+    referenced from two files, met the bar, and had no file of its own until a direct re-check
+    caught it). If a term meets the bar but doesn't get written yet, disclose that explicitly
+    in `Domain/README.md` rather than leaving the gap silent.
+
+    `Domain/` is for *knowledge* — vocabulary and how-it-works. Schema dumps, DB scripts,
+    meeting notes and ticket material stay in their own siblings (`DbNotes/`, `MeetingPrep/`,
+    `Bugs/`); pulling them under `Domain/` would make it a junk drawer.
   - `ExternalDocumentation/` — specs, vendor docs, legacy internal docs, anything authored by someone else that the project treats as reference material rather than its own decisions.
   - `Grilling/` — design-decision / grilling-session output. One dated subfolder per session (`Grilling/YYYY-MM-DD-topic/`), not a new top-level `YYYYMMDD-Grilling/` folder invented each time — that ad hoc pattern is exactly what this skill exists to replace.
 - **Also create when scaffolding, each with its README stub** — `MeetingPrep/`, `ToImplementNotes/`, `DbNotes/`, `Bugs/`, `SetupNotes/`, `DecisionRecords/`, `SystemFlows/`, `Teaching/`, `Verification/`. Copy `references/folder-readme-stubs/<FolderName>.md` into each as its `README.md`. Still list all of them in the scaffolded `0000-INDEX.md`, so a future session reaches for one of these names instead of inventing a new one for the same kind of thing.
   - `DecisionRecords/` — architecture/design decisions worth recording, one file per genuinely independent decision. Mirror the pattern already proven in this ecosystem's code repos (`Documentation/decision-records/`): sequentially numbered (`0001-slug.md`, `0002-slug.md`...) with a `README.md` index, kebab-case after the number — no separate `ADR-` file prefix needed, since the folder plus the number already signal what it is. Reach for this once a decision's relevance outlives the single story folder that produced it, rather than dropping an `ADR-*.md` file inside that story folder (a decision scoped tightly enough to matter only within one story is fine staying there — this folder is for the ones that don't stay scoped).
-  - `SystemFlows/` — a systematically-built code-level flow/mechanism reference: one file per distinct flow or lifecycle (a class diagram + sequence diagram, or equivalent), built via deliberate exploration and kept current. Parallel to `Glossary/` but one layer down — business/domain *terms* vs. code-level *processes*. Worth creating once a project's own subject matter has enough distinct call-flow shapes that a reader benefits from one file per flow instead of scattered mentions across story folders; a subfolder inside it (e.g. `SystemFlows/lifecycles/`) is fine when a genuinely different grain of the same subject matter shows up (per-flow detail vs. cross-flow caller journeys) — see "Recognizing a grain shift," below.
+  - `SystemFlows/` — a systematically-built code-level flow/mechanism reference: one file per distinct flow or lifecycle (a class diagram + sequence diagram, or equivalent), built via deliberate exploration and kept current. Parallel to `Domain/Terms/` but one layer down — business/domain *terms* vs. code-level *processes*. Worth creating once a project's own subject matter has enough distinct call-flow shapes that a reader benefits from one file per flow instead of scattered mentions across story folders; a subfolder inside it (e.g. `SystemFlows/lifecycles/`) is fine when a genuinely different grain of the same subject matter shows up (per-flow detail vs. cross-flow caller journeys) — see "Recognizing a grain shift," below.
   - `Teaching/` — material written to hand to someone else: an onboarding pack, a walkthrough, an explainer with a reading order. **A third deliberate numbering exception**, alongside `DecisionRecords/`: files are `NN-kebab-slug.md` and `00-start-here.md` is the entry file, because a teaching set has a load-bearing sequence in a way a reference folder does not. Added 2026-09-11 after a teaching pack written for a co-op established the shape.
   - `Verification/` — the completion gates for this project's work and the scripts that check them: a gated checklist written *before* the work starts (criteria in dependency order, numbered and citable, each tagged automated or manual with the exact command for the manual ones), plus a claim suite of one check per load-bearing factual claim the project's documents make. Keep a `run-log.md` including the failures. Added 2026-09-11; the underlying discipline is in the `verification-epistemics` baseline, and this is where its output lands.
   **This reverses the original rule, deliberately** (2026-09-11, at the owner's request: *"future project-structure will still create empty folder following whatever defined in /project-structure. Then we can have a more consistent form for every project."*). The earlier version created these on demand and said in as many words not to pre-create empty folders nobody was using yet — reasoning that held up across two projects, where those folders genuinely stayed unused. The trade being accepted is **clutter for uniformity**: every project now has the same shape under the same names, so a session never asks "does this project use `SystemFlows/` or did someone invent `Flows/`?" and never makes a naming decision mid-task. The cost is real and was chosen, not overlooked — so **do not "helpfully" delete an empty one of these as clutter**, and say the same to anyone who proposes it.
@@ -49,7 +103,7 @@ sibling's 17-term glossary by reference rather than duplicating it.
 
 **One deliberate exception**: `0000-INDEX.md` keeps its numeric prefix specifically so it sorts before every PascalCase folder and every `00N-...` story folder in a plain alphabetical directory listing. State this explicitly inside the INDEX itself (the template below already does) so it reads as an intentional choice, not leftover inconsistency.
 
-**Files within any folder**: kebab-case `.md` — matches what already works inside `Glossary/` and in story-folder files like `implementation-plan.md`. **One more deliberate exception**: files inside `DecisionRecords/` are `000N-kebab-slug.md` (numbered, mirroring the code repo's own decision-records convention) rather than plain kebab-case — the number is load-bearing (creation/sequence order matters, same reasoning as story folders), not decoration.
+**Files within any folder**: kebab-case `.md` — matches what already works inside `Domain/Terms/` and in story-folder files like `implementation-plan.md`. **One more deliberate exception**: files inside `DecisionRecords/` are `000N-kebab-slug.md` (numbered, mirroring the code repo's own decision-records convention) rather than plain kebab-case — the number is load-bearing (creation/sequence order matters, same reasoning as story folders), not decoration.
 
 ## Recognizing a grain shift (when a follow-up request needs a new category, not more depth)
 
@@ -70,10 +124,15 @@ Whether any of these earn a place in the fixed convention above — and if so, w
 1. Confirm the project name and location with the user if it's not obvious from context — default to a new folder directly under `a-projects/`, matching sibling project folders. List `a-projects/` first (`Glob`/`ls`) rather than assuming what's already there or what naming pattern siblings use.
 2. Create:
    - `0000-INDEX.md` — copy `references/index-template.md`, filling in the project name and leaving the quick-answers table and folder map with their example/placeholder rows until real content exists to point at. Don't invent example content — an empty table with a header is more honest than filled-in placeholders that look like real entries.
-   - `Glossary/README.md` — copy `references/glossary-readme-template.md`, then append any
+   - `Domain/README.md` — copy `references/domain-readme-template.md`, then append any
      project-specific sections it needs (a cross-project inheritance table, an explicit disclosure of
      terms that meet the own-file bar but aren't written yet). The template is a starting point, not
      a file to leave untouched — "verbatim" was the original wording and did not survive contact.
+     Create `Domain/` itself and its README; leave `Terms/` and `Scenarios/` until there is
+     content to put in them, and write `00-executive-summary.md`, `01-big-picture.md` and
+     `02-defect-register.md` when each is actually earned rather than as empty stubs. This is
+     the one place the pre-create-everything rule below does *not* apply, because these are
+     documents with content, not folders whose README is the content.
    - `ExternalDocumentation/README.md` — copy `references/external-documentation-readme-template.md` verbatim.
    - `Grilling/` — create the empty folder itself; don't create a dated subfolder yet, that happens when an actual session needs one.
    - The nine convention folders — `MeetingPrep/`, `ToImplementNotes/`, `DbNotes/`, `Bugs/`, `SetupNotes/`, `DecisionRecords/`, `SystemFlows/`, `Teaching/`, `Verification/` — each containing `README.md` copied from `references/folder-readme-stubs/<FolderName>.md`. Copy them verbatim; they are written to be read as-is by whoever opens the folder first.
@@ -93,12 +152,16 @@ Existing projects evolved before this convention existed and won't match it exac
 3. Present the proposed renames as an explicit before → after list, and for each one, name the specific files that reference the old name and would need updating alongside it. Let the user approve renames individually or all at once — their call, not a forced all-or-nothing choice.
 4. Only after approval, execute the approved renames and fix every cross-reference that pointed at an old name. Re-`Glob` afterward to confirm nothing was missed, rather than trusting the plan matched what actually happened.
 
+**The `Glossary/` → `Domain/` migration specifically** is the one most existing projects will need, and it has a trap worth naming: moving `Glossary/*.md` to `Domain/Terms/*.md` pushes every file **one level deeper**, so every `../`-relative link pointing *outside* the old folder silently resolves one level short. Run a scripted link check that resolves every relative target before and after the move, and drive it to zero — a manual skim passed three broken files that the script caught. Do the move only where nothing you cannot rewrite links into those paths: it was safe in a private notes tree precisely *because* nothing outside is permitted to link in, and a shared repo's docs folder deserves the opposite default (leave the paths alone, or add `Domain/` alongside and cross-link).
+
 ## Reference templates
 
 - `references/claude-md-template.md` — the project `CLAUDE.md` skeleton: project kind, "read the
   index first", repo locations, and the read-don't-disturb git guardrails.
 
 - `references/index-template.md` — the `0000-INDEX.md` skeleton: quick-answers table, folder map grouped by category, a conventions section documenting the naming rules above, and the maintenance instruction ("when you add a new folder, add one line here").
-- `references/glossary-readme-template.md` — the `Glossary/README.md` skeleton.
+- `references/domain-readme-template.md` — the `Domain/README.md` skeleton, including the reading-order table.
+- `references/executive-summary-template.md` — the `Domain/00-executive-summary.md` shape: the lock banner, the seven sections, and the 1000-word gate with its 100-word escalation protocol.
+- `references/defect-register-template.md` — the `Domain/02-defect-register.md` shape: defects grouped by root cause, a work-item column where `None recorded` is a real value, and a mitigations table with a "what this still does not do" column.
 - `references/external-documentation-readme-template.md` — the `ExternalDocumentation/README.md` skeleton.
 - `references/folder-readme-stubs/` — one `README.md` stub per pre-created convention folder (`MeetingPrep.md`, `ToImplementNotes.md`, `DbNotes.md`, `Bugs.md`, `SetupNotes.md`, `DecisionRecords.md`, `SystemFlows.md`, `Teaching.md`, `Verification.md`). Each says what belongs in that folder and, where the folder has one, its naming exception. Copy verbatim.

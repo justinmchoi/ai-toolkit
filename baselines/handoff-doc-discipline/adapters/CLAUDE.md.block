@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:handoff-doc-discipline v0.2.0 -->
+<!-- BEGIN baseline:handoff-doc-discipline v0.3.0 -->
 ## Portable Agent Baseline: Handoff Document Discipline
 
 - Before overwriting a living resume/plan/status document in place, save the pre-overwrite version as a separate file first — unless it's already under real version control where the prior version is trivially recoverable. This does not apply to dated, append-only handoff files (e.g. this repo's `docs/handoffs/` convention), only to a single doc that gets rewritten in place.
@@ -6,6 +6,7 @@
 - A deferred fix's blast-radius exemption isn't blanket: when later work touches a specific call site sharing the same mechanism, recheck whether the original blast-radius concern actually applies there — fix it now if it's inside the current work's own scope, treat it as still deferred if that's ambiguous.
 - When recommending a destructive or rollback action for someone else to execute, hand over the literal, copy-pasteable command — never a paraphrased target. Call out the real-world meaning of any special or sentinel argument (a `0` that means "roll back everything," not "do nothing"), and ask for the exact command to be read back before it runs when the handoff is asynchronous.
 - When spinning off a deferred or generalized finding into a new backlog item, point the background at the origin discussion instead of re-pasting the analysis, write falsifiable acceptance criteria (phrased so they can only pass if the real behavior changed), state the boundary case explicitly (what must NOT happen alongside what must), and flag genuinely undecided design questions as open rather than resolving them on the implementer's behalf.
+- Never silently substitute "defer" for a just-approved "do it now". When an explicit approval says now, either do it now or say in the same turn that the plan is to defer it and why — handing the work to a future session or a continuation prompt without surfacing that substitution reads as compliance while changing the outcome. Deferring is reasonable when new information genuinely changes the situation after the approval (the session is about to end, a dependency turns out to be missing); the rule is about surfacing the change, not about never deferring.
 
 Apply this baseline before overwriting or dispatching a living plan/resume/status document, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions — including this repo's own dated-handoff convention where it applies instead.
 <!-- END baseline:handoff-doc-discipline -->

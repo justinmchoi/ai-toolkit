@@ -1,7 +1,7 @@
 # PR Description Baseline
 
 Status: active
-Version: 0.4.0
+Version: 0.5.0
 
 This is a tool-neutral always-on baseline for AI coding agents that open pull
 requests in a repository. It sets the *content* of the PR: a title a reviewer
@@ -40,8 +40,23 @@ section only when it genuinely does not apply.
 
 1. **Summary** — what changed, in one to three sentences. Describe behavior and
    intent, not a file-by-file restatement of the diff.
-2. **Why** — the motivation or problem being solved, and enough context for a
-   reviewer who was not in the conversation.
+2. **Why** — the **business problem, before any technical detail**: the request
+   in a real person's words, with any domain noun it leans on defined in one
+   clause. "Also sell this existing pin through the dealer price list" motivates
+   a change; "there was no endpoint for it" restates the diff. Follow it with
+   the job the change enables — the workaround it replaces, ideally as a
+   before/after table — then only the constraints that actually shaped the
+   design, and what the change deliberately refuses and why refusing beats
+   guessing. The test is not whether the description is accurate but **whether
+   the author can explain the change to someone else from the description
+   alone**: on 2026-09-14 an accurate, entirely technical description left its
+   own author saying "even myself after reading it, I cannot understand and
+   explain it to others", and re-opening with the support request it answers
+   fixed it. The business-problem opener earns its place when the PR adds or
+   changes a *capability* — a new endpoint, a new screen, a changed workflow;
+   pure refactors, dependency bumps and build fixes have no business problem,
+   and inventing one is worse than omitting it.
+   _(added 2026-09-15, from `pr-description-opens-with-the-business-problem`)_
 3. **Testing** — how the change was verified: commands run, cases covered,
    manual steps, screenshots for UI. Say plainly if something was not tested.
 4. **Risk / rollback** — blast radius, migrations or config changes, feature
