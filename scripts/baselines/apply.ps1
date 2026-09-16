@@ -156,6 +156,23 @@ foreach ($tool in $Tools) {
         continue
     }
 
+    # A rule file is wholly owned by one pack -- ~/.claude/rules/<pack>.md holds that pack and
+    # nothing else -- so rewrite it whole rather than doing marker surgery on it. Marker surgery
+    # replaces only the BEGIN..END region, but the frontmatter prepended above sits OUTSIDE that
+    # region, so every re-apply left the previous copy in place and added another: three packs had
+    # accumulated two frontmatter blocks and one had three by 2026-09-15. It parses (the first block
+    # wins) and the rule still fires, which is why it went unnoticed -- but the surplus copies are
+    # injected verbatim into context on every matching read, and the file grows without bound.
+    if ($toolMap[$tool].IsRule) {
+        if ($DryRun) {
+            Write-Output "would rewrite $targetRel with $label for $tool"
+            continue
+        }
+        Write-Utf8Text $targetPath ($block + [Environment]::NewLine)
+        Write-Output "rewrote $targetRel with $label for $tool"
+        continue
+    }
+
     $hasNewBlock = [regex]::IsMatch($current, $newPattern, [System.Text.RegularExpressions.RegexOptions]::Singleline)
     $hasLegacyBlock = [regex]::IsMatch($current, $legacyPattern, [System.Text.RegularExpressions.RegexOptions]::Singleline)
 

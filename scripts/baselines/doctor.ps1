@@ -312,7 +312,13 @@ if (Test-Path -LiteralPath $userClaude) {
         $checked++
         $pk = $m.Groups["p"].Value
         $srcJson = Join-Path $repoRoot "baselines/$pk/pack.json"
-        if (-not (Test-Path -LiteralPath $srcJson)) { continue }   # owned by the other toolkit
+        if (-not (Test-Path -LiteralPath $srcJson)) {
+            # Owned by another toolkit -- this checker cannot judge its version, and silently
+            # skipping is how a sweep reports clean on nine duplicates it never enumerated.
+            # Name it instead: an absent question is now a visible one.
+            $advisories += "$pk v$($m.Groups['v'].Value) is installed at the user tier but is not a pack this toolkit owns -- check the other source's own checker"
+            continue
+        }
         $srcVer = (Get-Content -LiteralPath $srcJson -Raw | ConvertFrom-Json).version
         if ($m.Groups["v"].Value -ne $srcVer) {
             if ($Fix) {
@@ -341,8 +347,24 @@ if (Test-Path -LiteralPath $userRules) {
             }
             Add-Problem "orphaned rule" "$($rf.Name): installed as a path-scoped rule but the pack no longer declares paths, so it now loads eagerly (or run -Fix)"
         }
-        if ((Get-Content -LiteralPath $rf.FullName -Raw) -notmatch "(?s)^---\s*\r?\npaths:") {
+        $ruleText = Get-Content -LiteralPath $rf.FullName -Raw
+        if ($ruleText -notmatch "(?s)^---\s*\r?\npaths:") {
             Add-Problem "orphaned rule" "$($rf.Name): missing paths: frontmatter -- it loads on every turn"
+        }
+        # A rule file carries its own BEGIN marker, so it can go stale exactly like an always-on
+        # block -- but the always-on loop above only reads ~/.claude/CLAUDE.md and never sees this
+        # tier. Two path-scoped packs were bumped on 2026-09-15 and doctor reported nothing, which
+        # is the "a check that cannot fail is not a check" shape in this repo's own tool.
+        $rm = [regex]::Match($ruleText, "<!-- BEGIN baseline:$([regex]::Escape($pk)) v(?<v>[^ >)]+)")
+        if ($rm.Success -and $rm.Groups["v"].Value -ne $meta.version) {
+            if ($Fix) {
+                & (Join-Path (Split-Path -Parent $PSScriptRoot) "baseline.ps1") apply $pk -Tools claude-rule -TargetRepo (Join-Path $HOME ".claude") *>$null
+                $fixes += "re-applied $pk at the rule tier (was v$($rm.Groups['v'].Value), source v$($meta.version))"
+            } else {
+                Add-Problem "stale install" "rule tier has $pk v$($rm.Groups['v'].Value) but source is v$($meta.version) -- re-apply with -Tools claude-rule (or run -Fix)"
+            }
+        } elseif (-not $rm.Success) {
+            Add-Problem "orphaned rule" "$($rf.Name): no BEGIN baseline:$pk marker -- its version cannot be checked, so it can never be reported stale"
         }
         # a pack installed BOTH always-on and as a rule is in context twice
         if ((Test-Path -LiteralPath $userClaude) -and ((Get-Content -LiteralPath $userClaude -Raw) -match "BEGIN baseline:$([regex]::Escape($pk)) ")) {

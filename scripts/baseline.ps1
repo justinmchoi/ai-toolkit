@@ -155,13 +155,21 @@ function Invoke-BaselineCommand {
     if ($Command -eq "audit") {
         if (-not $Repos -and -not $Here) { throw "audit needs -Repos <path|glob|.> (or -Here)" }
         $spec = if ($Here) { "." } else { $Repos }
+        # Deliberately `return`, not `exit $LASTEXITCODE`: audit is a read-only report with no
+        # pass/fail semantics, and it shells out to git, so $LASTEXITCODE here is whatever the
+        # last `git` call happened to leave rather than a verdict about the repo.
         & (Join-Path $scriptDir "baselines/audit.ps1") -Repos $spec -Apply:$Apply
         return
     }
 
     if ($Command -eq "doctor") {
+        # `exit`, not `return`. A bare `return` here discards the child's exit code, so the
+        # dispatched `baseline doctor` exited 0 while `doctor.ps1` itself exited 1 on the same
+        # 7 problems -- the documented command, the one a CI job or a wrapper script would call,
+        # could not fail. Found 2026-09-15; the pre-commit hook was unaffected only because it
+        # invokes doctor.ps1 directly.
         & (Join-Path $scriptDir "baselines/doctor.ps1") -Repos $Repos -Here:$Here -Quiet:$Quiet -Fix:$Fix
-        return
+        exit $LASTEXITCODE
     }
 
     if ($Command -eq "shim") {

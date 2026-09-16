@@ -211,6 +211,24 @@ Test-Case "verify catches a core adapter whose marker version has drifted from p
     Assert-Match $out "core adapter present and tagged \(core\)" "the shipped core adapter should be consistent"
 }
 
+Test-Case "the doctor subcommand propagates doctor.ps1's exit code" {
+    # A `return` in the dispatch discarded the child's exit code, so `baseline doctor` exited 0
+    # while doctor.ps1 exited 1 on the same 7 problems. The documented command -- the one a CI
+    # job or wrapper script calls -- could not fail. The pre-commit hook was unaffected only
+    # because it invokes doctor.ps1 directly.
+    #
+    # Asserted as agreement rather than a fixed value, so the case stays deterministic whether or
+    # not the machine currently has drift: both must be 0, or both must be 1.
+    $direct = Join-Path $repoRoot "scripts/baselines/doctor.ps1"
+    & pwsh -NoProfile -File $direct -Quiet *>$null
+    $expected = $LASTEXITCODE
+    & pwsh -NoProfile -File $cli doctor -Quiet *>$null
+    $actual = $LASTEXITCODE
+    if ($actual -ne $expected) {
+        throw "dispatch swallowed the exit code`n        doctor.ps1 exited $expected but 'baseline doctor' exited $actual"
+    }
+}
+
 Write-Host ""
 Write-Host ("  $script:pass passed, $script:fail failed")
 if (-not $KeepTemp) { Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue }

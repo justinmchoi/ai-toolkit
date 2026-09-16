@@ -136,6 +136,16 @@ foreach ($repo in $targets) {
         $tag = if ($f.Tracked) { "TRACKED - team file, needs a PR" } else { "untracked - local only" }
         $dupeNote = if ($inherits) { "$($dupes.Count) also inherited (in context twice)" } else { "KNOWINGLY UNMANAGED - no inheritance for this tool, so local is the only copy" }
         Write-Host ("  " + $f.Rel + ": " + $f.Packs.Count + " local block(s), " + $dupeNote + "  [" + $tag + "]")
+
+        # Blocks this toolkit does not own. $effective comes from OUR status command, which
+        # enumerates OUR baselines/ -- so a pack owned by another source is not "clean", it was
+        # never a candidate, and a duplicate of it is invisible here by construction. Reporting
+        # the name converts that absent question into a visible one without this checker needing
+        # to know the other source's contents.
+        $foreign = @($f.Packs | Where-Object { -not (Test-Path -LiteralPath (Join-Path $PSScriptRoot "../../baselines/$($_.Pack)/pack.json")) })
+        foreach ($x in $foreign) {
+            Write-Host ("      ? " + $x.Pack + " v" + $x.Version + "  -- not a pack this toolkit owns; run the other source's checker against this repo")
+        }
         foreach ($d in ($dupes | Select-Object -First 4)) {
             Write-Host ("      ~ " + $d.Pack + "  ->  " + $effective[$d.Pack])
         }
