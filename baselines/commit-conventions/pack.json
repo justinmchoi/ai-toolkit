@@ -1,6 +1,6 @@
 {
   "name": "commit-conventions",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "status": "active",
   "description": "Always-on commit message format for AI coding agents: write every commit in the Conventional Commits format (<type>(scope): description) with an imperative, <=72-char subject, a body that explains why, and issue/work-item references in the footer. The tracking-item footer syntax is treated as an action rather than a reference: it is used only when the commit delivers that item, and a sigil-free form is used when citing one as provenance.",
   "source": {

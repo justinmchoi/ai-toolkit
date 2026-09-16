@@ -1,7 +1,7 @@
 # PowerShell Conventions Baseline
 
 Status: active
-Version: 0.4.0
+Version: 0.5.0
 
 Always-on PowerShell correctness rules for scripts that must behave the same
 way across PowerShell versions (Windows PowerShell 5.1 and `pwsh` 7+) and, for
@@ -84,6 +84,26 @@ runtime or OS than the one used during development.
    the intended override. A PATH-based shim is a real, executable file on
    `PATH` under the target name, so every caller, interactive or scripted,
    resolves to it the same way.
+
+7. PowerShell variable names are case-insensitive, so `$P` and `$p` are one
+   variable.
+   A `foreach ($p in ...)` loop running inside a scope that holds `$P`
+   overwrites it on the first iteration. On 2026-09-15 that turned
+   `-TargetRepo $P` into `-TargetRepo 'karpathy-principles'`, and the failure
+   surfaced as three `Cannot find path` lines naming a pack — which reads as a
+   bad argument, not as a destroyed path variable. Name loop variables for
+   what they iterate (`$pack`, `$repo`, `$file`) so the collision is
+   impossible rather than unlikely, and never distinguish two live variables
+   by case alone. The verification half generalises past PowerShell and lives
+   in `verification-epistemics`: the follow-up `status -TargetRepo $P` then
+   ran against a directory that did not exist and reported every pack
+   `Effective = YES` from the user tier — which is exactly what success looks
+   like.
+   _(added 2026-09-15, from `powershell-variable-names-are-case-insensitive`.
+   Note this pack's `**/*.ps1` scoping: the incident happened inline in a
+   PowerShell tool call, not in a `.ps1` file, so this rule would not have
+   loaded. The authoring-direction habit in `repo-context-grounding` is what
+   has to carry it.)_
 
 ## Priority
 

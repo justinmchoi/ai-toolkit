@@ -1,6 +1,6 @@
 {
   "name": "pr-description",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "status": "active",
   "description": "Always-on pull request description posture for AI coding agents: fill a repo's PR template when present, otherwise write a title in Conventional Commits form and a body covering what, why, how it was verified, and risk, with tracking references in the footer and no AI attribution. Linking syntax is used only when the PR delivers the work item; citing one as provenance uses a sigil-free form, and every linking surface (commit, title, description, branch) is checked rather than just the description.",
   "source": {

@@ -1,6 +1,6 @@
 {
   "name": "verification-epistemics",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "status": "active",
   "description": "Always-on epistemic discipline: don't act on an inherited, paraphrased, or prior-session claim without re-verifying it against current ground truth. Now 97 principles in the full block, of which a bounded core of 13 is what actually installs - flagged as needing a future consolidation pass of the full list, not attempted here.",
   "source": {

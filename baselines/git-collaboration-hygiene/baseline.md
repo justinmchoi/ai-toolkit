@@ -1,7 +1,7 @@
 # Git Collaboration Hygiene Baseline
 
 Status: active
-Version: 0.13.0
+Version: 0.14.0
 
 This is a tool-neutral always-on baseline for AI coding agents working in Git
 repositories. It captures collaboration safety that should apply before
@@ -445,6 +445,65 @@ workflow-specific PR, release, deploy, or multi-agent procedures.
     ancestry alone is sufficient and step 2 is wasted API calls — check the
     repo's merge strategy first.
     _(added 2026-09-15, from `verify-branch-merge-state-by-pr-not-ancestry`)_
+
+52. Writing tracked files into a repo other people own needs consent for that
+    repo, each time — and the local commit is the consent point, not the push.
+    A tool that installs or generates files into a target path has two very
+    different blast radii depending on where it is pointed. A personal dotfile
+    location affects only your own sessions and needs no confirmation beyond
+    the original request. A real team repo's working tree produces a commit
+    that looks and reads like a proposed team change the moment it exists — so
+    the existing "keep remote operations consent-based" rule, which covers the
+    push, starts one step too late. On 2026-09-15 a question of the form
+    "should these be applied to the X repos?" was read as authorisation and
+    turned into committed installs inside two shared repos' worktrees; the
+    owner's actual position was that the tool is for personal use only.
+    Nothing shared was touched, because the commits were local and were fully
+    reverted — but the default acted on was wrong. When a request to "apply",
+    "install" or "set up" something does not name a target, default to the
+    personal scope and say which you chose. A prior yes for one repo or one
+    artifact never carries to the next.
+    _(added 2026-09-15, from
+    `baseline-apply-target-repo-defaults-to-personal-only`)_
+
+53. Before a history rewrite, build the work list from a query on the defect
+    attribute across every ref — never from a recorded list.
+    A handoff note said "four commits on two branches"; querying the attribute
+    found five, and the extra one was listed in the same note under a
+    *different* heading, so it had been read as belonging to another task.
+    Fixing only the named four would have force-pushed a fifth bad commit in
+    the same operation meant to remove them. Enumerate with `git log --all
+    --format="%h %an <%ae> %d %s" | grep <bad value>`, `git for-each-ref` (to
+    catch `refs/original` and backup refs), and `git worktree list` — a
+    detached HEAD in another worktree keeps orphaned history reachable after
+    every branch and backup ref is cleaned. Then, in order: confirm the blast
+    radius separately, because a hit already on the shared base is normally
+    left alone and a base-relative query cannot answer that question; check
+    `git rev-list --merges --count <base>..<branch>` before picking the tool,
+    since a plain rebase flattens a merge and only `filter-branch
+    --env-filter` or `filter-repo` preserves topology; check reviewers and
+    approvals, because the force-push notifies and can reset votes; prove the
+    rewrite changed only the attribute with an empty `git diff <backup-ref>
+    <rewritten>` plus matching commit and merge counts; push with
+    `--force-with-lease=<ref>:<old-sha>` pinned to the SHA actually observed;
+    and verify at the remote by re-fetching and re-running the attribute query
+    against `--remotes`, never from the push output. The enumeration decides
+    the scope; it does not license fixing everything it finds.
+    _(added 2026-09-15, from
+    `enumerate-the-defect-before-rewriting-history-to-fix-it`)_
+
+54. A clean `git status` says nothing about whether HEAD is current.
+    In any repo worked on from more than one machine — a personal vault, a
+    synced toolkit, anything on a cloud-synced folder — run `git fetch && git
+    rev-list --left-right --count HEAD...origin/<branch>` *before making
+    edits*, not just before committing. A clean working tree only proves there
+    are no uncommitted local changes; it is silent on how far behind origin
+    HEAD sits. On 2026-09-02 two files were edited against a HEAD six commits
+    behind origin, discovered only because someone asked whether a pull had
+    happened; a second repo checked proactively moments later was two behind.
+    Not needed for a genuinely single-machine repo, where being behind cannot
+    happen.
+    _(added 2026-09-15, from `pull-before-editing-synced-repo`)_
 
 ## Priority
 

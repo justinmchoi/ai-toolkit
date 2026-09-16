@@ -1,7 +1,7 @@
 # Commit Conventions Baseline
 
 Status: active
-Version: 0.2.0
+Version: 0.3.0
 
 This is a tool-neutral always-on baseline for AI coding agents that write
 commits in a repository. It sets the *format* of the commit message: every
@@ -64,7 +64,26 @@ DevOps work items.
    an id inside a committed source or doc file does not auto-link.
    _(added 2026-09-14, from `tracker-autolink-syntax-is-a-write-not-a-citation`)_
 
-5. Flag breaking changes explicitly.
+5. Where the repo's platform has its own subject convention, compose rather
+   than choose - and say which yields if they cannot.
+   The format above is this baseline's default, not a universal. A
+   tracker-integrated platform often wants its work-item sigil leading the
+   subject, so that the squash-merge commit built from the PR title carries
+   the link; a repo can also have an established house style that is neither.
+   These compose more often than they conflict: `<REF>: <type>(<scope>):
+   <description>` satisfies both, and on the repos checked on 2026-09-15 it is
+   what the best-received recent merges actually use, alongside plenty of
+   bare-Conventional and bare-sigil subjects. Read the repo's recent merged
+   subjects before picking a form rather than applying either rule blind. Where
+   they genuinely cannot compose, the repo's live convention wins and this
+   baseline yields. Note the interaction with rule 4: a sigil in the subject
+   *is* the tracker link, so it carries the same "only when the commit delivers
+   that item" constraint, and a provenance-only reference still has to drop it.
+   _(added 2026-09-15, from the portable half of
+   `abandoned-branch-holds-uncovered-ado-pr-conventions`; the company-specific
+   literal form belongs in a company toolkit, not here)_
+
+6. Flag breaking changes explicitly.
    Append `!` after the type/scope (`feat(api)!: ...`) or add a
    `BREAKING CHANGE:` footer describing the break.
 

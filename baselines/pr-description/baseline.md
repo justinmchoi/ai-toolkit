@@ -1,7 +1,7 @@
 # PR Description Baseline
 
 Status: active
-Version: 0.5.0
+Version: 0.6.0
 
 This is a tool-neutral always-on baseline for AI coding agents that open pull
 requests in a repository. It sets the *content* of the PR: a title a reviewer
@@ -105,9 +105,14 @@ section only when it genuinely does not apply.
    When a section is genuinely a list of discrete points — changes, decisions,
    reasons — use short bolded labels (e.g. **Why:**, **Risk:**, **Note:**)
    instead of narrative paragraphs, so a reviewer can scan it in seconds.
-   Reserve connected prose for a genuine narrative a label would fragment,
-   such as walking through a bug's causal chain. Decide by the content's
-   structure, not by the section's length or the PR's overall size.
+   Reserve unlabelled prose for an argument that genuinely cannot be divided.
+   The carve-out is narrower than it reads: an explanation has parts with
+   distinct jobs — the rule, the justification, the mechanics, the caveat — and
+   a reader who needs only one of them should not have to read the others to
+   find it. Decide by that question, not by how narrative the content feels,
+   and not by the section's length or the PR's overall size.
+   _(carve-out narrowed 2026-09-15, from
+   `reopened-pr-review-comments-bolded-point-form-over-prose`)_
 
 8. Read the CI gate before trusting template prose.
    Before filling a PR template with multiple structurally-similar
@@ -117,7 +122,44 @@ section only when it genuinely does not apply.
    describe every section as required while the pipeline only validates one
    specific block.
 
-9. Request the merge-commit completion strategy when history depends on it.
+9. A repo's own PR template does not outrank opening with the business
+   problem — check for a better precedent before following its section order.
+   "The template wins" and "open with the business problem" are both correct
+   and point in different directions whenever a template puts administrative
+   sections (a version-bump checkbox block, a changelog) before its
+   description field. Following the template's order then satisfies the first
+   rule literally while burying the business problem third — which is what
+   happened on 2026-09-15, the day after the business-problem rule shipped,
+   extracted from a PR *in the same repo* that does not use the template at
+   all. Before filling a template, check two things in order: whether the
+   platform's pipeline actually validates its structure (principle 8 — read
+   the validation script, do not infer enforcement from the template's prose),
+   and whether a recent, well-received PR in the same repo offers a structural
+   precedent instead. A demonstrated example a reviewer already praised
+   outranks a bare scaffold nobody has confirmed is enforced. Where the
+   template *is* CI-gated, satisfy the gate and still lead the description
+   field itself with the business problem.
+   _(added 2026-09-15, from
+   `reopened-pr-description-opens-with-the-business-problem`)_
+
+10. Where a platform or repo has its own PR-title convention, say which one
+    yields.
+    The Conventional Commits title form in principle 2 is this baseline's
+    default, not a universal. A tracker-integrated platform often has its own
+    convention — a work-item sigil leading the subject, so the squash-merge
+    commit carries the link — and a repo can have an established house style
+    that is neither. These compose more often than they conflict: prefixing
+    the tracker reference to a Conventional Commits subject
+    (`<REF>: <type>(<scope>): <description>`) satisfies both, and is what the
+    best-received examples in such repos actually use. Read the repo's recent
+    merged titles before choosing, rather than applying either rule blind, and
+    when they genuinely cannot compose, the repo's live convention wins and
+    this baseline yields — say so in the PR rather than silently deviating.
+    _(added 2026-09-15, from the portable half of
+    `abandoned-branch-holds-uncovered-ado-pr-conventions`; the company-specific
+    literal form belongs in a company toolkit, not here)_
+
+11. Request the merge-commit completion strategy when history depends on it.
    When a branch is built with real merge commits specifically to preserve
    per-PR history, explicitly request the non-default "Merge, no
    fast-forward" (or equivalent) completion strategy in the PR. An org or

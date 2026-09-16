@@ -26,6 +26,17 @@ Read this whole file before scaffolding or auditing anything — the convention 
     and the read-only git guardrails for those clones. Copy `references/claude-md-template.md`.
     Without it a scaffolded project silently loses the most useful file it could have had — the
     project this convention was extracted from had one, and the convention did not.
+    **It carries no baseline blocks.** The packs arrive from the parent-directory and user tiers,
+    which this file sits underneath, so a local copy is a second copy to keep current forever and
+    lands the same text in context twice. The template models this — it has none — but the skill
+    never said it, which left the rule discoverable only by noticing. The inverse is the diagnostic
+    worth remembering: **an instruction file that is 100% managed blocks was written by the baseline
+    installer, not by a person.** `baseline apply` creates a missing target file by default, so
+    pointing it at a folder with no `CLAUDE.md` produces one containing nothing else — which then
+    answers "does this project have an entry point?" with yes, and nobody writes the real one
+    because the slot is occupied. One project was found in exactly that state on 2026-09-15, its
+    packs still at the oldest version in the tree. Prefer `-SkipMissing` when applying to a folder
+    that may not have an instruction file, and write the project file from the template *first*.
   - `Domain/` — everything about how the project's subject matter works, grouped by
     **subject first, grain second**. This replaced a flat `Glossary/` on 2026-09-15: a
     glossary is terms by definition, so making it the container for composite write-ups

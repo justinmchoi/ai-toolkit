@@ -14,7 +14,9 @@ Scan the current session for candidate CLAUDE.md/AGENTS.md baselines or candidat
 ## Step 1 — Resolve the output root
 
 - Read `IMPROVEMENTS_ROOT` from the environment.
-- If unset, ask the user for the path once, then use it for this run only. Tell them how to persist it so this step isn't needed again:
+- If unset, **propose a concrete default rather than asking open-endedly** — on a fresh machine the user usually has no considered answer ready, and "what path do you want?" makes them go and find out what the convention is on their other machine. If an `ai-toolkit` checkout is discoverable near the working directory, propose `<that checkout>/_Improvements/`; otherwise ask open-ended as a fallback. Either way confirm before writing.
+- Having resolved it, ask once whether an **older store** exists — a repo-local `_Improvements/` predating the variable. If one does, say so rather than writing alongside it silently; two stores is how notes go unreviewed for four consecutive review passes.
+- Then use it for this run only. Tell them how to persist it so this step isn't needed again:
   - Windows: `setx IMPROVEMENTS_ROOT "<path>"`
   - macOS/Linux: `export IMPROVEMENTS_ROOT="<path>"` in their shell profile
 - Never write the resolved path into this skill file or any committed content — the environment variable is the only place it lives.

@@ -1,4 +1,4 @@
-<!-- BEGIN baseline:commit-conventions v0.2.0 -->
+<!-- BEGIN baseline:commit-conventions v0.3.0 -->
 ## Portable Agent Baseline: Commit Conventions
 
 - Write every commit message in the [Conventional Commits](https://www.conventionalcommits.org/) format: `<type>(<optional scope>): <description>`, optionally followed by a blank line, a body, and footer(s).
@@ -7,6 +7,7 @@
 - Put the "why" in the body when the change is not self-evident, wrapping prose at roughly 72 columns. Reference tracking items in the footer: `Closes #123` (GitHub) or `AB#12345` (Azure DevOps work item) — **but only when the commit delivers that item.** Where the tracker has a commit/PR integration the syntax is an action, not a reference: it writes a link and changes what the work item appears to have delivered. To cite an item as provenance or background instead, drop the sigil (`AB 378454`, "work item 378454") — backticks do not suppress it. Commit message, PR title, PR description and branch name each link independently, so clearing one leaves the rest attached, and a pushed commit message can only be fixed by a history rewrite or by unlinking in the tracker UI.
 - Flag breaking changes with `!` after the type/scope (`feat(api)!: ...`) or a `BREAKING CHANGE:` footer.
 - This governs message format only. It composes with `git-collaboration-hygiene` (stage explicit paths, review the staged diff before committing) and `commit-attribution` (no AI co-author trailers or "generated with" footers).
+- **Where a repo's platform has its own subject convention, compose rather than choose — and say which yields if they cannot.** A tracker-integrated platform often wants its work-item sigil leading the subject so a squash-merge commit carries the link, which reads as conflicting with the format above. Usually it composes: `<REF>: <type>(<scope>): <description>` satisfies both. Read the repo's recent merged subjects before picking a form rather than applying either rule blind; where they genuinely cannot compose, the repo's live convention wins and this baseline yields. Note this interacts with the linking rule above — a sigil in the subject *is* the tracker link, so it carries the same "only when the commit delivers that item" constraint.
 
 This baseline takes precedence over ordinary commit habits, but never use it to override explicit user instructions, safety rules, privacy boundaries, or stricter repo-local instructions (including a repository's own established commit convention).
 <!-- END baseline:commit-conventions -->

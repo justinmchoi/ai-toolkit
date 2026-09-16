@@ -1,6 +1,6 @@
 {
   "name": "powershell-conventions",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "status": "active",
   "description": "Always-on PowerShell correctness rules: wrap any call to a function returning a variable-count collection in @() at every call site, never embed a literal backslash inside a joined path string meant to run cross-platform, quote literal @-prefixed string arguments, and use New-Item -ItemType SymbolicLink instead of ln -s on Windows.",
   "origin": {

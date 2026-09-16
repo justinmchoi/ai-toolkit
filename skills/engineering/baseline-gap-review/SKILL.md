@@ -50,9 +50,27 @@ procedure is distilled from:
 
 ## Procedure
 
-### 1. Read every non-Done file in full
+### 1. Read every non-Done file in full — from every store, not just the configured one
 
-List everything directly under `_Improvements/` (not `_Improvements/Done/`).
+`$IMPROVEMENTS_ROOT` is where `improvement-extraction` writes *today*. It is not
+the only place notes have ever landed. Enumerate the stores before reading any of
+them:
+
+```sh
+ls "$IMPROVEMENTS_ROOT"/*.md                 # the configured store
+ls "$AI_TOOLKIT_ROOT"/_Improvements/*.md     # a repo-local store predating the env var
+ls "$WORK_TOOLKIT_ROOT"/_Improvements/*.md   # ditto, in the other toolkit
+```
+
+On 2026-09-15 the second of those held five notes committed on 2026-09-02 that
+**four consecutive passes had never seen** — not because anyone skipped them, but
+because every pass listed the configured root and nothing asked whether there was
+a second root. That is this pipeline's own instance of the absence-claim failure it
+promotes rules about: the enumeration defined the domain, and the report was
+arithmetic over an incomplete one. If a store turns out to be stale, archive it into
+`Done/` and say so, rather than leaving it to be missed a fifth time.
+
+Then list everything directly under each store (not its `Done/`).
 Read each file completely — not just the filename or first paragraph. Filenames are
 written at capture time and routinely understate what a note grew into: on
 2026-09-11 the file named for a Windows encoding crash had been extended in place
@@ -280,11 +298,34 @@ recurs for three months.
 
 For every note in the **recurrence** bucket, question 2 is the whole job. The rule
 text is already correct — it shipped and the failure happened anyway. Diagnose the
-delivery mechanism: installed at an unreachable level, buried mid-pack among
-dozens of bullets, or worded for a situation that didn't look like this one.
+delivery mechanism against **four** causes, not three:
+
+1. **Unreachable tier** — installed somewhere the failing session never loads.
+2. **Buried mid-pack** — present, but one of forty bullets in an always-on block.
+3. **Wording that didn't match the situation** — the trigger names a narrower case
+   than the one that recurred (a rule scoped to "bug-fix comments" does not fire
+   while writing a test comment).
+4. **No discrete moment to fire.** The rule was loaded, correctly worded, and
+   squarely on topic — and obeying it would have meant interrupting the middle of
+   writing an unrelated sentence, so nothing ever interrupted. This is the one the
+   first three diagnoses hide behind, because eliminating them feels like finishing
+   the diagnosis.
+
 **Rewording a rule that failed for activation reasons is the trap** — it looks like
-progress and changes nothing. Only touch the wording if the third cause is the
-real one, and say so explicitly.
+progress and changes nothing. Only touch the wording if cause 3 is the real one,
+and say so explicitly.
+
+Cause 4 was three of the five recurrences on 2026-09-15, and it has its own fix:
+**a mechanical gate at a point where the whole change is visible at once**, plus an
+**entry condition that fires on the small case**. An always-on reference-reachability
+rule was violated five times across three files in one PR, each violation a trailing
+clause of a sentence about something else; a fact-correction sweep was skipped
+because two files "feels like an edit, not a sweep"; a comment-brevity rule was
+violated while live and on-topic. None of those is a text problem, and the three
+diagnoses above would all have come back clean. When cause 4 is the verdict, the
+deliverable is a checkable step — a pre-commit grep, a per-artifact question asked
+after writing each one — not a better sentence. If the gate is mechanically
+detectable, that makes it a **hook-candidate**, not a baseline bullet.
 
 Record each answer in the disposition manifest (step 9). They are what makes the
 next eviction pass possible.
@@ -358,10 +399,30 @@ something else comes out. A pack whose core is full and whose next principle is
 load-bearing is telling you the pack has become two packs; split it by trigger
 rather than quietly filing the rule where it cannot fire.
 
-Packs whose rules are file-type-scoped (SQL, .NET, Python, PowerShell) skip the
-core/full question entirely: install the full block as a **path-scoped rule**
-(`~/.claude/rules/<pack>.md` with `paths:` frontmatter) so it loads only when a
-matching file is read, and costs nothing otherwise.
+Packs whose rules are file-type-scoped (SQL, .NET, Python, PowerShell) install the
+full block as a **path-scoped rule** (`~/.claude/rules/<pack>.md` with `paths:`
+frontmatter) so it loads only when a matching file is read, and costs nothing
+otherwise.
+
+**They do not thereby escape the activation question — measured 2026-09-15.** Seven
+controlled probes established that a path-scoped rule fires **once per pack per
+session**, on the first `Read` of a matching file, **through the read tool only**:
+a second read of the same file type injected nothing; `cat`/`head` through the
+shell injected nothing (and did not consume the one shot); a file outside the
+working-directory tree injected nothing. So path-scoping is not a cheaper always-on
+— it is a *single* delivery, early, which a context compaction then drops with
+nothing to re-inject, and which a shell-reading session never receives at all.
+`baseline status` reporting `Effective` is a capability check, never a this-turn one.
+
+Two consequences for placement. A rule that is genuinely only relevant while editing
+that file type is well served here. A rule that is **load-bearing at authoring time**
+— which is most of them, since the mistake happens while producing the file, not
+consuming it — needs an always-on home as well, or it will be absent exactly when it
+matters. The `repo-context-grounding` bullet on authoring direction is the general
+carrier for that; a pack-specific rule that cannot live there is telling you it
+belongs in core somewhere. Do not respond by unscoping the pack: scoping is what
+keeps forty .NET bullets out of a documentation session, and the problem is delivery,
+not scope.
 
 **Stamp provenance on every new principle.** In `baseline.md`, append to each
 principle a marker naming the date it landed and the note it came from:
@@ -371,6 +432,16 @@ cited it since?" answerable later. Without it the age-and-silence test in step 6
 has no input, and the pipeline can never tell a load-bearing rule from a
 decorative one. Backfill provenance for any principle you touch while you are in
 the file anyway; do not attempt a full historical backfill in one pass.
+
+**Use `ai-toolkit/scripts/baselines/pack_edit.py` rather than editing the coupled
+files by hand.** It takes a JSON spec of `old`/`new`/`count` replacements per pack, resolves
+and asserts every one of them in memory, and writes nothing at all unless all of
+them matched exactly the expected number of times — then bumps `baseline.md`'s
+`Version:` line, every adapter's BEGIN marker (full and core) and `pack.json`'s
+`version` together, which is the coherence `doctor` checks. It exists because a
+helper that wrote as it went threw on the fourth file and left two of a pack's files
+bumped and two not, which is a state `doctor` exists to forbid, created by the tool
+meant to maintain it. Editing by hand is the same risk with more steps.
 
 For every existing baseline that gets NEW principles added (not brand-new
 baselines — those get fresh adapters as part of creating them), a
@@ -424,6 +495,16 @@ last 14 days rather than every checkout on disk: a repo untouched for six months
 re-grounded by whoever next opens it, and sweeping hundreds of stale clones costs far
 more than it returns. For each candidate run the repo's own `baseline status` for its
 *effective* state — never infer it from the repo list — and re-apply only what is stale.
+
+**Each repo has three instruction files, not one.** `CLAUDE.md`, `AGENTS.md` and
+`.github/copilot-instructions.md`. A sweep written around `CLAUDE.md` reports a tidy
+number and leaves the other two at whatever version they were first installed at —
+on 2026-09-15 a project's `AGENTS.md` and `copilot-instructions.md` were both still
+at `v0.1.0`, the oldest version anywhere in the tree, having survived every prior
+sweep for exactly this reason. They also need opposite treatment: `CLAUDE.md`
+inherits, so a duplicated block there is removable; the other two have **no
+inheritance model**, so their blocks are the only copy Codex and Copilot ever get
+and are updated in place, never removed, even when the file contains nothing else.
 
 **Derive the target list; never retype it.** Feed the enumeration straight into the sweep.
 On 2026-09-15 the enumeration ran correctly and the list was then narrowed by hand into the
@@ -488,6 +569,14 @@ its reason, never folded into a pass.
 **10.1 — Structure.** `doctor` green in both repos. It checks the four version
 places, the three byte-identical adapters, core tagging, and the personal-repo
 boundary. A pack edited without bumping all four fails here.
+
+The two repos invoke it differently and the wrong form fails in a way that reads as
+"no such check": in `ai-toolkit` it is a subcommand (`baseline doctor`), in
+`es-ai-toolkit` it is a standalone script (`pwsh -File scripts/doctor.ps1`) and
+`iq-baseline doctor` errors on the `ValidateSet`. Run both, and treat a green
+`doctor` as covering only what each one actually enumerates — `es-ai-toolkit`'s
+checks 30 invariants to `ai-toolkit`'s 514, so "green in both" is two very different
+claims.
 
 **10.2 — Nothing regressed.** Both test suites green in `ai-toolkit`
 (`baseline-tests.ps1`, `install-tests.sh`) plus `verify.sh`, whenever `scripts/`

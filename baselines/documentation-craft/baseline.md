@@ -1,7 +1,7 @@
 # Documentation Craft Baseline
 
 Status: active
-Version: 0.7.0
+Version: 0.8.0
 
 Always-on discipline for documentation structure, mechanics, and prose-style
 decisions — how a document is organized, linked, scoped, and worded. This is
@@ -70,16 +70,43 @@ independent of whether that documentation happens to describe code.
    arose. A section that would read identically if written for any other
    consumer belongs with the producer.
 
-6. Keep an inline bug-fix comment to a short "does X — previously did Y"
-   statement; move audit-trail evidence elsewhere.
-   Inline bug-fix code comments should be a short "does X — previously did
-   Y" statement in 1-2 sentences, with no duplicated phrasing and no
-   ambiguous reused terms between the "does" and "previously did" halves.
-   Move full audit-trail/cross-validation evidence (what was tested, what
-   confirmed the bug, links to the investigation) to a separate durable doc —
-   never inline in the comment itself, where it outlives its usefulness and
-   clutters the code it's attached to. Principle 6 is Principle 1 applied
-   specifically to code comments — read together, not as unrelated rules.
+6. Open any comment that explains *why* code is the way it is with the rule
+   it enforces; move audit-trail evidence elsewhere.
+   This covers a bug fix, a test's reason for existing, or a non-obvious
+   constraint — not only bug fixes. The earlier wording named only bug-fix
+   comments, and on 2026-09-15 a test comment grew to 29 lines of narrative
+   because writing one did not match that description; broadening the trigger,
+   not the rule, is the fix. Lead with the invariant, stated in the imperative
+   as something a future author must do or not do, then add only what that
+   invariant needs to be believed: why the naive version is wrong, what the
+   code or test constructs, why the setup is load-bearing, and a link to the
+   doc carrying the narrative. A test guarding nothing currently broken needs
+   that fourth point explicitly, or a later reader deletes the "pointless"
+   seeding and silently converts it into a test that passes either way. Keep
+   the contrast with prior behaviour to 1-2 sentences, with no duplicated
+   phrasing and no ambiguous reused terms. Move full audit-trail evidence
+   (what was tested, what confirmed the bug, links to the investigation) to a
+   separate durable doc, never inline, where it outlives its usefulness and
+   clutters the code it is attached to.
+   The one-sentence rule is usually not available when you start — it emerges
+   after several rounds of someone asking "but why would anyone write that?",
+   each round stripping a layer that turns out not to be load-bearing. Writing
+   long first is not waste; shipping the long draft is. Treat compression as
+   its own pass, triggered by the moment you *can* answer "so what must I not
+   do?" in one line — which is exactly when the comment feels finished and is
+   least likely to be revisited.
+   Two mechanical checks, applied per comment rather than by recalling this
+   rule: after writing any comment longer than about two lines, ask (a) does
+   this restate what the signature or name already conveys — if yes, cut it
+   entirely rather than trimming it, since a shorter restatement is still a
+   restatement; and (b) does the last sentence justify a decision rather than
+   state a fact — if yes, cut that sentence. Both were violated in one file on
+   2026-09-15 while this rule was live and on-topic in the session.
+   Principle 6 is Principle 1 applied specifically to code comments — read
+   together, not as unrelated rules.
+   _(added 2026-08-25; trigger broadened and invariant-first ordering added
+   2026-09-15, from `reopened-code-comments-short-before-after-not-verbose-audit-trail`
+   and `lead-a-test-comment-with-the-invariant-it-enforces`)_
 
 7. **Externalize non-fresh content out of the mandatory-read path; leave a
    one-line pointer.**
@@ -138,11 +165,26 @@ independent of whether that documentation happens to describe code.
     duplicates before considering a fix done.
 
 12. **Default decision-dense technical documents to bolded-label point
-    form, chosen by structure not document type.**
+    form, chosen by structure not document type — and prose wins only where
+    the argument is one indivisible movement.**
     Default decision/change-dense technical documents in general — not only
     PR descriptions or review comments — to bolded-label point form when the
     content is structurally a list of discrete points; choose format by the
     content's actual structure, not by document type or length.
+    The carve-out for connected narrative is narrower than it reads. An
+    explanation is not structureless just because it flows: it has parts with
+    distinct jobs — **the rule** a reader must follow, **the justification**
+    for it, **the mechanics** of the thing described, **the caveat** that
+    stops someone undoing it — and a reader who needs only the rule should not
+    have to read the justification to discover that. So label the parts even
+    where it reads as narrative, and reserve unlabelled prose for an argument
+    that genuinely cannot be divided. The deciding diagnostic is not how
+    narrative it feels: **can a reader who needs only one part find it without
+    reading the others?** On 2026-09-15 this rule was consulted, found
+    inapplicable under the old carve-out, and a test comment grew to 29 lines
+    of prose that then had to be restructured on request.
+    _(added 2026-08-26; carve-out narrowed 2026-09-15, from
+    `reopened-pr-review-comments-bolded-point-form-over-prose`)_
 
 13. **Do one full linear read-through after several rounds of incremental
     edits, before finishing.**
@@ -446,6 +488,108 @@ independent of whether that documentation happens to describe code.
     is exactly the point; the deciding question is whether a consistency
     invariant spans the files or not.
     _(added 2026-09-15, from `validate-every-edit-before-writing-any-of-them`)_
+
+35. **A structural fix applies to every sibling artifact, not the one instance
+    that was pointed at.**
+    When a fix is structural — a format, a convention, an ordering, a label
+    scheme — the unit of work is the set of artifacts sharing that convention,
+    not the instance raised. A file where one comment leads with its rule and
+    five narrate teaches *two* reading habits, so the improvement is invisible;
+    structural conventions only pay off once they are uniform, which makes a
+    partial application worse than none, because it reads as deliberate
+    variation. Before closing: enumerate the siblings mechanically (same file —
+    every comment block; same change — every doc it adds or edits, plus its own
+    description; same repo — every file of that genre); apply it to all of them
+    or state which you skipped and why, since "that one already has deliberate
+    structure" is a legitimate outcome when reported rather than silently
+    assumed; and check the artifacts describe each other consistently. The
+    cheap diagnostic: *if a reader saw only the instances I did not touch,
+    would they infer the convention?* This is the structural sibling of
+    principle 11, which propagates *content* corrections — do not conflate the
+    two sweeps: a content fix propagates by meaning and is swept with a grep
+    for the claim, a structural fix propagates by genre. Neither is licence to
+    reformat an untouched codebase; the scope is the change under discussion.
+    _(added 2026-09-15, from
+    `apply-a-structural-fix-to-every-sibling-in-the-same-pass`)_
+
+36. **In an actionable sentence, name the identifier, not the team's shorthand
+    for it.**
+    A comment or doc line that states something a reader must *do* has to use
+    the name as it appears in code or schema. A shorthand may accompany it,
+    bound explicitly on first use, but never replace it — "never filter by the
+    slot alone" cost a round of review because "slot" appeared nowhere in the
+    schema, the entity or the query, and the one line the comment existed to
+    deliver could not be acted on without guessing. The tell is that such
+    shorthand is nearly always coined in conversation and then written down as
+    though it were established vocabulary; nobody reading the file later was in
+    that conversation. Check every noun in an actionable sentence: if it is not
+    greppable in the codebase, either replace it with the thing that is, or
+    bind it once. Explanatory prose can use the shorthand freely after it is
+    bound — repeating a long identifier in every sentence is worse. This is
+    invisible to the author by construction: the word reads as precise to
+    everyone who has the context and vague to everyone who does not, and the
+    author is always in the first group, so rereading will not catch it.
+    _(added 2026-09-15, from
+    `bind-domain-shorthand-to-its-identifier-in-comments`)_
+
+37. **Open an explanatory document by declaring what it is, why it exists, and
+    who each part is for.**
+    A document written correctly section by section, in the order questions
+    arrived, ends up serving several readers with no signal about which parts
+    belong to whom — and its single most important sentence sitting in the last
+    section most readers never reach. Nothing in it is wrong; the reader simply
+    cannot see its intention, only its contents. Open with three things before
+    any content: **what this is**, one sentence plus when to read it; **why it
+    exists**, the mistake it prevents, concretely, which is what stops a
+    maintainer deleting it as redundant; and **what is here**, a table routing
+    by reader intent ("I want to learn the model / understand this feature /
+    change this code safely") rather than by topic. Then lift the load-bearing
+    sentences above the fold — the one or two lines that leave a reader better
+    off if they stop there; in a long document these are almost never already
+    at the top, because they accumulate wherever the question that produced
+    them was answered. The general diagnostic, for a document or a comment:
+    **can a reader who needs one part find it without reading the others?**
+    Under roughly four sections a router costs more than it saves — the heading
+    list already is one. This is a *structure* pass, not a rewrite: group and
+    route the sections that exist rather than re-prosing them, and add the
+    router above the headings rather than renaming them, since renaming breaks
+    inbound links (generate the anchors with the real GFM algorithm per
+    principle 26 and assert each resolves — hand-typed ones were wrong twice in
+    one session). It needs its own trigger because the structure only becomes
+    necessary *after* the document is long, and by then every section looks
+    finished, so nothing prompts a review: when a doc passes about eight
+    sections or picks up a second audience, stop and route it.
+    _(added 2026-09-15, from `declare-a-document-intention-and-route-its-reader`)_
+
+38. **A rule with no discrete moment to fire needs a mechanical gate, not
+    better wording.**
+    The dominant failure in this pack is not a badly-worded principle; it is a
+    correct, always-on, on-topic principle that is never *consulted*, because
+    obeying it would mean interrupting the middle of writing an unrelated
+    sentence. On 2026-09-15 a reference-reachability rule — always-on, specific,
+    unambiguous — was violated five times across three files in one change,
+    each violation a trailing clause of a sentence that was about something
+    else; a fact-correction sweep was skipped because a two-file fix "feels
+    like an edit, not a sweep"; and a comment-brevity rule was violated while
+    live and squarely on topic. Rewording none of them would have helped.
+    So when a rule's natural failure mode is being skipped rather than
+    misunderstood, give it (a) an **entry condition** that fires on the small
+    case — "the moment you change a factual claim in any durable document,
+    however few files you are touching" — rather than leaving it to feel
+    campaign-sized, and (b) a **mechanical check at a point where the whole
+    diff is visible at once**, which is normally just before committing.
+    Two that earn their keep, run as real steps rather than recalled
+    principles: grep the diff for private-path and unresolvable-reference
+    patterns (a personal notes root, "see the earlier discussion", a local
+    defect register) before committing to a shared repo; and, when a factual
+    claim changed, grep its distinctive text across **every store** the project
+    keeps — naming them explicitly, because a sweep that does not name its
+    stores silently inherits the current directory as its scope — driven to
+    zero hits, with the zero-hit command recorded in the commit so an unrun
+    sweep is visible by its absence.
+    _(added 2026-09-15, from `reopened-every-reference-must-resolve-for-the-reader`,
+    `reopened-documentation-fact-correction-sweep-skill` and the second
+    occurrence in `reopened-code-comments-short-before-after-not-verbose-audit-trail`)_
 
 ## Priority
 

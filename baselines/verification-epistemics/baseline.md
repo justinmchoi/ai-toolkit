@@ -1,7 +1,7 @@
 # Verification Epistemics Baseline
 
 Status: active
-Version: 0.12.0
+Version: 0.13.0
 
 Always-on discipline for a recurring failure mode: treating an inherited,
 paraphrased, or confidently-stated claim as verified fact without checking it
@@ -1021,6 +1021,66 @@ producing a wrong conclusion that direct verification would have caught.
     authorisation was given conditionally ("merge it after verifying your own
     changes"), the gate *is* the condition — run it and report it.
     _(added 2026-09-15, from `verification-gate-for-unattended-autonomous-runs`)_
+
+98. A checker scoped to one source cannot certify a consumer fed by several,
+    and more generally a check that *cannot* fail is not a check.
+    A clean result means "nothing I was able to look for is wrong", which is a
+    far weaker claim than it reads as — and the output format is identical
+    either way. Three shapes of the same defect, all on 2026-09-15: a drift
+    checker that enumerates its own toolkit's `baselines/` reported clean while
+    nine duplicated blocks owned by a *second* toolkit sat in the same three
+    files at the same tier, because they were never candidates; `git log --all
+    --not origin/main | grep <bad value>` was quoted as "every branch is clean"
+    when `--not origin/main` excludes `origin/main` by construction, and the
+    one bad commit was on `main`; and a propagation sweep that reads each
+    project's `CLAUDE.md` reported one project needing work while every
+    `AGENTS.md` and `.github/copilot-instructions.md` in the same tree sat at
+    the oldest version present, having survived every prior sweep for the same
+    reason. None of the three commands was wrong; each answered a narrower
+    question than the one being asked of it, and each reported a *number*,
+    which is arithmetic over an incomplete domain. So: name the region the
+    claim covers, then read the command back and ask whether that region is
+    inside what it scanned — if a flag, an ignore file or a path filter removes
+    it, the command is answering a different question. Prefer an audit whose
+    scope is defined by what is being checked rather than by what the checker
+    knows about: enumerate the consumer's own inventory (every `BEGIN` marker
+    in every instruction file) and account for each entry, which is
+    source-agnostic by construction. Run every source's checker, not just the
+    one whose repo you are standing in, and say whose checker produced a
+    number. The degenerate case is worth naming separately: a query against a
+    target that does not exist can report healthy inheritance and zero local
+    state, which is byte-for-byte what a correct result looks like — assert the
+    target exists first, and prefer a check that fails *differently* for
+    "correct" and "absent".
+    _(added 2026-09-15, from
+    `a-per-source-checker-reports-clean-on-another-sources-content` and the
+    verification half of `powershell-variable-names-are-case-insensitive`)_
+
+99. Call a tool's own validators to build or check data for it, instead of
+    reimplementing its schema from the documentation.
+    When a write format is validated by the tool's own code rather than merely
+    described in its docs, and that code is installed and importable locally,
+    construct and verify through the real functions — especially for any field
+    computed by a hash or other exact algorithm, where a transcribed
+    implementation fails silently and byte-wise. Cheap, and it removes the
+    whole transcription-error class. Only applies when the implementation is
+    actually available locally; for a pure network API with no local library,
+    the schema docs are all there is.
+    _(added 2026-09-15, from
+    `use-tool-native-validators-not-schema-transcription`)_
+
+100. Read a third-party tool's actual source before installing it, in
+     proportion to what it is allowed to touch.
+     For anything that gets write access to real data or executes with real
+     permissions — an agent plugin, a skill bundle, a hook — read the source
+     for every network call site, how secrets are sourced, what write-safety
+     model it uses (atomic? rollback? create-only?), and whether it has any
+     explicit handling for untrusted input. A polished PRIVACY.md or
+     SECURITY.md is a claim, not evidence; on the occasion this was written
+     from, the claims all checked out, and the checking is what earned the
+     trust. Scales with blast radius — a read-only utility holding no secrets
+     does not need it.
+     _(added 2026-09-15, from `vet-third-party-ai-tool-source-before-install`)_
 
 ## Priority
 
