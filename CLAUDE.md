@@ -102,6 +102,10 @@ that loops and names other skills but belongs to no flow.
 
 - **A pack's version lives in four places** — `pack.json`, `baseline.md`'s `Version:` line, and the
   marker in every adapter. Change one, change all four; `doctor` fails otherwise.
+- **Edit packs with `scripts/baselines/pack_edit.py <repo-root> <edits.json>`**, not by hand. It
+  asserts every replacement matched its expected count *before* writing anything, then bumps all
+  four version places together. A partially-applied multi-file edit is the one failure `doctor`
+  exists to catch and the one a hand edit most easily creates.
 - **The three full adapters are byte-identical by convention.** Make one edit and copy it three
   ways, never three separate edits.
 - **Core / full split.** An always-on pack may ship `adapters/CLAUDE.md.core.block` (slim, under ~15
